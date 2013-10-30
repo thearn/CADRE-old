@@ -1,6 +1,5 @@
 import csv
-import numpy
- as np
+import numpy as np
 import pylab
 
 f = open("CADRE.csv", "rb")
