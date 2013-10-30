@@ -9,7 +9,7 @@ from openmdao.main.api import Assembly, set_as_top
 from openmdao.util.testutil import assert_rel_error
 
 from CADRE import CADRE
-
+import os
 
 # Ignore the numerical warnings from performing the rel error calc.
 warnings.simplefilter("ignore")
@@ -18,7 +18,8 @@ warnings.simplefilter("ignore")
 idx = '0'
 
 setd = {}
-data = pickle.load(open("src/CADRE/test/data1346.pkl", 'rb'))
+fpath = os.path.dirname(os.path.realpath(__file__))
+data = pickle.load(open(fpath + "/data1346.pkl", 'rb'))
 
 for key in data.keys():
     if key[0] == idx or not key[0].isdigit():

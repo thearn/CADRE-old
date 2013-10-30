@@ -57,6 +57,7 @@ class CADRE_Optimization(Assembly):
                           1.19745345, -0.96035904])]
 
         for i in xrange(npts):
+            i_ = str(i)
             aname = ''.join(["pt", str(i)])
             self.add(aname, CADRE(n, m, solar_raw1, solar_raw2,
                                   comm_raw, power_raw))
@@ -68,20 +69,34 @@ class CADRE_Optimization(Assembly):
 
             # add parameters to driver
             print "adding parameter: CP_Isetpt.."
+            self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0.2, high=0.4)
+
+            """
             for k in xrange(12):
                 for j in xrange(m):
                     param = ''.join(["pt", str(i), ".CP_Isetpt[", str(k), "][",
                                      str(j), "]"])
                     self.driver.add_parameter(param, low=0.2, high=0.4)
+            """
+
             print "adding parameter: CP_gamma.."
+            self.driver.add_parameter("pt%s.CP_gamma" % i_, low=np.pi / 4,
+                                      high=np.pi / 2.)
+            """
             for k in xrange(m):
                 param = ''.join(["pt", str(i), ".CP_gamma[", str(k), "]"])
                 self.driver.add_parameter(param, low=np.pi / 4,
                                           high=np.pi / 2.)
+            """
+
             print "adding parameter: CP_comm.."
+            self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0.1, high=25.)
+
+            """
             for k in xrange(m):
                 param = ''.join(["pt", str(i), ".CP_P_comm[", str(k), "]"])
                 self.driver.add_parameter(param, low=0.1, high=25.)
+            """
 
             param = ''.join(["pt", str(i), ".iSOC[0]"])
             self.driver.add_parameter(param, low=0.2, high=1.)
@@ -106,11 +121,16 @@ class CADRE_Optimization(Assembly):
         # add rest of parameters to driver
 
         print "adding constraint: Cellinstd..."
+        cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
+        self.driver.add_parameter(cell_param, low=0, high=1)
+
+        """
         for i in xrange(7):
             for k in xrange(12):
                 param = [''.join(["pt", str(j), ".cellInstd[", str(i),
                                   "][", str(k), "]"]) for j in xrange(npts)]
                 self.driver.add_parameter(param, low=0, high=1)
+        """
 
         finangles = ["pt" + str(i) + ".finAngle" for i in xrange(npts)]
         antangles = ["pt" + str(i) + ".antAngle" for i in xrange(npts)]
