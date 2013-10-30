@@ -16,7 +16,8 @@ class CADRE_Optimization(Assembly):
         self.add("driver", pyopt_driver.pyOptDriver())
         self.driver.optimizer = "SNOPT"
         self.driver.options = {'Major optimality tolerance': 1e-8,
-                               'Iterations limit': 500000000}
+                               'Iterations limit': 500000000,
+                               "New basis file" : 10}
 
         #self.add("driver", CONMINdriver())
 
@@ -121,16 +122,14 @@ class CADRE_Optimization(Assembly):
         # add rest of parameters to driver
 
         print "adding constraint: Cellinstd..."
-        cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
-        self.driver.add_parameter(cell_param, low=0, high=1)
+        #cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
+        #self.driver.add_parameter(cell_param, low=0, high=1)
 
-        """
         for i in xrange(7):
             for k in xrange(12):
                 param = [''.join(["pt", str(j), ".cellInstd[", str(i),
                                   "][", str(k), "]"]) for j in xrange(npts)]
                 self.driver.add_parameter(param, low=0, high=1)
-        """
 
         finangles = ["pt" + str(i) + ".finAngle" for i in xrange(npts)]
         antangles = ["pt" + str(i) + ".antAngle" for i in xrange(npts)]
