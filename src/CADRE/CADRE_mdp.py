@@ -17,7 +17,7 @@ class CADRE_Optimization(Assembly):
         self.driver.optimizer = "SNOPT"
         self.driver.options = {'Major optimality tolerance': 1e-8,
                                'Iterations limit': 500000000,
-                               "New basis file" : 10}
+                               "New basis file": 10}
 
         #self.add("driver", CONMINdriver())
 

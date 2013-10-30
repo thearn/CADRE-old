@@ -38,7 +38,9 @@ for row in reader:
 
 
 Z = np.array(Z)
-
+if not len(Z):
+    print "no data yet..."
+    quit()
 
 pylab.subplot(311)
 pylab.title("total data")
