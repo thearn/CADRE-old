@@ -1,0 +1,6 @@
+graft src/CADRE/sphinx_build/html
+recursive-include src/CADRE/test *.py
+recursive-include src/CADRE/data *.txt
+recursive-include src/CADRE/data *.dat
+recursive-include src/CADRE/data *.f90
+recursive-include src/CADRE/data *.py
