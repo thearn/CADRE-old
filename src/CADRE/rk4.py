@@ -246,10 +246,6 @@ class RK4(Component):
             result[svar] = result_ext
 
     def applyMinv(self, arg, result):
-        # print self,"applyMinv"
-        # print self.reverse_name_map.keys()
-        # print result.keys()
-        # print
         res1 = dict([(self.reverse_name_map[k], v)
                      for k, v in result.iteritems()])
         state = self.state_var
@@ -263,10 +259,6 @@ class RK4(Component):
 
     def applyMinvT(self, arg, result):
         """Apply derivatives with respect to state variables."""
-        # print self,"applyMinvT"
-        # print self.reverse_name_map.keys()
-        # print result.keys()
-        # print
         res1 = dict([(self.reverse_name_map[k], v)
                      for k, v in result.iteritems()])
 
@@ -349,8 +341,7 @@ class RK4(Component):
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
-        # print "apply_deriv",self
-        #r1 = self.applyJintT(arg, result)
+
         r2 = self._applyJextT(arg, result)
 
         for k, v in r2.iteritems():

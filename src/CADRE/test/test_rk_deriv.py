@@ -118,17 +118,12 @@ class Testcase_RK_deriv(unittest.TestCase):
         Jn = wflow.calc_gradient(inputs=inputs,
                                  outputs=outputs,
                                  mode="fd")
-        print Jn
-        print '\n'
 
         # Analytic forward
         self.model.driver.update_parameters()
         wflow.config_changed()
         Jf = wflow.calc_gradient(inputs=inputs,
                                  outputs=outputs)
-
-        print Jf
-        print '\n'
 
         diff = abs(Jf - Jn)
         assert_rel_error(self, diff.max(), 0.0, 1e-5)
@@ -139,8 +134,6 @@ class Testcase_RK_deriv(unittest.TestCase):
         Ja = wflow.calc_gradient(inputs=inputs,
                                  outputs=outputs,
                                  mode='adjoint')
-
-        print Ja
 
         diff = abs(Ja - Jn)
         assert_rel_error(self, diff.max(), 0.0, 1e-5)
