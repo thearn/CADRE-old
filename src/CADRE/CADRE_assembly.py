@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from openmdao.main.api import Assembly, Component
@@ -21,8 +20,6 @@ from .sun import Sun_LOS, Sun_PositionBody, Sun_PositionECI, Sun_PositionSpheric
 from .thermal_temperature import ThermalTemperature
 from .power import Power_CellVoltage, Power_SolarPower, Power_Total
 
-# rk4 components:
-#Comm_DataDownloaded, BatterySOC, ThermalTemperature, Orbit_Dynamics
 import time
 
 
@@ -239,51 +236,6 @@ class CADRE(Assembly):
                     unconnected_inputs.append(fullname)
         return unconnected_inputs
 
-    def print_set_vals(self, setvals=None, printvals=None, tval=None):
-        vals = []
-        defaults = ['itername', 'force_execute', 'directory', 'exec_count',
-                    'derivative_exec_count', 'fixed_external_vars']
-        for compname in self.list_components() + ['self']:
-            if compname == "driver":
-                continue
-            if compname == 'self':
-                comp = self
-            else:
-                comp = self.get(compname)
-            for var in comp.list_inputs():
-                if var in defaults:
-                    continue
-                if setvals:
-                    try:
-                        val = comp.set(var, setvals[var])
-                        print "setting:", comp, var
-                    except (RuntimeError, KeyError):
-                        # print "error setting inp:",var, compname
-                        pass
-                val = comp.get(var)
-                data = [var, val, compname, "in"]
-                vals.append(data)
-            for var in comp.list_outputs():
-                if var in defaults:
-                    continue
-                val = comp.get(var)
-                data = [var, val, compname, "out"]
-                vals.append(data)
-
-        vals.sort(key=lambda x: x[3], reverse=True)
-        vals.sort(key=lambda x: x[0])
-
-        for v in vals:
-            if printvals:
-                if v[0] == printvals:
-                    print v[0], v[2], v[3]
-                    if isinstance(tval, np.ndarray):
-                        print "rel error:", np.linalg.norm(tval - v[1]) / np.linalg.norm(tval)
-                    else:
-                        print "rel error", np.abs(tval - v[1]) / tval
-            else:
-                print v[0]
-
     def make_connections(self):
         """
         Collects the names of all input and output variables for all
@@ -334,29 +286,3 @@ class CADRE(Assembly):
                 for compname in inputs[varname]:
                     topath = '.'.join([compname, varname])
                     self.connect(frompath, topath)
-                    # print "Connecting", frompath, "to", topath, "..."
-        """
-        print
-        print "Unconnected inputs:"
-        for i in self.get_unconnected_inputs():
-            print i
-        """
-
-
-class debug(Component):
-
-    Data = Array(iotype='in')
-
-    t = Float(time.time(), iotype="out")
-
-    def execute(self):
-        print "indiv. data:", self.Data[0, -1], time.time() - self.t
-        self.t = time.time()
-
-
-    # def provideJ(self):
-    #    return ['Data'], ['t'], np.array([0.])
-
-if __name__ == "__main__":
-    a = CADRE()
-    a.print_vals()
