@@ -42,7 +42,6 @@ class RK4(Component):
 
     def initialize(self):
         """Set up dimensions and other data structures."""
-
         self.y = self.get(self.state_var)
         self.y0 = self.get(self.init_state_var)
 
@@ -245,7 +244,7 @@ class RK4(Component):
         else:
             result[svar] = result_ext
 
-    def applyMinv(self, arg, result):
+    def _applyMinv(self, arg, result):
         res1 = dict([(self.reverse_name_map[k], v)
                      for k, v in result.iteritems()])
         state = self.state_var
@@ -257,16 +256,17 @@ class RK4(Component):
         res1 = dict([(self.name_map[k], v) for k, v in res1.iteritems()])
         return res1
 
-    def applyMinvT(self, arg, result):
+    def _applyMinvT(self, arg, result):
         """Apply derivatives with respect to state variables."""
         res1 = result.copy()
 
         if self.state_var in arg:
             flat_y = arg[self.state_var].flatten()
-            res1[self.state_var] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
+            res1[self.state_var] = self.Minv(
+                flat_y, 'T').reshape((self.n_states, self.n))
 
         return res1
-    
+
     def _applyJint(self, arg, result):
         """Apply derivatives with respect to state variables."""
 
