@@ -18,6 +18,8 @@ class CADRE_Optimization(Assembly):
         self.driver.options = {'Major optimality tolerance': 1e-8,
                                'Iterations limit': 500000000,
                                "New basis file": 10}
+        if os.path.exists("fort.10"):
+            self.driver.options["Old basis file"] = 10
 
         #self.add("driver", CONMINdriver())
 
@@ -91,7 +93,7 @@ class CADRE_Optimization(Assembly):
             """
 
             print "adding parameter: CP_comm.."
-            self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0.1, high=25.)
+            self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
 
             """
             for k in xrange(m):
