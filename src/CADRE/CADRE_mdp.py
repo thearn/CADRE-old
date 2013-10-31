@@ -70,7 +70,7 @@ class CADRE_Optimization(Assembly):
 
             # add parameters to driver
             print "adding parameter: CP_Isetpt.."
-            self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0.2, high=0.4)
+            self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
 
             """
             for k in xrange(12):
@@ -81,7 +81,7 @@ class CADRE_Optimization(Assembly):
             """
 
             print "adding parameter: CP_gamma.."
-            self.driver.add_parameter("pt%s.CP_gamma" % i_, low=np.pi / 4,
+            self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
                                       high=np.pi / 2.)
             """
             for k in xrange(m):
