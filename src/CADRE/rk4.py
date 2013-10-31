@@ -259,17 +259,14 @@ class RK4(Component):
 
     def applyMinvT(self, arg, result):
         """Apply derivatives with respect to state variables."""
-        res1 = dict([(self.reverse_name_map[k], v)
-                     for k, v in result.iteritems()])
+        res1 = result.copy()
 
         if self.state_var in arg:
             flat_y = arg[self.state_var].flatten()
-            res1['y'] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
+            res1[self.state_var] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
 
-        res1 = dict([(self.name_map[k], v)
-                     for k, v in res1.iteritems()])
         return res1
-
+    
     def _applyJint(self, arg, result):
         """Apply derivatives with respect to state variables."""
 

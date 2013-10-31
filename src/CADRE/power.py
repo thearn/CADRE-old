@@ -93,32 +93,37 @@ class Power_CellVoltage(Component):
 
     def apply_deriv(self, arg, result):
 
-        if 'LOS' in arg:
-            result['V_sol'] += self.dV_dL.T * arg['LOS']
-
-        if 'temperature' in arg:
-            for p in range(12):
-                i = 4 if p < 4 else (p % 4)
-                result['V_sol'][p,:] += self.dV_dT[:, p, i] * arg['temperature'][i,:]
-
-        if 'Isetpt' in arg:
-            result['V_sol'] += self.dV_dI.T * arg['Isetpt']
-
-        if 'exposedArea' in arg:
-            for p in range(12):
-                result['V_sol'][p,:] += \
-                 np.sum(self.dV_dA[:,:, p] * arg['exposedArea'][:, p,:].T, 1)
+        if 'V_sol' in result:
+            if 'LOS' in arg:
+                result['V_sol'] += self.dV_dL.T * arg['LOS']
+    
+            if 'temperature' in arg:
+                for p in range(12):
+                    i = 4 if p < 4 else (p % 4)
+                    result['V_sol'][p,:] += self.dV_dT[:, p, i] * arg['temperature'][i,:]
+    
+            if 'Isetpt' in arg:
+                result['V_sol'] += self.dV_dI.T * arg['Isetpt']
+    
+            if 'exposedArea' in arg:
+                for p in range(12):
+                    result['V_sol'][p,:] += \
+                     np.sum(self.dV_dA[:,:, p] * arg['exposedArea'][:, p,:].T, 1)
 
     def apply_derivT(self, arg, result):
 
         if 'V_sol' in arg:
             for p in range(12):
                 i = 4 if p < 4 else (p % 4)
-                result['LOS'] += self.dV_dL[:, p] * arg['V_sol'][p,:]
-                result['temperature'][i,:] += self.dV_dT[:, p, i] * arg['V_sol'][p,:]
-                result['Isetpt'][p,:] += self.dV_dI[:, p] * arg['V_sol'][p,:]
-                for c in range(7):
-                    result['exposedArea'][c, p,:] += self.dV_dA[:, c, p] * arg['V_sol'][p,:]
+                if 'LOS' in result:
+                    result['LOS'] += self.dV_dL[:, p] * arg['V_sol'][p,:]
+                if 'temperature' in result:
+                    result['temperature'][i,:] += self.dV_dT[:, p, i] * arg['V_sol'][p,:]
+                if 'Isetpt' in result:
+                    result['Isetpt'][p,:] += self.dV_dI[:, p] * arg['V_sol'][p,:]
+                if 'exposedArea' in result:
+                    for c in range(7):
+                        result['exposedArea'][c, p,:] += self.dV_dA[:, c, p] * arg['V_sol'][p,:]
 
 
 class Power_SolarPower(Component):
@@ -151,20 +156,23 @@ class Power_SolarPower(Component):
 
     def apply_deriv(self, arg, result):
 
-        if 'V_sol' in arg:
-            for p in range(12):
-                result['P_sol'] += arg['V_sol'][p,:] * self.Isetpt[p,:]
-
-        if 'Isetpt' in arg:
-            for p in range(12):
-                result['P_sol'] += arg['Isetpt'][p,:] * self.V_sol[p,:]
+        if 'P_sol' in result:
+            if 'V_sol' in arg:
+                for p in range(12):
+                    result['P_sol'] += arg['V_sol'][p,:] * self.Isetpt[p,:]
+    
+            if 'Isetpt' in arg:
+                for p in range(12):
+                    result['P_sol'] += arg['Isetpt'][p,:] * self.V_sol[p,:]
 
     def apply_derivT(self, arg, result):
 
         if 'P_sol' in arg:
             for p in range(12):
-                result['V_sol'][p,:] += arg['P_sol'] * self.Isetpt[p,:]
-                result['Isetpt'][p,:] += self.V_sol[p,:] * arg['P_sol']
+                if 'V_sol' in result:
+                    result['V_sol'][p,:] += arg['P_sol'] * self.Isetpt[p,:]
+                if 'Isetpt' in result:
+                    result['Isetpt'][p,:] += self.V_sol[p,:] * arg['P_sol']
 
 
 class Power_Total(Component):
@@ -211,7 +219,11 @@ class Power_Total(Component):
     def apply_derivT(self, arg, result):
 
         if 'P_bat' in arg:
-            result['P_sol'] += arg['P_bat'][:]
-            result['P_comm'] -= 5 * arg['P_bat']
-            for k in range(3):
-                result['P_RW'][k,:] -= arg['P_bat']
+            if 'P_sol' in result:
+                result['P_sol'] += arg['P_bat'][:]
+            if 'P_comm' in result:
+                result['P_comm'] -= 5 * arg['P_bat']
+            if 'P_RW' in result:
+                for k in range(3):
+                    result['P_RW'][k,:] -= arg['P_bat']
+                
