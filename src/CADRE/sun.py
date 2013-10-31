@@ -124,8 +124,10 @@ class Sun_LOS( Component ):
         if 'LOS' in arg:
             LOS = arg['LOS']
 
-            result['r_e2b_I'] += self.JbT.dot(LOS).reshape((6,self.n),order='F')
-            result['r_e2s_I'] += self.JsT.dot(LOS).reshape((3,self.n),order='F')
+            if 'r_e2b_I' in result:
+                result['r_e2b_I'] += self.JbT.dot(LOS).reshape((6,self.n),order='F')
+            if 'r_e2s_I' in result:
+                result['r_e2s_I'] += self.JsT.dot(LOS).reshape((3,self.n),order='F')
 
 def crossMatrix(v):
 
@@ -174,11 +176,14 @@ class Sun_PositionBody( Component ):
 
         if 'r_e2s_B' in arg:
             for k in range(3):
-                for u in range(3):
-                    for v in range(3):
-                        result['O_BI'][u,v,:] += self.J1[:,k,u,v] * arg['r_e2s_B'][k,:]
-                for j in range(3):
-                    result['r_e2s_I'][j,:] += self.J2[:,k,j] * arg['r_e2s_B'][k,:]
+                
+                if 'O_BI' in result:
+                    for u in range(3):
+                        for v in range(3):
+                            result['O_BI'][u,v,:] += self.J1[:,k,u,v] * arg['r_e2s_B'][k,:]
+                if 'r_e2s_I' in result:
+                    for j in range(3):
+                        result['r_e2s_I'][j,:] += self.J2[:,k,j] * arg['r_e2s_B'][k,:]
 
 
 class Sun_PositionECI( Component ):
@@ -301,11 +306,11 @@ class Sun_PositionSpherical(Component):
 
     def apply_derivT(self, arg, result):
 
-        if 'azimuth' in arg:
+        if 'azimuth' in arg and 'r_e2s_B' in result:
             azimuth = arg['azimuth'][:]
             result['r_e2s_B'][:] += self.J1T.dot(azimuth).reshape((3,self.n), order='F')
 
-        if 'elevation' in arg:
+        if 'elevation' in arg and 'r_e2s_B' in result:
             elevation = arg['elevation'][:]
             result['r_e2s_B'][:] += self.J2T.dot(elevation).reshape((3,self.n), order='F')
 
