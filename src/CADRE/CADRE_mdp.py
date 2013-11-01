@@ -23,11 +23,6 @@ class CADRE_Optimization(Assembly):
 
         #self.add("driver", CONMINdriver())
 
-        # specify ground station
-        self.add("lon", Float(-83.7264, iotype="in"))
-        self.add("lat", Float(42.2708, iotype="in"))
-        self.add("alt", Float(0.256, iotype="in"))
-
         # Raw data to load
         fpath = os.path.dirname(os.path.realpath(__file__))
         solar_raw1 = np.genfromtxt(fpath + '/data/Solar/Area10.txt')
@@ -64,9 +59,6 @@ class CADRE_Optimization(Assembly):
             aname = ''.join(["pt", str(i)])
             self.add(aname, CADRE(n, m, solar_raw1, solar_raw2,
                                   comm_raw, power_raw))
-            self.connect("alt", "pt%s.alt" % str(i))
-            self.connect("lon", "pt%s.lon" % str(i))
-            self.connect("lat", "pt%s.lat" % str(i))
             self.get(aname).set("LD", LDs[i])
             self.get(aname).set("r_e2b_I0", r_e2b_I0s[i])
 
@@ -74,32 +66,12 @@ class CADRE_Optimization(Assembly):
             print "adding parameter: CP_Isetpt.."
             self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
 
-            """
-            for k in xrange(12):
-                for j in xrange(m):
-                    param = ''.join(["pt", str(i), ".CP_Isetpt[", str(k), "][",
-                                     str(j), "]"])
-                    self.driver.add_parameter(param, low=0.2, high=0.4)
-            """
-
             print "adding parameter: CP_gamma.."
             self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
                                       high=np.pi / 2.)
-            """
-            for k in xrange(m):
-                param = ''.join(["pt", str(i), ".CP_gamma[", str(k), "]"])
-                self.driver.add_parameter(param, low=np.pi / 4,
-                                          high=np.pi / 2.)
-            """
 
             print "adding parameter: CP_comm.."
             self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
-
-            """
-            for k in xrange(m):
-                param = ''.join(["pt", str(i), ".CP_P_comm[", str(k), "]"])
-                self.driver.add_parameter(param, low=0.1, high=25.)
-            """
 
             param = ''.join(["pt", str(i), ".iSOC[0]"])
             self.driver.add_parameter(param, low=0.2, high=1.)
