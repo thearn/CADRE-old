@@ -205,7 +205,7 @@ class Comm_AntRotationMtx(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'q_A' in arg:
+        if 'q_A' in arg and 'O_AB' in result:
             for u in xrange(3):
                 for v in xrange(3):
                     for k in xrange(4):
@@ -215,7 +215,7 @@ class Comm_AntRotationMtx(Component):
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'O_AB' in arg:
+        if 'O_AB' in arg and 'q_A' in result:
             for u in range(3):
                 for v in range(3):
                     for k in range(4):
@@ -742,13 +742,15 @@ class Comm_GSposECI(Component):
 
         if 'r_e2g_I' in arg:
             for k in xrange(3):
-                for u in xrange(3):
-                    for v in xrange(3):
-                        result['O_IE'][u, v,:] += self.J1[:, k, u, v] * \
+                if 'O_IE' in result:
+                    for u in xrange(3):
+                        for v in xrange(3):
+                            result['O_IE'][u, v,:] += self.J1[:, k, u, v] * \
+                                                       arg['r_e2g_I'][k,:]
+                if 'r_e2g_E' in result:
+                    for j in xrange(3):
+                        result['r_e2g_E'][j,:] += self.J2[:, k, j] * \
                                                    arg['r_e2g_I'][k,:]
-                for j in xrange(3):
-                    result['r_e2g_E'][j,:] += self.J2[:, k, j] * \
-                                               arg['r_e2g_I'][k,:]
 
 
 class Comm_LOS(Component):

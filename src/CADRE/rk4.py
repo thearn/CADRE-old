@@ -266,7 +266,7 @@ class RK4(Component):
         #return result
 
 
-    def zapplyMinvT(self, arg, result): 
+    def applyMinvT(self, arg, result): 
         """Apply derivatives with respect to state variables."""
 
         state = self.state_var
@@ -348,11 +348,11 @@ class RK4(Component):
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        mode = 'Ken'
+        mode = 'John'
         
         if mode=='Ken':
             
-            r2 = self._applyJextT(arg, result)
+            r2 = self._applyJextT_limited(arg, result)
         
             for k, v in r2.iteritems():
                 if k in result and result[k] is not None:
@@ -362,7 +362,7 @@ class RK4(Component):
 
         elif mode=='John':
             
-            r2 = self._applyJextT_extern_only(arg, result)
+            r2 = self._applyJextT(arg, result)
             r1 = self.applyJintT(arg, result)
     
             for k, v in r2.iteritems():
@@ -392,6 +392,62 @@ class RK4(Component):
         return result
 
     def _applyJextT(self, arg, required_results):
+        """Apply derivatives with respect to inputs. Ignore all contributions
+        from past time points, and let them come in via previous states 
+        instead."""
+        
+        #Jx --> (n_times, n_external, n_states)
+        n_time = self.n
+        result = {}
+
+        if self.state_var in arg:
+
+            argsv = arg[self.state_var].T
+            argsum = np.zeros(argsv.shape)
+            
+            # Use this when we incorporate state deriv          
+            # Time-varying inputs
+            for name in self.external_vars:
+
+                if name not in required_results:
+                    continue
+
+                ext_var = getattr(self, name)
+                i_ext = self.ext_index_map[name]
+                ext_length = np.prod(ext_var.shape)/n_time
+                result[name] = np.zeros((ext_length, n_time))
+                for k in xrange(n_time-1):
+                    
+                    # argsum is often sparse, so check it first
+                    if len(np.nonzero(argsv[k+1, :])[0]) > 0:
+                        Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
+                        result[name][:, k] += Jsub.dot(argsv[k+1, :])
+            
+            # Use this when we incorporate state deriv          
+            # Time-invariant inputs
+            for name in self.fixed_external_vars:
+
+                if name not in required_results:
+                    continue
+
+                ext_var = getattr(self, name)
+                i_ext = self.ext_index_map[name]
+                ext_length = np.prod(ext_var.shape)
+                result[name] = np.zeros((ext_length))
+                for k in xrange(n_time-1):
+                    
+                    # argsum is often sparse, so check it first
+                    if len(np.nonzero(argsv[k+1, :])[0]) > 0:
+                        Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
+                        result[name] += Jsub.dot(argsv[k+1, :])
+            
+        for k, v in result.iteritems():
+            ext_var = getattr(self, k)
+            result[k] = v.reshape(ext_var.shape)
+
+        return result
+
+    def _applyJextT_limited(self, arg, required_results):
         """Apply derivatives with respect to inputs"""
 
         # Jx --> (n_times, n_external, n_states)
@@ -451,58 +507,3 @@ class RK4(Component):
 
         return result
     
-    def _applyJextT_extern_only(self, arg, required_results):
-        """Apply derivatives with respect to inputs. Ignore all contributions
-        from past time points, and let them come in via previous states 
-        instead."""
-        
-        #Jx --> (n_times, n_external, n_states)
-        n_time = self.n
-        result = {}
-
-        if self.state_var in arg:
-
-            argsv = arg[self.state_var].T
-            argsum = np.zeros(argsv.shape)
-            
-            # Use this when we incorporate state deriv          
-            # Time-varying inputs
-            for name in self.external_vars:
-
-                if name not in required_results:
-                    continue
-
-                ext_var = getattr(self, name)
-                i_ext = self.ext_index_map[name]
-                ext_length = np.prod(ext_var.shape)/n_time
-                result[name] = np.zeros((ext_length, n_time))
-                for k in xrange(n_time-1):
-                    
-                    # argsum is often sparse, so check it first
-                    if len(np.nonzero(argsv[k+1, :])[0]) > 0:
-                        Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
-                        result[name][:, k] += Jsub.dot(argsv[k+1, :])
-            
-            # Use this when we incorporate state deriv          
-            # Time-invariant inputs
-            for name in self.fixed_external_vars:
-
-                if name not in required_results:
-                    continue
-
-                ext_var = getattr(self, name)
-                i_ext = self.ext_index_map[name]
-                ext_length = np.prod(ext_var.shape)
-                result[name] = np.zeros((ext_length))
-                for k in xrange(n_time-1):
-                    
-                    # argsum is often sparse, so check it first
-                    if len(np.nonzero(argsv[k+1, :])[0]) > 0:
-                        Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
-                        result[name] += Jsub.dot(argsv[k+1, :])
-            
-        for k, v in result.iteritems():
-            ext_var = getattr(self, k)
-            result[k] = v.reshape(ext_var.shape)
-
-        return result
