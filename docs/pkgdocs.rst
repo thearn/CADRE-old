@@ -21,7 +21,7 @@ Package Metadata
     CADRE.comm.Comm_GainPattern=CADRE.comm:Comm_GainPattern
     CADRE.attitude.Attitude_Attitude=CADRE.attitude:Attitude_Attitude
     CADRE.comm.Comm_VectorECI=CADRE.comm:Comm_VectorECI
-    CADRE.attitude.Attitude_RotationMtxRates=CADRE.attitude:Attitude_RotationMtxRates
+    CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
     CADRE.comm.Comm_BitRate=CADRE.comm:Comm_BitRate
     CADRE.orbit.Orbit_Initial=CADRE.orbit:Orbit_Initial
     CADRE.reactionwheel.ReactionWheel_Torque=CADRE.reactionwheel:ReactionWheel_Torque
@@ -39,7 +39,7 @@ Package Metadata
     CADRE.attitude.Attitude_Torque=CADRE.attitude:Attitude_Torque
     CADRE.battery.BatteryConstraints=CADRE.battery:BatteryConstraints
     CADRE.power.Power_CellVoltage=CADRE.power:Power_CellVoltage
-    CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
+    CADRE.attitude.Attitude_RotationMtxRates=CADRE.attitude:Attitude_RotationMtxRates
     CADRE.battery.BatteryPower=CADRE.battery:BatteryPower
     CADRE.rk4.RK4=CADRE.rk4:RK4
     CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
@@ -65,7 +65,7 @@ Package Metadata
     CADRE.comm.Comm_GainPattern=CADRE.comm:Comm_GainPattern
     CADRE.attitude.Attitude_Attitude=CADRE.attitude:Attitude_Attitude
     CADRE.comm.Comm_VectorECI=CADRE.comm:Comm_VectorECI
-    CADRE.attitude.Attitude_RotationMtxRates=CADRE.attitude:Attitude_RotationMtxRates
+    CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
     CADRE.comm.Comm_BitRate=CADRE.comm:Comm_BitRate
     CADRE.orbit.Orbit_Initial=CADRE.orbit:Orbit_Initial
     CADRE.reactionwheel.ReactionWheel_Torque=CADRE.reactionwheel:ReactionWheel_Torque
@@ -83,7 +83,7 @@ Package Metadata
     CADRE.attitude.Attitude_Torque=CADRE.attitude:Attitude_Torque
     CADRE.battery.BatteryConstraints=CADRE.battery:BatteryConstraints
     CADRE.power.Power_CellVoltage=CADRE.power:Power_CellVoltage
-    CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
+    CADRE.attitude.Attitude_RotationMtxRates=CADRE.attitude:Attitude_RotationMtxRates
     CADRE.battery.BatteryPower=CADRE.battery:BatteryPower
     CADRE.rk4.RK4=CADRE.rk4:RK4
     CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
