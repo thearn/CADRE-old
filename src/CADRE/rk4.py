@@ -403,7 +403,6 @@ class RK4(Component):
         if self.state_var in arg:
 
             argsv = arg[self.state_var].T
-            argsum = np.zeros(argsv.shape)
             
             # Use this when we incorporate state deriv          
             # Time-varying inputs
