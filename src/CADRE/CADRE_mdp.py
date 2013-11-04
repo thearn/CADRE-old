@@ -15,7 +15,7 @@ class CADRE_Optimization(Assembly):
         # add SNOPT driver
         self.add("driver", pyopt_driver.pyOptDriver())
         self.driver.optimizer = "SNOPT"
-        self.driver.options = {'Major optimality tolerance': 1e-8,
+        self.driver.options = {'Major optimality tolerance': 1e-4,
                                'Iterations limit': 500000000,
                                "New basis file": 10}
         if os.path.exists("fort.10"):
@@ -63,15 +63,28 @@ class CADRE_Optimization(Assembly):
             self.get(aname).set("r_e2b_I0", r_e2b_I0s[i])
 
             # add parameters to driver
-            print "adding parameter: CP_Isetpt.."
-            self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
+            # print "adding parameter: CP_Isetpt.."
+            #self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
 
-            print "adding parameter: CP_gamma.."
-            self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
-                                      high=np.pi / 2.)
+            for k in xrange(12):
+                for j in xrange(m):
+                    param = ''.join(["pt", str(i), ".CP_Isetpt[", str(k), "][",
+                                     str(j), "]"])
+                    self.driver.add_parameter(param, low=0., high=0.4)
 
-            print "adding parameter: CP_comm.."
-            self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
+            # print "adding parameter: CP_gamma.."
+            # self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
+            #                          high=np.pi / 2.)
+            for k in xrange(m):
+                param = ''.join(["pt", str(i), ".CP_gamma[", str(k), "]"])
+                self.driver.add_parameter(param, low=0.,
+                                          high=np.pi / 2.)
+
+            # print "adding parameter: CP_comm.."
+            #self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
+            for k in xrange(m):
+                param = ''.join(["pt", str(i), ".CP_P_comm[", str(k), "]"])
+                self.driver.add_parameter(param, low=0.0, high=25.)
 
             param = ''.join(["pt", str(i), ".iSOC[0]"])
             self.driver.add_parameter(param, low=0.2, high=1.)
