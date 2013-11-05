@@ -266,7 +266,7 @@ class RK4(Component):
         #return result
 
 
-    def applyMinvT(self, arg, result): 
+    def DISABLED_applyMinvT(self, arg, result): 
         """Apply derivatives with respect to state variables."""
 
         state = self.state_var
@@ -348,7 +348,7 @@ class RK4(Component):
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        mode = 'John'
+        mode = 'Ken'
         
         if mode=='Ken':
             
@@ -376,6 +376,7 @@ class RK4(Component):
                 
         else:
             raise RuntimeError('Pick Ken or John')
+        
 
     def applyJintT(self, arg, required_results):
         """Apply derivatives with respect to state variables."""
