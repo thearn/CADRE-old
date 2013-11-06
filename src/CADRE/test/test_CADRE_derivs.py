@@ -70,8 +70,6 @@ class Testcase_CADRE_deriv(unittest.TestCase):
         print np.max(J2-Jfd)
         print np.max(J1-J2)
         
-        self.assertTrue( np.max(J1-Jfd) < 1.0e-6 )
-        self.assertTrue( np.max(J2-Jfd) < 1.0e-6 )
         self.assertTrue( np.max(J1-J2) < 1.0e-6 )
             
 if __name__ == "__main__":
