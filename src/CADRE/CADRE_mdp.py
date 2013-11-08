@@ -32,11 +32,13 @@ class CADRE_Optimization(Assembly):
             (361, 361), order='F')
         power_raw = np.genfromtxt(fpath + '/data/Power/curve.dat')
 
-        # Initialize analysis points
-
+        # Load launch data
         launch_data = np.loadtxt(fpath + "/data/Launch/launch1.dat")
 
+        # orbit position and velocity data for each design point
         r_e2b_I0s = launch_data[1::2, 1:]
+
+        # number of days since launch for each design point
         LDs = launch_data[1::2, 0] - 2451545
 
         # LDs = [5233.5, 5294.5, 5356.5, 5417.5, 5478.5, 5537.5]
@@ -59,6 +61,7 @@ class CADRE_Optimization(Assembly):
         #                  [-690.314375, -1081.78239, -6762.90367,  7.44316722,
         #                   1.19745345, -0.96035904])]
 
+        # build design points
         for i in xrange(npts):
             i_ = str(i)
             aname = ''.join(["pt", str(i)])
