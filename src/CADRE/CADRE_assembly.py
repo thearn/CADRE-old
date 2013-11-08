@@ -62,9 +62,11 @@ class CADRE(Assembly):
 
         # State parameters (?)
         self.add("LD", Float(5000., iotype="in"))
-        self.add("lon", Float(-83.7264, iotype="in"))
         self.add("lat", Float(42.2708, iotype="in"))
+        self.add("lon", Float(-83.7264, iotype="in"))
         self.add("alt", Float(0.256, iotype="in"))
+        # McMurdo station: -77.85, 166.666667
+        # Ann Arbor: 42.2708, -83.7264
 
         self.add('r_e2b_I0', Array(np.zeros((6,)), size=(6,), iotype="in",
                                    dtype=np.float))
