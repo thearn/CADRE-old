@@ -3,6 +3,10 @@ import numpy as np
 import pylab
 import pygmaps
 
+"""
+Must install pygamps-extended first: https://github.com/thearn/pygmaps-extended
+"""
+
 data = pickle.load(open("src/CADRE/test/data1346.pkl"))
 savedir = "docs/maps"
 
