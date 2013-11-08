@@ -63,20 +63,17 @@ class CADRE_Optimization(Assembly):
             self.get(aname).set("r_e2b_I0", r_e2b_I0s[i])
 
             # add parameters to driver
-            print "adding parameter: CP_Isetpt.."
             self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
 
-            print "adding parameter: CP_gamma.."
             self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
                                       high=np.pi / 2.)
 
-            print "adding parameter: CP_comm.."
             self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
 
             param = ''.join(["pt", str(i), ".iSOC[0]"])
             self.driver.add_parameter(param, low=0.2, high=1.)
 
-            # add battery constraints
+            # add constraints
             constr = ''.join(["pt", str(i), ".ConCh <= 0"])
             self.driver.add_constraint(constr)
 
@@ -93,17 +90,8 @@ class CADRE_Optimization(Assembly):
                               str(i), ".SOC[0][-1]"])
             self.driver.add_constraint(constr)
 
-        # add rest of parameters to driver
-
-        print "adding constraint: Cellinstd..."
-        #cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
-        #self.driver.add_parameter(cell_param, low=0, high=1)
-
-        for i in xrange(7):
-            for k in xrange(12):
-                param = [''.join(["pt", str(j), ".cellInstd[", str(i),
-                                  "][", str(k), "]"]) for j in xrange(npts)]
-                self.driver.add_parameter(param, low=0, high=1)
+        cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
+        self.driver.add_parameter(cell_param, low=0, high=1)
 
         finangles = ["pt" + str(i) + ".finAngle" for i in xrange(npts)]
         antangles = ["pt" + str(i) + ".antAngle" for i in xrange(npts)]
