@@ -24,8 +24,8 @@ def calc_lat_lon(r_e2b_I, O_IE):
     r2d = 180 / np.pi
     rgs = 6378.137
     lats, lons = [], []
-
-    for i in xrange(1500):
+    n = r_e2b_I.shape[1]
+    for i in xrange(n):
 
         r_e2g_I = r_e2b_I[:3, i]
         r_e2g_I = r_e2g_I / np.linalg.norm(r_e2g_I) * rgs
@@ -41,6 +41,12 @@ def calc_lat_lon(r_e2b_I, O_IE):
 mxdata = max([max(data["%s:Dr" % str(i)]) for i in xrange(6)])
 
 gmap_all = pygmaps.gmap(41, -88, 2)
+
+#[0,0,1] = 90,0
+#[0,1,0] = 0,90
+#[1,0,0] = 0,0
+#[-1, 0, 0] = 0,180
+
 for i in xrange(6):
     si = str(i)
     dr = data[si + ":Dr"]
@@ -70,14 +76,14 @@ for i in xrange(6):
 
     pylab.gcf().savefig(savedir + "/" + si + '.png', bbox_inches='tight')
 
-    gmap = pygmaps.gmap(41, -88, 2)
     O_IE = data["%s:O_IE" % si]
+
+    gmap = pygmaps.gmap(41, -88, 2)
     r_e2b_I = data["%s:r_e2b_I" % si]
 
     lats, lons = calc_lat_lon(r_e2b_I, O_IE)
 
     path = zip(lats, lons)
-
     gmap.add_weighted_path(path, dr, scale=mxdata)
     gmap_all.add_weighted_path(path, dr, scale=mxdata)
     gmap.draw(savedir + "/" + si + '_data.html')
