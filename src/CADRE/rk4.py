@@ -343,6 +343,15 @@ class RK4(Component):
                 J_arg = Jsub.T.dot(arg[name])
                 result[:, j+1:n_time] += np.tile(J_arg, (n_time-j-1, 1)).T
 
+        # Initial State
+        name = self.init_state_var
+        if name in arg:
+
+            # take advantage of fact that arg is often pretty sparse
+            if len(np.nonzero(arg[name])[0]) > 0:
+                for j in xrange(n_time):
+                    result[:, j] += arg[name]
+
         return result
 
     def apply_derivT(self, arg, result):
@@ -500,6 +509,11 @@ class RK4(Component):
                     if len(np.nonzero(argsum[k, :])[0]) > 0:
                         Jsub = self.Jx[k + 1, i_ext:i_ext + ext_length, :]
                         result[name] += Jsub.dot(argsum[k, :])
+                        
+            # Initial State
+            name = self.init_state_var
+            if name in required_results:
+                result[self.init_state_var] = argsv[0, :] + argsum[0, :]
 
         for k, v in result.iteritems():
             ext_var = getattr(self, k)
