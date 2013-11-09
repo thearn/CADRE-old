@@ -11,7 +11,6 @@ from openmdao.main.datatypes.api import Float, Array, Int
 from comm import Comm_EarthsSpin, Comm_EarthsSpinMtx
 from orbit import Orbit_Initial, Orbit_Dynamics
 from scipy.stats import kurtosis
-import sys
 
 
 class Uniformity(Component):
@@ -28,12 +27,11 @@ class Uniformity(Component):
 
     def execute(self):
         self.k = (kurtosis(self.sample.flatten()) + 6. / 5) ** 2
-        sys.stdout.flush()
 
 
 class GroundLOC(Component):
 
-    """ Gives the lat and lon location of a satellite
+    """ Gives the lat and lon location of the ground beneath a satellite
     """
     Re = 6378.137
     r2d = 180 / np.pi
@@ -59,7 +57,15 @@ class GroundLOC(Component):
 
 class CADRE_Launch(Assembly):
 
-    """ Optimization of the launch parameters of CADRE
+    """ Allows for analysis of the launch parameters of CADRE.
+
+        Considers multiple launch parameters and their effects on
+        coverage of the Earth's thermosphere.
+
+        Ultimately, a launch that provides the most uniform sampling is
+        favorable, which is expected to be given by a polar orbit
+        (Inclination near 90). Other launch parameters are probably not
+        very useful in comparison.
     """
 
     def __init__(self, n=200):
@@ -138,9 +144,8 @@ if __name__ == "__main__":
     a.add('driver', SLSQPdriver())
     a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
     a.driver.add_parameter(
-        "Orbit_Initial.altPerigee", low=500, high=1000)
-    a.driver.add_parameter(
-        "Orbit_Initial.altApogee", low=500, high=1000)
+        ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
+        low=500, high=1000)
     a.driver.add_parameter(
         "Orbit_Initial.RAAN", low=-180, high=180)
     a.driver.add_parameter(
@@ -163,24 +168,17 @@ if __name__ == "__main__":
     print "without OpenMDAO optimizer:"
     a = CADRE_Launch()
     tt = time.time()
-    c1 = lambda x: x[0] - 500
-    c2 = lambda x: 1000 - x[0]
-    c3 = lambda x: x[1] - 500
-    c4 = lambda x: 1000 - x[1]
-    c5 = lambda x: x[2] + 180
-    c6 = lambda x: 180 - x[2]
-    c7 = lambda x: x[3]
-    c8 = lambda x: 90 - x[3]
 
     def f(orbit):
         a.Orbit_Initial.altPerigee = orbit[0]
-        a.Orbit_Initial.altApogee = orbit[1]
-        a.Orbit_Initial.RAAN = orbit[2]
-        a.Orbit_Initial.Inc = orbit[3]
+        a.Orbit_Initial.altApogee = orbit[0]
+        a.Orbit_Initial.RAAN = orbit[1]
+        a.Orbit_Initial.Inc = orbit[2]
         a.run()
         return a.Lat_uniform.k + a.Lon_uniform.k
-    fmin_slsqp(f, [600, 600, 0, 45], ieqcons=[
-               c1, c2, c3, c4, c5, c6, c7, c8], iprint=1)
+    fmin_slsqp(f, [600, 0, 45], bounds=[
+               (500, 1000), (-180, 180), (0, 90)],
+               iprint=1)
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
     print "min/max lats:", min(l1), max(l1)
     print "min/max lons:", min(l2), max(l2)
