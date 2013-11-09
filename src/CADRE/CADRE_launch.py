@@ -62,7 +62,7 @@ class CADRE_Launch(Assembly):
     """ Optimization of the launch parameters of CADRE
     """
 
-    def __init__(self, n=500):
+    def __init__(self, n=200):
 
         super(CADRE_Launch, self).__init__()
 
@@ -132,6 +132,8 @@ class CADRE_Launch(Assembly):
 if __name__ == "__main__":
     import time
     from scipy.optimize import fmin, fmin_slsqp
+    print 30 * "-"
+    print "with OpenMDAO optimizer:"
     a = CADRE_Launch()
     a.add('driver', SLSQPdriver())
     a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
@@ -146,12 +148,11 @@ if __name__ == "__main__":
     a.driver.add_parameter(
         "Orbit_Initial.argPerigee", low=0, high=90)
     tt = time.time()
-    print 30 * "-"
-    print "with OpenMDAO optimizer:"
+    a.run()
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
     print "min/max lats:", min(l1), max(l1)
     print "min/max lons:", min(l2), max(l2)
-    print "\n"
+    print "objective:", a.Lat_uniform.k + a.Lon_uniform.k
     print(a.Orbit_Initial.altPerigee,
           a.Orbit_Initial.altApogee,
           a.Orbit_Initial.RAAN,
@@ -178,11 +179,12 @@ if __name__ == "__main__":
         a.Orbit_Initial.Inc = orbit[3]
         a.run()
         return a.Lat_uniform.k + a.Lon_uniform.k
-    fmin_slsqp(f, [600, 600, 0, 45], ieqcons=[c1, c2, c3, c4, c5, c6, c7, c8])
+    fmin_slsqp(f, [600, 600, 0, 45], ieqcons=[
+               c1, c2, c3, c4, c5, c6, c7, c8], iprint=1)
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
     print "min/max lats:", min(l1), max(l1)
     print "min/max lons:", min(l2), max(l2)
-    print "\n"
+    print "objective:", a.Lat_uniform.k + a.Lon_uniform.k
     print(a.Orbit_Initial.altPerigee,
           a.Orbit_Initial.altApogee,
           a.Orbit_Initial.RAAN,
