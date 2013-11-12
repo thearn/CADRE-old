@@ -245,13 +245,13 @@ class Testcase_CADRE_assembly(unittest.TestCase):
 
         self.compare(compname, inputs, outputs)
 
-    def test_Attitude_Sideslip(self):
+    # def test_Attitude_Sideslip(self):
 
-        compname = 'Attitude_Sideslip'
-        inputs = ['r_e2b_I', 'O_BI']
-        outputs = ['v_e2b_B']
+    #     compname = 'Attitude_Sideslip'
+    #     inputs = ['r_e2b_I', 'O_BI']
+    #     outputs = ['v_e2b_B']
 
-        self.compare(compname, inputs, outputs)
+    #     self.compare(compname, inputs, outputs)
 
     def test_Attitude_Torque(self):
 
@@ -323,13 +323,13 @@ class Testcase_CADRE_assembly(unittest.TestCase):
 
         self.compare(compname, inputs, outputs)
 
-    def test_ReactionWheel_Motor(self):
+    # def test_ReactionWheel_Motor(self):
 
-        compname = 'ReactionWheel_Motor'
-        inputs = ['T_RW', 'w_B', 'w_RW']
-        outputs = ['T_m']
+    #     compname = 'ReactionWheel_Motor'
+    #     inputs = ['T_RW', 'w_B', 'w_RW']
+    #     outputs = ['T_m']
 
-        self.compare(compname, inputs, outputs)
+    #     self.compare(compname, inputs, outputs)
 
     def test_ReactionWheel_Dynamics(self):
 
