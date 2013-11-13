@@ -241,6 +241,19 @@ speeds.py
    :show-inheritance:
 
         
+.. index:: test_CADRE_derivs.py
+
+.. _CADRE.test.test_CADRE_derivs.py:
+
+test_CADRE_derivs.py
+--------------------
+
+.. automodule:: CADRE.test.test_CADRE_derivs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+        
 .. index:: test_assembly.py
 
 .. _CADRE.test.test_assembly.py:
