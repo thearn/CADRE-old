@@ -1,13 +1,11 @@
-from CADRE import CADRE_Optimization
+from CADRE.CADRE_assembly import CADRE
 import networkx as nx
 import numpy as np
 import pprint
 
-assembly = CADRE_Optimization(150, 100)
-assembly.run()
-graph = assembly.pt0.driver.workflow._derivative_graph
+assembly = CADRE(150, 100)
 
-#graph = assembly.driver.workflow._derivative_graph
+graph = assembly._depgraph
 
 defaults = ["derivative_exec_count", "directory", "itername", "exec_count",
             "force_execute", "driver"]
@@ -24,4 +22,4 @@ for node in remove:
 
 ag = nx.to_agraph(graph)
 ag.layout('dot')
-ag.draw('design_deriv.pdf')
+ag.draw('design.pdf')
