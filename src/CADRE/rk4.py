@@ -383,6 +383,9 @@ class RK4(Component):
             if self.state_var in r1:
                 result[self.state_var] = r1[self.state_var]
                 
+            if self.init_state_var in r1:
+                result[self.init_state_var] = r1[self.init_state_var]
+                
         else:
             raise RuntimeError('Pick Ken or John')
         
@@ -392,10 +395,17 @@ class RK4(Component):
 
         result = {}
         state = self.state_var
+        init_state = self.init_state_var
         
-        if state in arg and state in required_results:
-            flat_y = arg[state].flatten()
-            result[state] = -self.JT.dot(flat_y).reshape((self.n_states, self.n))
+        if state in arg:
+            if state in required_results:
+                flat_y = arg[state].flatten()
+                result[state] = -self.JT.dot(flat_y).reshape((self.n_states, self.n))
+            
+                if init_state in required_results:
+                    result[init_state] = -result[state][:, 0]
+                    for j in xrange(1, self.n):
+                        result[init_state] -= result[state][:, j]
             
         #print self.J
         #print 'arg', arg, 'result', result
@@ -414,7 +424,7 @@ class RK4(Component):
 
             argsv = arg[self.state_var].T
             
-            # Use this when we incorporate state deriv          
+            # Use this when we incorporate state deriv
             # Time-varying inputs
             for name in self.external_vars:
 
@@ -513,7 +523,7 @@ class RK4(Component):
             # Initial State
             name = self.init_state_var
             if name in required_results:
-                result[self.init_state_var] = argsv[0, :] + argsum[0, :]
+                result[name] = argsv[0, :] + argsum[0, :]
 
         for k, v in result.iteritems():
             ext_var = getattr(self, k)
