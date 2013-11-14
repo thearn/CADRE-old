@@ -1,10 +1,16 @@
+''' Orbit discipline for CADRE '''
+
+import numpy as np
+
 from openmdao.lib.datatypes.api import Float, Array
 from openmdao.main.api import Component
-import numpy as np
 
 import rk4
 
+# Allow non-standard variable names for scientific calc
+# pylint: disable-msg=C0103
 
+# Constants
 mu = 398600.44
 Re = 6378.137
 J2 = 1.08264e-3
@@ -20,13 +26,14 @@ class Orbit_Dynamics(rk4.RK4):
 
     def __init__(self, n_times):
         super(Orbit_Dynamics, self).__init__()
-        #self.time_step = time_step
 
-        self.add('r_e2b_I', Array(1000*np.ones((6,n_times)), size=(6, n_times),
-            dtype=np.float, iotype="out"))
-
+        # Inputs
         self.add('r_e2b_I0', Array(np.zeros((6,)), size=(6,), iotype="in",
-            dtype=np.float))
+                                   dtype=np.float))
+
+        # Outputs
+        self.add('r_e2b_I', Array(1000*np.ones((6, n_times)), size=(6, n_times),
+                                  dtype=np.float, iotype="out"))
 
         self.state_var = 'r_e2b_I'
         self.init_state_var = 'r_e2b_I0'
@@ -38,6 +45,7 @@ class Orbit_Dynamics(rk4.RK4):
         x = state[0]
         y = state[1]
         z = state[2] if abs(state[2]) > 1e-15 else 1e-5
+        
         r = (x**2 + y**2 + z**2)**.5
 
         T2 = 1 - 5*z**2/r**2
@@ -49,7 +57,7 @@ class Orbit_Dynamics(rk4.RK4):
         f_dot = np.zeros((6,))
         f_dot[0:3] = state[3:]
         f_dot[3:] = state[0:3]*(C1/r**3 + C2/r**5*T2 + C3/r**7*T3 + C4/r**7*T4)
-        f_dot[5] += z*(C2/r**5*2 + C3/r**7*T3z + C4/r**7*T4z)
+        f_dot[5] += z*(2.0*C2/r**5 + C3/r**7*T3z + C4/r**7*T4z)
 
         return f_dot
 
@@ -58,6 +66,7 @@ class Orbit_Dynamics(rk4.RK4):
         x = state[0]
         y = state[1]
         z = state[2] if abs(state[2]) > 1e-15 else 1e-5
+        
         r = (x**2 + y**2 + z**2)**0.5
 
         T2 = 1 - 5*z**2/r**2
@@ -98,23 +107,23 @@ class Orbit_Dynamics(rk4.RK4):
 
         eye = np.identity(3)
 
-        dfdy = np.zeros((6,6))
-        dfdy[0:3,3:] += eye
+        dfdy = np.zeros((6, 6))
+        dfdy[0:3, 3:] += eye
 
-        dfdy[3:,:3] = dfdy[3:,:3] + eye*(C1/r**3 + C2/r**5*T2 + C3/r**7*T3 + C4/r**7*T4)
-        dfdy[3:,0] = dfdy[3:,0] + drdx*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
-        dfdy[3:,1] = dfdy[3:,1] + drdy*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
-        dfdy[3:,2] = dfdy[3:,2] + drdz*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
-        dfdy[3:,0] = dfdy[3:,0] + state[:3]*(C2/r**5*dT2_dx + C3/r**7*dT3_dx + C4/r**7*dT4_dx)
-        dfdy[3:,1] = dfdy[3:,1] + state[:3]*(C2/r**5*dT2_dy + C3/r**7*dT3_dy + C4/r**7*dT4_dy)
-        dfdy[3:,2] = dfdy[3:,2] + state[:3]*(C2/r**5*dT2_dz + C3/r**7*dT3_dz + C4/r**7*dT4_dz)
-        dfdy[5,0] = dfdy[5,0] + drdx*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
-        dfdy[5,1] = dfdy[5,1] + drdy*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
-        dfdy[5,2] = dfdy[5,2] + drdz*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
-        dfdy[5,0] = dfdy[5,0] + z*(C3/r**7*dT3z_dx + C4/r**7*dT4z_dx)
-        dfdy[5,1] = dfdy[5,1] + z*(C3/r**7*dT3z_dy + C4/r**7*dT4z_dy)
-        dfdy[5,2] = dfdy[5,2] + z*(C3/r**7*dT3z_dz + C4/r**7*dT4z_dz)
-        dfdy[5,2] = dfdy[5,2] + (C2/r**5*2 + C3/r**7*T3z + C4/r**7*T4z)
+        dfdy[3:, :3] = dfdy[3:, :3] + eye*(C1/r**3 + C2/r**5*T2 + C3/r**7*T3 + C4/r**7*T4)
+        dfdy[3:, 0] = dfdy[3:, 0] + drdx*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
+        dfdy[3:, 1] = dfdy[3:, 1] + drdy*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
+        dfdy[3:, 2] = dfdy[3:, 2] + drdz*state[:3]*(-3*C1/r**4 - 5*C2/r**6*T2 - 7*C3/r**8*T3 - 7*C4/r**8*T4)
+        dfdy[3:, 0] = dfdy[3:, 0] + state[:3]*(C2/r**5*dT2_dx + C3/r**7*dT3_dx + C4/r**7*dT4_dx)
+        dfdy[3:, 1] = dfdy[3:, 1] + state[:3]*(C2/r**5*dT2_dy + C3/r**7*dT3_dy + C4/r**7*dT4_dy)
+        dfdy[3:, 2] = dfdy[3:, 2] + state[:3]*(C2/r**5*dT2_dz + C3/r**7*dT3_dz + C4/r**7*dT4_dz)
+        dfdy[5, 0] = dfdy[5, 0] + drdx*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
+        dfdy[5, 1] = dfdy[5, 1] + drdy*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
+        dfdy[5, 2] = dfdy[5, 2] + drdz*z*(-5*C2/r**6*2 - 7*C3/r**8*T3z - 7*C4/r**8*T4z)
+        dfdy[5, 0] = dfdy[5, 0] + z*(C3/r**7*dT3z_dx + C4/r**7*dT4z_dx)
+        dfdy[5, 1] = dfdy[5, 1] + z*(C3/r**7*dT3z_dy + C4/r**7*dT4z_dy)
+        dfdy[5, 2] = dfdy[5, 2] + z*(C3/r**7*dT3z_dz + C4/r**7*dT4z_dz)
+        dfdy[5, 2] = dfdy[5, 2] + (C2/r**5*2 + C3/r**7*T3z + C4/r**7*T4z)
 
 
         return dfdy
@@ -126,6 +135,7 @@ class Orbit_Dynamics(rk4.RK4):
 
 class Orbit_Initial(Component):
 
+    # Inputs
     altPerigee = Float(500., iotype="in", copy=None)
     altApogee = Float(500., iotype="in", copy=None)
     RAAN = Float(66.279, iotype="in", copy=None)
@@ -135,11 +145,15 @@ class Orbit_Initial(Component):
 
     def __init__(self):
         super(Orbit_Initial, self).__init__()
+        
+        #Outputs
         self.add('r_e2b_I0', Array(np.ones((6,)), size=(6,), dtype=np.float, iotype='out'))
 
     def compute(self, altPerigee, altApogee, RAAN, Inc, argPerigee, trueAnomaly):
-        Re=6378.137
-        mu=398600.44
+        ''' Compute position and velocity from orbital elements.'''
+        
+        Re = 6378.137
+        mu = 398600.44
 
         def S(v):
             S = np.zeros((3,3),complex)
@@ -148,8 +162,9 @@ class Orbit_Initial(Component):
             S[2,:] = [-v[1], v[0], 0]
             return S
 
-        def getRotation(axis,angle):
-            R = np.eye(3,dtype=complex) + S(axis)*np.sin(angle) + (1 - np.cos(angle)) * (np.outer(axis,axis) - np.eye(3,dtype=complex))
+        def getRotation(axis, angle):
+            R = np.eye(3,dtype=complex) + S(axis)*np.sin(angle) + \
+                (1 - np.cos(angle)) * (np.outer(axis, axis) - np.eye(3, dtype=complex))
             return R
 
         d2r = np.pi/180.0
@@ -169,17 +184,21 @@ class Orbit_Initial(Component):
         O_IP = np.dot(O_IP, getRotation(np.array([1,0,0]),Inc*d2r))
         O_IP = np.dot(O_IP, getRotation(np.array([0,0,1]),argPerigee*d2r))
 
-        r0_ECI = np.dot(O_IP,r0_P)
-        v0_ECI = np.dot(O_IP,v0_P)
+        r0_ECI = np.dot(O_IP, r0_P)
+        v0_ECI = np.dot(O_IP, v0_P)
 
         return r0_ECI, v0_ECI
 
     def linearize(self):
+        """ Calculate and save derivatives. (i.e., Jacobian) """
+
         h = 1e-16
-        ih = complex(0,h)
-        v = np.zeros(6,complex)
-        v[:] = [self.altPerigee, self.altApogee, self.RAAN, self.Inc, self.argPerigee, self.trueAnomaly]
+        ih = complex(0, h)
+        v = np.zeros(6, complex)
+        v[:] = [self.altPerigee, self.altApogee, self.RAAN, self.Inc,
+                self.argPerigee, self.trueAnomaly]
         self.J = np.zeros((6,6))
+
         for i in range(6):
             v[i] += ih
             r0_ECI, v0_ECI = self.compute(v[0], v[1], v[2], v[3], v[4], v[5])
@@ -188,45 +207,62 @@ class Orbit_Initial(Component):
             self.J[3:,i] = v0_ECI.imag/h
 
     def execute(self):
-        r0_ECI, v0_ECI = self.compute(self.altPerigee, self.altApogee, self.RAAN, self.Inc, self.argPerigee, self.trueAnomaly)
+        """ Calculate output. """
+
+        r0_ECI, v0_ECI = self.compute(self.altPerigee, self.altApogee,
+                                      self.RAAN, self.Inc, self.argPerigee,
+                                      self.trueAnomaly)
         self.r_e2b_I0[:3] = r0_ECI.real
         self.r_e2b_I0[3:] = v0_ECI.real
 
     def apply_deriv(self, arg, result):
+        """ Matrix-vector product with the Jacobian. """
 
         J = self.J
 
         if 'r_e2b_I0' in result:
-            result['r_e2b_I0'][:3] += J[:3,0]*arg['altPerigee'] + \
-                                      J[:3,1]*arg['altApogee'] + \
-                                      J[:3,2]*arg['RAAN'] + \
-                                      J[:3,3]*arg['Inc'] + \
-                                      J[:3,4]*arg['argPerigee'] + \
-                                      J[:3,5]*arg['trueAnomaly']
-            
-            result['r_e2b_I0'][3:] += J[3:,0]*arg['altPerigee'] + \
-                                      J[3:,1]*arg['altApogee'] + \
-                                      J[3:,2]*arg['RAAN'] + \
-                                      J[3:,3]*arg['Inc'] + \
-                                      J[3:,4]*arg['argPerigee'] + \
-                                      J[3:,5]*arg['trueAnomaly']
+            if 'altPerigee' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 0]*arg['altPerigee']
+                result['r_e2b_I0'][3:] += J[3:, 0]*arg['altPerigee']
+            if 'altApogee' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 1]*arg['altApogee']
+                result['r_e2b_I0'][3:] += J[3:, 1]*arg['altApogee']
+            if 'RAAN' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 2]*arg['RAAN']
+                result['r_e2b_I0'][3:] += J[3:, 2]*arg['RAAN']
+            if 'Inc' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 3]*arg['Inc']
+                result['r_e2b_I0'][3:] += J[3:, 3]*arg['Inc']
+            if 'argPerigee' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 4]*arg['argPerigee']
+                result['r_e2b_I0'][3:] += J[3:, 4]*arg['argPerigee']
+            if 'trueAnomaly' in arg:
+                result['r_e2b_I0'][:3] += J[:3, 5]*arg['trueAnomaly']
+                result['r_e2b_I0'][3:] += J[3:, 5]*arg['trueAnomaly']
 
 
     def apply_derivT(self, arg, result):
+        """ Matrix-vector product with the transpose of the Jacobian. """
 
         J = self.J
 
         if 'r_e2b_I0' in arg:
 
-            result['altPerigee'] += sum(J[:3,0]*arg['r_e2b_I0'][:3]) + \
-                                    sum(J[3:,0]*arg['r_e2b_I0'][3:])
-            result['altApogee'] += sum(J[:3,1]*arg['r_e2b_I0'][:3]) + \
-                                   sum(J[3:,1]*arg['r_e2b_I0'][3:])
-            result['RAAN'] += sum(J[:3,2]*arg['r_e2b_I0'][:3]) + \
-                              sum(J[3:,2]*arg['r_e2b_I0'][3:])
-            result['Inc'] += sum(J[:3,3]*arg['r_e2b_I0'][:3]) + \
-                             sum(J[3:,3]*arg['r_e2b_I0'][3:])
-            result['argPerigee'] += sum(J[:3,4]*arg['r_e2b_I0'][:3]) + \
-                                    sum(J[3:,4]*arg['r_e2b_I0'][3:])
-            result['trueAnomaly'] += sum(J[:3,5]*arg['r_e2b_I0'][:3]) + \
-                                     sum(J[3:,5]*arg['r_e2b_I0'][3:])
+            if 'altPerigee' in result:
+                result['altPerigee'] += sum(J[:3, 0]*arg['r_e2b_I0'][:3]) + \
+                                        sum(J[3:, 0]*arg['r_e2b_I0'][3:])
+            if 'altApogee' in result:
+                result['altApogee'] += sum(J[:3, 1]*arg['r_e2b_I0'][:3]) + \
+                                       sum(J[3:, 1]*arg['r_e2b_I0'][3:])
+            if 'RAAN' in result:
+                result['RAAN'] += sum(J[:3, 2]*arg['r_e2b_I0'][:3]) + \
+                                  sum(J[3:, 2]*arg['r_e2b_I0'][3:])
+            if 'Inc' in result:
+                result['Inc'] += sum(J[:3, 3]*arg['r_e2b_I0'][:3]) + \
+                                 sum(J[3:, 3]*arg['r_e2b_I0'][3:])
+            if 'argPerigee' in result:
+                result['argPerigee'] += sum(J[:3, 4]*arg['r_e2b_I0'][:3]) + \
+                                        sum(J[3:, 4]*arg['r_e2b_I0'][3:])
+            if 'trueAnomaly' in result:
+                result['trueAnomaly'] += sum(J[:3, 5]*arg['r_e2b_I0'][:3]) + \
+                                         sum(J[3:, 5]*arg['r_e2b_I0'][3:])
