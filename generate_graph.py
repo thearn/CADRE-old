@@ -5,7 +5,7 @@ import pprint
 
 assembly = CADRE(150, 100)
 
-graph = assembly._depgraph
+graph = assembly._depgraph.component_graph()
 
 defaults = ["derivative_exec_count", "directory", "itername", "exec_count",
             "force_execute", "driver"]
@@ -21,5 +21,13 @@ for node in remove:
     graph.remove_node(node)
 
 ag = nx.to_agraph(graph)
-ag.layout('dot')
-ag.draw('design.pdf')
+
+layouts = ["twopi", "gvcolor", "wc", "ccomps", "tred", "sccmap",
+           "fdp", "circo", "neato", "acyclic", "nop", "gvpr", 'dot', "sfdp"]
+
+for l in layouts:
+    try:
+        ag.layout(l)
+        ag.draw('design_%s.pdf' % l)
+    except IOError:
+        pass
