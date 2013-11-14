@@ -7,6 +7,8 @@ reader = csv.DictReader(f, skipinitialspace=True)
 
 X, Y, Z = [], [], []
 
+pcom = []
+
 for row in reader:
     data = [row["pt" + str(i) + ".Data[0][1499]"] for i in xrange(6)]
     sumdata = sum([float(i) for i in data if i])
@@ -32,16 +34,21 @@ for row in reader:
 
     X.append(sumdata), Y.append(sum(feasible)), Z.append(feasible)
 
+    pcom.append([float(row["pt5.CP_gamma[%s]" % str(i)])
+                for i in xrange(300)])
+
     # print sumdata, sum(feasible), max(feasible) #,[ '%.1f' % i for i in
     # feasible]
     print sumdata
 
+pylab.figure()
+pylab.plot(pcom[-1])
 
 Z = np.array(Z)
 if not len(Z):
     print "no data yet..."
     quit()
-
+pylab.figure()
 pylab.subplot(311)
 pylab.title("total data")
 pylab.plot(X, 'b')
