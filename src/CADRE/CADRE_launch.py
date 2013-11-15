@@ -195,7 +195,7 @@ class CADRE_Launch(Assembly):
 
         #self.add('driver', SLSQPdriver())
 
-        self.add('driver', CONMINdriver())
+        #self.add('driver', CONMINdriver())
 
         # Orbit components
         self.add("Orbit_Initial", Orbit_Initial())
@@ -230,17 +230,17 @@ class CADRE_Launch(Assembly):
         self.connect("GroundLOC.lats", "Lat_uniform.sample")
         self.connect("GroundLOC.lons", "Lon_uniform.sample")
 
-        self.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
-        self.driver.add_parameter(
-            "Orbit_Initial.altPerigee", low=500, high=1000)
-        self.driver.add_parameter(
-            "Orbit_Initial.altApogee", low=500, high=1000)
-        self.driver.add_parameter(
-            "Orbit_Initial.RAAN", low=-180, high=180)
-        self.driver.add_parameter(
-            "Orbit_Initial.Inc", low=0, high=90)
-        self.driver.add_parameter(
-            "Orbit_Initial.argPerigee", low=0, high=90)
+        #self.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
+        #self.driver.add_parameter(
+            #"Orbit_Initial.altPerigee", low=500, high=1000)
+        #self.driver.add_parameter(
+            #"Orbit_Initial.altApogee", low=500, high=1000)
+        #self.driver.add_parameter(
+            #"Orbit_Initial.RAAN", low=-180, high=180)
+        #self.driver.add_parameter(
+            #"Orbit_Initial.Inc", low=0, high=90)
+        #self.driver.add_parameter(
+            #"Orbit_Initial.argPerigee", low=0, high=90)
 
 if __name__ == "__main__":
     import time
@@ -249,20 +249,23 @@ if __name__ == "__main__":
     print "with OpenMDAO optimizer:"
     a = CADRE_Launch()
     #a.add('driver', SLSQPdriver())
-    #a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
-    #a.driver.add_parameter(
-    #    ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
-    #    low=500, high=1000)
-    #a.driver.add_parameter(
-    #    "Orbit_Initial.RAAN", low=-180, high=180)
-    #a.driver.add_parameter(
-    #    "Orbit_Initial.Inc", low=0, high=90)
-    #a.driver.add_parameter(
-    #    "Orbit_Initial.argPerigee", low=0, high=90)
+    a.add('driver', CONMINdriver())
+    a.driver.conmin_diff = True
+    a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
+    a.driver.add_parameter(
+        ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
+        low=500, high=1000)
+    a.driver.add_parameter(
+        "Orbit_Initial.RAAN", low=-180, high=180)
+    a.driver.add_parameter(
+        "Orbit_Initial.Inc", low=0, high=90)
+    a.driver.add_parameter(
+        "Orbit_Initial.argPerigee", low=0, high=90)
     tt = time.time()
     a.run()
-    a.driver.workflow.check_gradient(outputs=['Orbit_Dynamics.r_e2b_I'])
-    exit()
+    #outputs = ['Orbit_Dynamics.r_e2b_I']
+    outputs = None
+    a.driver.workflow.check_gradient(outputs=outputs)
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
     print "min/max lats:", min(l1), max(l1)
     print "min/max lons:", min(l2), max(l2)
@@ -274,6 +277,7 @@ if __name__ == "__main__":
           a.Orbit_Initial.argPerigee)
     print "Elapsed time: ", time.time() - tt, "seconds"
     print 30 * "-"
+
     print "without OpenMDAO optimizer:"
     a = CADRE_Launch()
     tt = time.time()
