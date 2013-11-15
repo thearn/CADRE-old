@@ -59,26 +59,30 @@ class Attitude_Angular(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_BI' in arg and 'Odot_BI' in arg and 'w_B' in result:
+        if 'w_B' in result:
             for k in xrange(3):
                 for i in xrange(3):
                     for j in xrange(3):
-                        result['w_B'][k,:] += self.dw_dO[:, k, i, j] * \
-                                               arg['O_BI'][i, j,:]
-                        result['w_B'][k,:] += self.dw_dOdot[:, k, i, j] * \
-                                               arg['Odot_BI'][i, j,:]
+                        if 'O_BI' in arg:
+                            result['w_B'][k,:] += self.dw_dO[:, k, i, j] * \
+                                                   arg['O_BI'][i, j,:]
+                        if 'Odot_BI' in arg:
+                            result['w_B'][k,:] += self.dw_dOdot[:, k, i, j] * \
+                                                   arg['Odot_BI'][i, j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'w_B' in arg and 'O_BI' in result and 'Odot_BI' in result:
+        if 'w_B' in arg:
             for k in xrange(3):
                 for i in xrange(3):
                     for j in xrange(3):
-                        result['O_BI'][i, j,:] += self.dw_dO[:, k, i, j] * \
-                                                   arg['w_B'][k,:]
-                        result['Odot_BI'][i, j,:] += self.dw_dOdot[:, k, i, j] * \
-                                                      arg['w_B'][k,:]
+                        if 'O_BI' in result:
+                            result['O_BI'][i, j,:] += self.dw_dO[:, k, i, j] * \
+                                                       arg['w_B'][k,:]
+                        if 'Odot_BI' in result:
+                            result['Odot_BI'][i, j,:] += self.dw_dOdot[:, k, i, j] * \
+                                                          arg['w_B'][k,:]
 
 
 class Attitude_AngularRates(Component):
@@ -381,26 +385,30 @@ class Attitude_RotationMtx(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_RI' in arg and 'O_BR' in arg and 'O_BI' in result:
+        if 'O_BI' in result:
             for u in xrange(3):
                 for v in xrange(3):
                     for k in xrange(3):
-                        result['O_BI'][u, v,:] += self.O_BR[u, k,:] * \
-                                                   arg['O_RI'][k, v,:]
-                        result['O_BI'][u, v,:] += arg['O_BR'][u, k,:] * \
-                                                   self.O_RI[k, v,:]
+                        if 'O_RI' in arg:
+                            result['O_BI'][u, v,:] += self.O_BR[u, k,:] * \
+                                                       arg['O_RI'][k, v,:]
+                        if 'O_BR' in arg:
+                            result['O_BI'][u, v,:] += arg['O_BR'][u, k,:] * \
+                                                       self.O_RI[k, v,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'O_BI' in arg and 'O_RI' in result and 'O_BR' in result:
+        if 'O_BI' in arg:
             for u in xrange(3):
                 for v in xrange(3):
                     for k in xrange(3):
-                        result['O_RI'][k, v,:] += self.O_BR[u, k,:] * \
-                                                   arg['O_BI'][u, v,:]
-                        result['O_BR'][u, k,:] += arg['O_BI'][u, v,:] * \
-                                                   self.O_RI[k, v,:]
+                        if 'O_RI' in result:
+                            result['O_RI'][k, v,:] += self.O_BR[u, k,:] * \
+                                                       arg['O_BI'][u, v,:]
+                        if 'O_BR' in result:
+                            result['O_BR'][u, k,:] += arg['O_BI'][u, v,:] * \
+                                                       self.O_RI[k, v,:]
 
 
 class Attitude_RotationMtxRates(Component):
@@ -509,28 +517,32 @@ class Attitude_Sideslip(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_BI' in arg and 'r_e2b_I' in arg and 'v_e2b_B' in result:
+        if 'v_e2b_B' in result:
             for k in xrange(3):
-                for u in xrange(3):
-                    for v in xrange(3):
-                        result['v_e2b_B'][k,:] += self.J1[:, k, u, v] * \
-                                                   arg['O_BI'][u, v,:]
-                for j in xrange(3):
-                    result['v_e2b_B'][k,:] += self.J2[:, k, j] * \
-                                               arg['r_e2b_I'][3+j,:]
+                if 'O_BI' in arg:
+                    for u in xrange(3):
+                        for v in xrange(3):
+                            result['v_e2b_B'][k,:] += self.J1[:, k, u, v] * \
+                                                       arg['O_BI'][u, v,:]
+                if 'r_e2b_I' in arg:
+                    for j in xrange(3):
+                        result['v_e2b_B'][k,:] += self.J2[:, k, j] * \
+                                                   arg['r_e2b_I'][3+j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'v_e2b_B' in arg and 'O_BI' in result and 'r_e2b_I' in result:
+        if 'v_e2b_B' in arg:
             for k in xrange(3):
-                for u in xrange(3):
-                    for v in xrange(3):
-                        result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
-                                                   arg['v_e2b_B'][k,:]
-                for j in xrange(3):
-                    result['r_e2b_I'][3+j,:] += self.J2[:, k, j] * \
-                                                 arg['v_e2b_B'][k,:]
+                if 'O_BI' in result:
+                    for u in xrange(3):
+                        for v in xrange(3):
+                            result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
+                                                       arg['v_e2b_B'][k,:]
+                if 'r_e2b_I' in result:
+                    for j in xrange(3):
+                        result['r_e2b_I'][3+j,:] += self.J2[:, k, j] * \
+                                                     arg['v_e2b_B'][k,:]
 
 
 class Attitude_Torque(Component):
@@ -601,21 +613,25 @@ class Attitude_Torque(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'w_B' in arg and 'wdot_B' in arg and 'T_tot' in result:
+        if 'T_tot' in result:
             for k in xrange(3):
                 for j in xrange(3):
-                    result['T_tot'][k,:] += self.dT_dw[:, k, j] * \
-                                             arg['w_B'][j,:]
-                    result['T_tot'][k,:] += self.dT_dwdot[:, k, j] * \
-                                             arg['wdot_B'][j,:]
+                    if 'w_B' in arg:
+                        result['T_tot'][k,:] += self.dT_dw[:, k, j] * \
+                                                 arg['w_B'][j,:]
+                    if 'wdot_B' in arg:
+                        result['T_tot'][k,:] += self.dT_dwdot[:, k, j] * \
+                                                 arg['wdot_B'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'T_tot' in arg and 'w_B' in result and 'wdot_B' in result:
+        if 'T_tot' in arg:
             for k in xrange(3):
                 for j in xrange(3):
-                    result['w_B'][j,:] += self.dT_dw[:, k, j] * \
-                                           arg['T_tot'][k,:]
-                    result['wdot_B'][j,:] += self.dT_dwdot[:, k, j] * \
-                                              arg['T_tot'][k,:]
+                    if 'w_B' in result:
+                        result['w_B'][j,:] += self.dT_dw[:, k, j] * \
+                                               arg['T_tot'][k,:]
+                    if 'wdot_B' in result:
+                        result['wdot_B'][j,:] += self.dT_dwdot[:, k, j] * \
+                                                  arg['T_tot'][k,:]
