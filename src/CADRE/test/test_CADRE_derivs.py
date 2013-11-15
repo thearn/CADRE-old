@@ -14,8 +14,8 @@ class Testcase_CADRE_deriv(unittest.TestCase):
 
     def test_RK4_issue(self):
 
-        n = 6
-        m = 2
+        n = 60
+        m = 20
 
         LDs = [5233.5, 5294.5, 5356.5, 5417.5, 5478.5, 5537.5]
 
@@ -52,26 +52,26 @@ class Testcase_CADRE_deriv(unittest.TestCase):
 
         J1 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='forward')
 
-        nn = len(top.pt.driver.workflow.res)
-        J = np.zeros([nn, nn])
-        arg = np.zeros((nn, ))
-        for j in range(nn):
-            arg[j] = 1.0
-            J[:, j] = top.pt.driver.workflow.matvecFWD(arg)
-            arg[j] = 0.0
+        #nn = len(top.pt.driver.workflow.res)
+        #J = np.zeros([nn, nn])
+        #arg = np.zeros((nn, ))
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #J[:, j] = top.pt.driver.workflow.matvecFWD(arg)
+            #arg[j] = 0.0
             
         top.pt.driver.workflow.config_changed()
         J2 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='adjoint')
 
-        Jt = np.zeros([nn, nn])
-        for j in range(nn):
-            arg[j] = 1.0
-            Jt[:, j] = top.pt.driver.workflow.matvecREV(arg)
-            arg[j] = 0.0
+        #Jt = np.zeros([nn, nn])
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #Jt[:, j] = top.pt.driver.workflow.matvecREV(arg)
+            #arg[j] = 0.0
         
-        print J
-        print Jt.T
-        print J-Jt.T
+        #print J
+        #print Jt.T
+        #print J-Jt.T
         
         top.pt.driver.workflow.config_changed()
         Jfd = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='fd')
@@ -80,9 +80,9 @@ class Testcase_CADRE_deriv(unittest.TestCase):
         #print np.nonzero(J1)
         #print np.nonzero(J2)
         #print np.nonzero(Jfd)
-        print J1
-        print J2
-        print Jfd
+        #print J1
+        #print J2
+        #print Jfd
         print np.max(J1-Jfd)
         print np.max(J2-Jfd)
         print np.max(J1-J2)
