@@ -408,7 +408,7 @@ class RK4(Component):
                         result[init_state] -= result[state][:, j]
             
         #print self.J
-        #print 'arg', arg, 'result', result
+        print 'arg', arg, 'result', result
         return result
 
     def _applyJextT(self, arg, required_results):
@@ -463,7 +463,7 @@ class RK4(Component):
         for k, v in result.iteritems():
             ext_var = getattr(self, k)
             result[k] = v.reshape(ext_var.shape)
-
+        
         return result
 
     def _applyJextT_limited(self, arg, required_results):
