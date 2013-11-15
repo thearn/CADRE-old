@@ -248,9 +248,9 @@ if __name__ == "__main__":
     print 30 * "-"
     print "with OpenMDAO optimizer:"
     a = CADRE_Launch()
-    #a.add('driver', SLSQPdriver())
-    a.add('driver', CONMINdriver())
-    a.driver.conmin_diff = True
+    a.add('driver', SLSQPdriver())
+    #a.add('driver', CONMINdriver())
+    #a.driver.conmin_diff = True
     a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
     a.driver.add_parameter(
         ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
@@ -289,7 +289,10 @@ if __name__ == "__main__":
         a.Orbit_Initial.Inc = orbit[2]
         a.run()
         return a.Lat_uniform.k + a.Lon_uniform.k
-    fmin_slsqp(f, [600, 0, 45], bounds=[
+    
+    #start_point = [600, 0, 45]
+    start_point = [500, 66, 82]
+    fmin_slsqp(f, start_point, bounds=[
                (500, 1000), (-180, 180), (0, 90)],
                iprint=1)
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
