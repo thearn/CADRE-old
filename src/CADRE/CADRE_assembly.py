@@ -94,8 +94,8 @@ class CADRE(Assembly):
         self.add("Attitude_RotationMtxRates", Attitude_RotationMtxRates(n))
         self.driver.workflow.add("Attitude_RotationMtxRates")
 
-        self.add("Attitude_Sideslip", Attitude_Sideslip(n))
-        self.driver.workflow.add("Attitude_Sideslip")
+        #self.add("Attitude_Sideslip", Attitude_Sideslip(n))
+        # self.driver.workflow.add("Attitude_Sideslip")
 
         self.add("Attitude_Torque", Attitude_Torque(n))
         self.driver.workflow.add("Attitude_Torque")
@@ -164,8 +164,8 @@ class CADRE(Assembly):
         self.driver.workflow.add("Comm_VectorSpherical")
 
         # Orbit components
-        self.add("Orbit_Initial", Orbit_Initial())
-        self.driver.workflow.add("Orbit_Initial")
+        #self.add("Orbit_Initial", Orbit_Initial())
+        #self.driver.workflow.add("Orbit_Initial")
 
         self.add("Orbit_Dynamics", Orbit_Dynamics(n))
         self.driver.workflow.add("Orbit_Dynamics")
@@ -181,8 +181,8 @@ class CADRE(Assembly):
         self.driver.workflow.add("Power_Total")
 
         # Reaction wheel components
-        self.add("ReactionWheel_Motor", ReactionWheel_Motor(n))
-        self.driver.workflow.add("ReactionWheel_Motor")
+        #self.add("ReactionWheel_Motor", ReactionWheel_Motor(n))
+        # self.driver.workflow.add("ReactionWheel_Motor")
 
         self.add("ReactionWheel_Power", ReactionWheel_Power(n))
         self.driver.workflow.add("ReactionWheel_Power")

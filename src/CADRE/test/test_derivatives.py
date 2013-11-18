@@ -10,7 +10,7 @@ from openmdao.util.testutil import assert_rel_error
 
 from CADRE.attitude import Attitude_Angular, Attitude_AngularRates, \
     Attitude_Attitude, Attitude_Roll, Attitude_RotationMtx, \
-    Attitude_RotationMtxRates, Attitude_Sideslip, Attitude_Torque
+    Attitude_RotationMtxRates, Attitude_Torque
 from CADRE.battery import BatteryConstraints, BatteryPower, BatterySOC
 from CADRE.comm import Comm_AntRotation, Comm_AntRotationMtx, Comm_BitRate, \
     Comm_DataDownloaded, Comm_Distance, Comm_EarthsSpin, Comm_EarthsSpinMtx, \
@@ -19,7 +19,7 @@ from CADRE.comm import Comm_AntRotation, Comm_AntRotationMtx, Comm_BitRate, \
 from CADRE.orbit import Orbit_Initial, Orbit_Dynamics
 from CADRE.parameters import BsplineParameters
 from CADRE.power import Power_CellVoltage, Power_SolarPower, Power_Total
-from CADRE.reactionwheel import ReactionWheel_Motor, ReactionWheel_Power, \
+from CADRE.reactionwheel import ReactionWheel_Power, \
     ReactionWheel_Torque, ReactionWheel_Dynamics
 from CADRE.solar import Solar_ExposedArea
 from CADRE.sun import Sun_LOS, Sun_PositionBody, Sun_PositionECI, \
@@ -368,16 +368,16 @@ class Testcase_CADRE(unittest.TestCase):
         self.run_model()
         self.compare_derivatives(inputs+state0, outputs)
 
-    def test_Attitude_Sideslip(self):
+    # def test_Attitude_Sideslip(self):
 
-        compname = 'Attitude_Sideslip'
-        inputs = ['r_e2b_I', 'O_BI']
-        outputs = ['v_e2b_B']
-        state0 = []
+    #     compname = 'Attitude_Sideslip'
+    #     inputs = ['r_e2b_I', 'O_BI']
+    #     outputs = ['v_e2b_B']
+    #     state0 = []
 
-        self.setup(compname, inputs, state0)
-        self.run_model()
-        self.compare_derivatives(inputs+state0, outputs)
+    #     self.setup(compname, inputs, state0)
+    #     self.run_model()
+    #     self.compare_derivatives(inputs+state0, outputs)
 
     def test_Attitude_Torque(self):
 
@@ -491,16 +491,16 @@ class Testcase_CADRE(unittest.TestCase):
         self.run_model()
         self.compare_derivatives(inputs+state0, outputs)
 
-    def test_ReactionWheel_Motor(self):
+    # def test_ReactionWheel_Motor(self):
 
-        compname = 'ReactionWheel_Motor'
-        inputs = ['T_RW', 'w_B', 'w_RW']
-        outputs = ['T_m']
-        state0 = []
+    #     compname = 'ReactionWheel_Motor'
+    #     inputs = ['T_RW', 'w_B', 'w_RW']
+    #     outputs = ['T_m']
+    #     state0 = []
 
-        self.setup(compname, inputs, state0)
-        self.run_model()
-        self.compare_derivatives(inputs+state0, outputs)
+    #     self.setup(compname, inputs, state0)
+    #     self.run_model()
+    #     self.compare_derivatives(inputs+state0, outputs)
 
     def test_ReactionWheel_Dynamics(self):
 
@@ -577,18 +577,16 @@ class Testcase_CADRE(unittest.TestCase):
         self.run_model()
         self.compare_derivatives(inputs+state0, outputs)
 
-    def test_Orbit_Dynamics(self):
-        # This comp has no inputs, so no derivs.
-        pass
+    def test_AAOrbit_Dynamics(self):
 
-        #compname = 'Orbit_Dynamics'
-        #inputs = ['']
-        #outputs = ['r_e2b_I']
-        #state0 = ['r_e2b_I0']
+        compname = 'Orbit_Dynamics'
+        inputs = ['r_e2b_I0']
+        outputs = ['r_e2b_I']
+        state0 = []
 
-        #self.setup(compname, inputs, state0)
-        # self.run_model()
-        #self.compare_derivatives(inputs+state0, outputs)
+        self.setup(compname, inputs, state0)
+        self.run_model()
+        self.compare_derivatives(inputs+state0, outputs)
 
     def test_Orbit_Initial(self):
 

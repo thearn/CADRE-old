@@ -16,14 +16,7 @@ class Testcase_CADRE_deriv(unittest.TestCase):
 
         n = 60
         m = 20
-        
-        solar_raw1 = np.genfromtxt('../data/Solar/Area10.txt')
-        solar_raw2 = np.loadtxt("../data/Solar/Area_all.txt")
-        comm_rawGdata = np.genfromtxt('../data/Comm/Gain.txt')
-        comm_raw = (10 ** (comm_rawGdata / 10.0)).reshape(
-            (361, 361), order='F')
-        power_raw = np.genfromtxt('../data/Power/curve.dat')
-        
+
         LDs = [5233.5, 5294.5, 5356.5, 5417.5, 5478.5, 5537.5]
 
         r_e2b_I0s = [np.array([4505.29362, -3402.16069, -3943.74582,
@@ -43,35 +36,61 @@ class Testcase_CADRE_deriv(unittest.TestCase):
                      np.array(
                          [-690.314375, -1081.78239, -6762.90367,  7.44316722,
                           1.19745345, -0.96035904])]
-        
+
         top = set_as_top(Assembly())
-        top.add('pt', CADRE(n, m, solar_raw1, solar_raw2,
-                              comm_raw, power_raw))        
+        top.add('pt', CADRE(n, m))
 
         i = 0
-        
+
         top.pt.set("LD", LDs[i])
         top.pt.set("r_e2b_I0", r_e2b_I0s[i])
 
         top.pt.run()
-        
+
         inputs = ['BsplineParameters.CP_gamma']
-        outputs = ['Comm_DataDownloaded.Data[0][-1]']        
-            
+        outputs = ['Comm_DataDownloaded.Data']
+
         J1 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='forward')
-        
+
+        #nn = len(top.pt.driver.workflow.res)
+        #J = np.zeros([nn, nn])
+        #arg = np.zeros((nn, ))
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #J[:, j] = top.pt.driver.workflow.matvecFWD(arg)
+            #arg[j] = 0.0
+            
         top.pt.driver.workflow.config_changed()
         J2 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='adjoint')
+
+        #Jt = np.zeros([nn, nn])
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #Jt[:, j] = top.pt.driver.workflow.matvecREV(arg)
+            #arg[j] = 0.0
+        
+        #print J
+        #print Jt.T
+        #print J-Jt.T
         
         top.pt.driver.workflow.config_changed()
         Jfd = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='fd')
-        
+
+        np.set_printoptions(threshold='nan')
+        #print np.nonzero(J1)
+        #print np.nonzero(J2)
+        #print np.nonzero(Jfd)
+        #print J1
+        #print J2
+        #print Jfd
         print np.max(J1-Jfd)
         print np.max(J2-Jfd)
         print np.max(J1-J2)
-        
+
         self.assertTrue( np.max(J1-J2) < 1.0e-6 )
-            
+        self.assertTrue( np.max(J1-Jfd) < 1.0e-4 )
+        self.assertTrue( np.max(J2-Jfd) < 1.0e-4 )
+
 if __name__ == "__main__":
 
     unittest.main()

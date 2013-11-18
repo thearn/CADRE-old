@@ -727,15 +727,17 @@ class Comm_GSposECI(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_IE' in arg and 'r_e2g_E' in arg:
+        if 'r_e2g_I' in result:
             for k in xrange(3):
                 for u in xrange(3):
-                    for v in xrange(3):
-                        result['r_e2g_I'][k,:] += self.J1[:, k, u, v] * \
-                                                   arg['O_IE'][u, v,:]
+                    if 'O_IE' in arg:
+                        for v in xrange(3):
+                            result['r_e2g_I'][k,:] += self.J1[:, k, u, v] * \
+                                                       arg['O_IE'][u, v,:]
 
-                    result['r_e2g_I'][k,:] += self.J2[:, k, u] * \
-                                               arg['r_e2g_E'][u,:]
+                    if 'r_e2g_E' in arg:
+                        result['r_e2g_I'][k,:] += self.J2[:, k, u] * \
+                                                   arg['r_e2g_E'][u,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -819,7 +821,7 @@ class Comm_LOS(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'r_b2g_I' in arg:
+        if 'CommLOS' in result:
             for k in xrange(3):
                 if 'r_b2g_I' in arg:
                     result['CommLOS'] += self.dLOS_drb[:, k] * arg['r_b2g_I'][k,:]
@@ -866,15 +868,17 @@ class Comm_VectorAnt(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_AB' in arg and 'r_b2g_B' in arg:
+        if 'r_b2g_A' in result:
             for k in xrange(3):
-                for u in xrange(3):
-                    for v in xrange(3):
-                        result['r_b2g_A'][k,:] += self.J1[:, k, u, v] * \
-                                                   arg['O_AB'][u, v,:]
-                for j in xrange(3):
-                    result['r_b2g_A'][k,:] += self.J2[:, k, j] * \
-                                               arg['r_b2g_B'][j,:]
+                if 'O_AB' in arg:
+                    for u in xrange(3):
+                        for v in xrange(3):
+                            result['r_b2g_A'][k,:] += self.J1[:, k, u, v] * \
+                                                       arg['O_AB'][u, v,:]
+                if 'r_b2g_B' in arg:
+                    for j in xrange(3):
+                        result['r_b2g_A'][k,:] += self.J2[:, k, j] * \
+                                                   arg['r_b2g_B'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -930,15 +934,17 @@ class Comm_VectorBody(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'O_BI' in arg and 'r_b2g_I' in arg:
+        if 'r_b2g_B' in result:
             for k in range(3):
-                for u in range(3):
-                    for v in range(3):
-                        result['r_b2g_B'][k,:] += self.J1[:, k, u, v] * \
-                                                   arg['O_BI'][u, v,:]
-                for j in range(3):
-                    result['r_b2g_B'][k,:] += self.J2[:, k, j] * \
-                                               arg['r_b2g_I'][j,:]
+                if 'O_BI' in arg:
+                    for u in range(3):
+                        for v in range(3):
+                            result['r_b2g_B'][k,:] += self.J1[:, k, u, v] * \
+                                                       arg['O_BI'][u, v,:]
+                if 'r_b2g_I' in arg:
+                    for j in range(3):
+                        result['r_b2g_B'][k,:] += self.J2[:, k, j] * \
+                                                   arg['r_b2g_I'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -985,8 +991,9 @@ class Comm_VectorECI(Component):
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
-        if 'r_e2g_I' in arg and 'r_e2b_I' in arg:
+        if 'r_e2g_I' in arg:
             result['r_b2g_I'] += arg['r_e2g_I']
+        if 'r_e2b_I' in arg:
             result['r_b2g_I'] += -arg['r_e2b_I'][:3,:]
 
     def apply_derivT(self, arg, result):
@@ -1040,17 +1047,19 @@ class Comm_VectorSpherical(Component):
 
         if 'r_b2g_A' in arg:
             r_b2g_A = arg['r_b2g_A'].reshape((3 * self.n), order='F')
-            if 'azimuthGS' in arg:
+            if 'azimuthGS' in result:
                 result['azimuthGS'] += self.J1.dot(r_b2g_A)
-            if 'elevationGS' in arg:
+            if 'elevationGS' in result:
                 result['elevationGS'] += self.J2.dot(r_b2g_A)
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        if 'azimuthGS' in arg and 'elevationGS' in arg:
+        if 'azimuthGS' in arg:
             az_GS = arg['azimuthGS']
+            result['r_b2g_A'] += (self.J1T.dot(az_GS)).reshape((3, self.n),
+                                                              order='F')
+        if 'elevationGS' in arg:
             el_GS = arg['elevationGS']
-            result['r_b2g_A'] += (self.J1T.dot(az_GS) +
-                                  self.J2T.dot(el_GS)).reshape((3, self.n),
-                                                               order='F')
+            result['r_b2g_A'] += (self.J2T.dot(el_GS)).reshape((3, self.n),
+                                                                order='F')
