@@ -9,7 +9,7 @@ from openmdao.lib.datatypes.api import Float, Array, Str
 
 # Allow non-standard variable names for scientific calc
 # pylint: disable-msg=C0103
-import time
+
 
 class RK4(Component):
     """Inherit from this component to use.
@@ -22,20 +22,20 @@ class RK4(Component):
               desc="time step used for the integration")
 
     state_var = Str("", iotype="in",
-                    desc="name of the variable to be used for time " +
+                    desc="name of the variable to be used for time "
                          "integration")
 
     init_state_var = Str("", iotype="in",
-                         desc="name of the variable to be used for initial " +
+                         desc="name of the variable to be used for initial "
                               "conditions")
 
     external_vars = Array([], iotype="in", dtype=str,
-                          desc="list of names of variables that are external " +
+                          desc="list of names of variables that are external "
                                "to the system, but DO vary with time")
 
     fixed_external_vars = Array([], iotype="in", dtype=str,
-                                desc="list of names of variables that are " +
-                                     "external to the system, but DO NOT " +
+                                desc="list of names of variables that are "
+                                     "external to the system, but DO NOT "
                                      "vary with time")
 
     def initialize(self):
@@ -80,7 +80,7 @@ class RK4(Component):
         for i, var in enumerate(e_vars):
             self.reverse_name_map[var] = i
 
-        self.name_map = dict([(v, k) for k, v in \
+        self.name_map = dict([(v, k) for k, v in
                               self.reverse_name_map.iteritems()])
 
 
@@ -270,7 +270,7 @@ class RK4(Component):
         """Apply derivatives with respect to state variables."""
 
         state = self.state_var
-        z=result.copy()
+        z = result.copy()
         if self.state_var in arg:
             flat_y = arg[state].flatten()
             result[state] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
@@ -281,7 +281,7 @@ class RK4(Component):
     def _applyJint(self, arg, result):
         """Apply derivatives with respect to state variables."""
 
-        res1 = dict([(self.reverse_name_map[k], v) \
+        res1 = dict([(self.reverse_name_map[k], v)
                      for k, v in result.iteritems()])
 
         state = self.state_var
@@ -359,7 +359,7 @@ class RK4(Component):
 
         mode = 'Ken'
         
-        if mode=='Ken':
+        if mode == 'Ken':
             
             r2 = self._applyJextT_limited(arg, result)
         
@@ -369,7 +369,7 @@ class RK4(Component):
                 else:
                     result[k] = v
 
-        elif mode=='John':
+        elif mode == 'John':
             
             r2 = self._applyJextT(arg, result)
             r1 = self.applyJintT(arg, result)
@@ -408,7 +408,7 @@ class RK4(Component):
                         result[init_state] -= result[state][:, j]
             
         #print self.J
-        #print 'arg', arg, 'result', result
+        print 'arg', arg, 'result', result
         return result
 
     def _applyJextT(self, arg, required_results):
@@ -463,7 +463,7 @@ class RK4(Component):
         for k, v in result.iteritems():
             ext_var = getattr(self, k)
             result[k] = v.reshape(ext_var.shape)
-
+        
         return result
 
     def _applyJextT_limited(self, arg, required_results):
@@ -482,6 +482,9 @@ class RK4(Component):
             for k in xrange(n_time - 1):
                 argsum[k, :] = np.sum(argsv[k + 1:, :], 0)
 
+            # argsum is often sparse, so save indices.
+            nonzero_k = np.unique(argsum.nonzero()[0])
+
             # Time-varying inputs
             for name in self.external_vars:
 
@@ -492,12 +495,11 @@ class RK4(Component):
                 i_ext = self.ext_index_map[name]
                 ext_length = np.prod(ext_var.shape) / n_time
                 result[name] = np.zeros((ext_length, n_time))
-                for k in xrange(n_time - 1):
 
-                    # argsum is often sparse, so check it first
-                    if len(np.nonzero(argsum[k, :])[0]) > 0:
-                        Jsub = self.Jx[k + 1, i_ext:i_ext + ext_length, :]
-                        result[name][:, k] += Jsub.dot(argsum[k, :])
+                i_ext_end = i_ext + ext_length
+                for k in nonzero_k:
+                    Jsub = self.Jx[k + 1, i_ext:i_ext_end, :]
+                    result[name][:, k] += Jsub.dot(argsum[k, :])
 
                 # Experimental attempt at tensor dot
                 #Jsub = self.Jx[:, i_ext:i_ext+ext_length, :]
@@ -513,13 +515,12 @@ class RK4(Component):
                 i_ext = self.ext_index_map[name]
                 ext_length = np.prod(ext_var.shape)
                 result[name] = np.zeros((ext_length))
-                for k in xrange(n_time - 1):
 
-                    # argsum is often sparse, so check it first
-                    if len(np.nonzero(argsum[k, :])[0]) > 0:
-                        Jsub = self.Jx[k + 1, i_ext:i_ext + ext_length, :]
-                        result[name] += Jsub.dot(argsum[k, :])
-                        
+                i_ext_end = i_ext + ext_length
+                for k in nonzero_k:
+                    Jsub = self.Jx[k + 1, i_ext:i_ext_end, :]
+                    result[name] += Jsub.dot(argsum[k, :])
+
             # Initial State
             name = self.init_state_var
             if name in required_results:

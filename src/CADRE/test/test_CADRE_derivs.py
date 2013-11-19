@@ -48,21 +48,48 @@ class Testcase_CADRE_deriv(unittest.TestCase):
         top.pt.run()
 
         inputs = ['BsplineParameters.CP_gamma']
-        outputs = ['Comm_DataDownloaded.Data[0][-1]']
+        outputs = ['Comm_DataDownloaded.Data']
 
         J1 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='forward')
 
+        #nn = len(top.pt.driver.workflow.res)
+        #J = np.zeros([nn, nn])
+        #arg = np.zeros((nn, ))
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #J[:, j] = top.pt.driver.workflow.matvecFWD(arg)
+            #arg[j] = 0.0
+            
         top.pt.driver.workflow.config_changed()
         J2 = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='adjoint')
 
+        #Jt = np.zeros([nn, nn])
+        #for j in range(nn):
+            #arg[j] = 1.0
+            #Jt[:, j] = top.pt.driver.workflow.matvecREV(arg)
+            #arg[j] = 0.0
+        
+        #print J
+        #print Jt.T
+        #print J-Jt.T
+        
         top.pt.driver.workflow.config_changed()
         Jfd = top.pt.driver.workflow.calc_gradient(inputs, outputs, mode='fd')
 
+        np.set_printoptions(threshold='nan')
+        #print np.nonzero(J1)
+        #print np.nonzero(J2)
+        #print np.nonzero(Jfd)
+        #print J1
+        #print J2
+        #print Jfd
         print np.max(J1-Jfd)
         print np.max(J2-Jfd)
         print np.max(J1-J2)
 
         self.assertTrue( np.max(J1-J2) < 1.0e-6 )
+        self.assertTrue( np.max(J1-Jfd) < 1.0e-4 )
+        self.assertTrue( np.max(J2-Jfd) < 1.0e-4 )
 
 if __name__ == "__main__":
 
