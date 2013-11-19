@@ -87,15 +87,15 @@ if __name__ == "__main__":
     a.run()
     pylab.figure()
     pylab.subplot(211)
-    pylab.plot(a.Deflection.nd)
-    # pylab.plot(a.CADRE.BsplineParameters.CP_gamma)
-    print a.Deflection.d
+    # pylab.plot(a.Deflection.nd)
+    pylab.plot(a.CADRE.Comm_VectorSpherical.azimuthGS)
+    pylab.plot(a.CADRE.Comm_VectorSpherical.elevationGS)
 
     a.CADRE.CP_gamma = pickle.load(
         open("src/CADRE/test/data1346.pkl"))["3:CP_gamma"]
     a.run()
-    print a.Deflection.d
     pylab.subplot(212)
-    pylab.plot(a.Deflection.nd)
-    # pylab.plot(a.CADRE.BsplineParameters.CP_gamma)
+    # pylab.plot(a.Deflection.nd)
+    pylab.plot(a.CADRE.Comm_VectorSpherical.azimuthGS)
+    pylab.plot(a.CADRE.Comm_VectorSpherical.elevationGS)
     pylab.show()
