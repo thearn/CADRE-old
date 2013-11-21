@@ -29,7 +29,7 @@ class Orbit_Dynamics(rk4.RK4):
 
         # Inputs
         self.add('r_e2b_I0', Array(np.zeros((6,)), size=(6,), iotype="in",
-                                   dtype=np.float))
+                                   dtype=np.float, fd_step=1e-3))
 
         # Outputs
         self.add('r_e2b_I', Array(1000*np.ones((6, n_times)), size=(6, n_times),
@@ -45,7 +45,7 @@ class Orbit_Dynamics(rk4.RK4):
         x = state[0]
         y = state[1]
         z = state[2] if abs(state[2]) > 1e-15 else 1e-5
-        
+
         r = (x**2 + y**2 + z**2)**.5
 
         T2 = 1 - 5*z**2/r**2
@@ -66,7 +66,7 @@ class Orbit_Dynamics(rk4.RK4):
         x = state[0]
         y = state[1]
         z = state[2] if abs(state[2]) > 1e-15 else 1e-5
-        
+
         r = (x**2 + y**2 + z**2)**0.5
 
         T2 = 1 - 5*z**2/r**2
@@ -145,13 +145,13 @@ class Orbit_Initial(Component):
 
     def __init__(self):
         super(Orbit_Initial, self).__init__()
-        
+
         #Outputs
         self.add('r_e2b_I0', Array(np.ones((6,)), size=(6,), dtype=np.float, iotype='out'))
 
     def compute(self, altPerigee, altApogee, RAAN, Inc, argPerigee, trueAnomaly):
         ''' Compute position and velocity from orbital elements.'''
-        
+
         Re = 6378.137
         mu = 398600.44
 
