@@ -1,7 +1,3 @@
 ===========
-Usage Guide
+Example: Optmization of the CADRE orbital paramters
 ===========
-
-No usage information has been provided for this plugin. Consult the
-:ref:`CADRE_src_label` section for more detail.
-

@@ -102,6 +102,9 @@ An example of how this file may be inspected:
     pylab.legend(loc="best")
     pylab.show()
 
+This is implemented in `readcsv.py`, in the top-level directory of the CADRE
+plugin repository.
+
 This will print the total data downloaded for each mdp at each iteration of
 the optimization. This will also plot a figure containing three subplots, each
 showing the iteration number on the horizontal axis.

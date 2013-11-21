@@ -1,7 +1,5 @@
 ===========
-Usage Guide
+Example: Optimization of the CADRE roll angle
 ===========
 
-No usage information has been provided for this plugin. Consult the
-:ref:`CADRE_src_label` section for more detail.
 
