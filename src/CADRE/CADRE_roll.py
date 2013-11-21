@@ -88,14 +88,12 @@ if __name__ == "__main__":
     pylab.figure()
     pylab.subplot(211)
     # pylab.plot(a.Deflection.nd)
-    pylab.plot(a.CADRE.Comm_VectorSpherical.azimuthGS)
-    pylab.plot(a.CADRE.Comm_VectorSpherical.elevationGS)
+    pylab.plot(a.CADRE.Comm_GainPattern.gain)
 
     a.CADRE.CP_gamma = pickle.load(
         open("src/CADRE/test/data1346.pkl"))["3:CP_gamma"]
     a.run()
     pylab.subplot(212)
     # pylab.plot(a.Deflection.nd)
-    pylab.plot(a.CADRE.Comm_VectorSpherical.azimuthGS)
-    pylab.plot(a.CADRE.Comm_VectorSpherical.elevationGS)
+    pylab.plot(a.CADRE.Comm_GainPattern.gain)
     pylab.show()
