@@ -1,10 +1,12 @@
-from openmdao.main.api import Assembly
-from openmdao.main.datatypes.api import Float, Array, Int
+import os.path
 import numpy as np
-from .CADRE_assembly import CADRE
-from pyopt_driver import pyopt_driver
+
+from openmdao.main.api import Assembly
 from openmdao.lib.drivers.api import CONMINdriver
-import os
+
+from pyopt_driver import pyopt_driver
+
+from .CADRE_assembly import CADRE
 
 
 class CADRE_Optimization(Assembly):
@@ -13,27 +15,27 @@ class CADRE_Optimization(Assembly):
         super(CADRE_Optimization, self).__init__()
 
         # add SNOPT driver
-        self.add("driver", pyopt_driver.pyOptDriver())
-        self.driver.optimizer = "SNOPT"
-        self.driver.options = {'Major optimality tolerance': 1e-8,
-                               'Iterations limit': 500000000,
-                               "New basis file": 10}
+        driver = self.add("driver", pyopt_driver.pyOptDriver())
+        driver.optimizer = "SNOPT"
+        driver.options = {'Major optimality tolerance': 1e-8,
+                          'Iterations limit': 500000000,
+                          "New basis file": 10}
         if os.path.exists("fort.10"):
-            self.driver.options["Old basis file"] = 10
+            driver.options["Old basis file"] = 10
 
-        #self.add("driver", CONMINdriver())
+        #driver = self.add("driver", CONMINdriver())
 
         # Raw data to load
         fpath = os.path.dirname(os.path.realpath(__file__))
-        solar_raw1 = np.genfromtxt(fpath + '/data/Solar/Area10.txt')
-        solar_raw2 = np.loadtxt(fpath + "/data/Solar/Area_all.txt")
-        comm_rawGdata = np.genfromtxt(fpath + '/data/Comm/Gain.txt')
-        comm_raw = (10 ** (comm_rawGdata / 10.0)).reshape(
-            (361, 361), order='F')
-        power_raw = np.genfromtxt(fpath + '/data/Power/curve.dat')
+        fpath = os.path.join(fpath, 'data')
+        solar_raw1 = np.genfromtxt(fpath + '/Solar/Area10.txt')
+        solar_raw2 = np.loadtxt(fpath + '/Solar/Area_all.txt')
+        comm_rawGdata = np.genfromtxt(fpath + '/Comm/Gain.txt')
+        comm_raw = (10 ** (comm_rawGdata / 10.0)).reshape((361, 361), order='F')
+        power_raw = np.genfromtxt(fpath + '/Power/curve.dat')
 
         # Load launch data
-        launch_data = np.loadtxt(fpath + "/data/Launch/launch1.dat")
+        launch_data = np.loadtxt(fpath + '/Launch/launch1.dat')
 
         # orbit position and velocity data for each design point
         r_e2b_I0s = launch_data[1::2, 1:]
@@ -62,51 +64,36 @@ class CADRE_Optimization(Assembly):
         #                   1.19745345, -0.96035904])]
 
         # build design points
-        for i in xrange(npts):
-            i_ = str(i)
-            aname = ''.join(["pt", str(i)])
-            self.add(aname, CADRE(n, m, solar_raw1, solar_raw2,
-                                  comm_raw, power_raw))
-            self.get(aname).set("LD", LDs[i])
-            self.get(aname).set("r_e2b_I0", r_e2b_I0s[i])
+        names = ['pt%s' % i for i in range(npts)]
+        for i, name in enumerate(names):
+            comp = self.add(name, CADRE(n, m, solar_raw1, solar_raw2,
+                                        comm_raw, power_raw))
+            comp.set("LD", LDs[i])
+            comp.set("r_e2b_I0", r_e2b_I0s[i])
 
             # add parameters to driver
-            self.driver.add_parameter("pt%s.CP_Isetpt" % i_, low=0., high=0.4)
-
-            self.driver.add_parameter("pt%s.CP_gamma" % i_, low=0,
-                                      high=np.pi / 2.)
-
-            self.driver.add_parameter("pt%s.CP_P_comm" % i_, low=0., high=25.)
-
-            param = ''.join(["pt", str(i), ".iSOC[0]"])
-            self.driver.add_parameter(param, low=0.2, high=1.)
+            driver.add_parameter("%s.CP_Isetpt" % name, low=0., high=0.4)
+            driver.add_parameter("%s.CP_gamma" % name, low=0, high=np.pi / 2.)
+            driver.add_parameter("%s.CP_P_comm" % name, low=0., high=25.)
+            driver.add_parameter("%s.iSOC[0]" % name, low=0.2, high=1.)
 
             # add constraints
-            constr = ''.join(["pt", str(i), ".ConCh <= 0"])
-            self.driver.add_constraint(constr)
+            driver.add_constraint("%s.ConCh <= 0" % name)
+            driver.add_constraint("%s.ConDs <= 0" % name)
+            driver.add_constraint("%s.ConS0 <= 0" % name)
+            driver.add_constraint("%s.ConS1 <= 0" % name)
+            driver.add_constraint("%s.SOC[0][0] = %s.SOC[0][-1]" % (name, name))
 
-            constr = ''.join(["pt", str(i), ".ConDs <= 0"])
-            self.driver.add_constraint(constr)
+        # add parameter groups
+        cell_param = ["%s.cellInstd" % name for name in names]
+        driver.add_parameter(cell_param, low=0, high=1)
 
-            constr = ''.join(["pt", str(i), ".ConS0 <= 0"])
-            self.driver.add_constraint(constr)
+        finangles = ["%s.finAngle" % name for name in names]
+        driver.add_parameter(finangles, low=0, high=np.pi / 2.)
 
-            constr = ''.join(["pt", str(i), ".ConS1 <= 0"])
-            self.driver.add_constraint(constr)
-
-            constr = ''.join(["pt", str(i), ".SOC[0][0] = pt",
-                              str(i), ".SOC[0][-1]"])
-            self.driver.add_constraint(constr)
-
-        cell_param = ["pt%s.cellInstd" % str(i) for i in xrange(npts)]
-        self.driver.add_parameter(cell_param, low=0, high=1)
-
-        finangles = ["pt" + str(i) + ".finAngle" for i in xrange(npts)]
-        antangles = ["pt" + str(i) + ".antAngle" for i in xrange(npts)]
-        self.driver.add_parameter(finangles, low=0, high=np.pi / 2.)
-        self.driver.add_parameter(antangles, low=-np.pi / 4, high=np.pi / 4)
+        antangles = ["%s.antAngle" % name for name in names]
+        driver.add_parameter(antangles, low=-np.pi / 4, high=np.pi / 4)
 
         # add objective
-        obj = ''.join([''.join(["-pt", str(i), ".Data[0][-1]"])
-                      for i in xrange(npts)])
-        self.driver.add_objective(obj)
+        obj = ''.join(["-%s.Data[0][-1]" % name for name in names])
+        driver.add_objective(obj)
