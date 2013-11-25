@@ -32,10 +32,12 @@ class ThermalTemperature(RK4):
 
         # Inputs
         self.add("T0", Array(273.*np.ones((5,)), shape=(5,), dtype=np.float,
+            units="degK",
             iotype="in", desc="initial temperatures for the 4 fins and body")
         )
 
         self.add("exposedArea", Array(np.zeros((7, 12, n_times)),
+                                      units="m**2",
                                       size=(7, 12 ,n_times), dtype=np.float,
                                       iotype="in",
                                       desc="exposed area for each solar cell")
@@ -43,17 +45,20 @@ class ThermalTemperature(RK4):
 
         self.add("cellInstd", Array(np.ones((7, 12)), size=(7, 12),
                                     dtype=np.float, iotype="in",
+                                    units='unitless',
                                     desc="Cell/Radiator indication",
                                     low=0, high=1)
         )
 
         self.add("LOS", Array(np.zeros((n_times, )), size=(n_times, ),
                               dtype=np.float, iotype="in",
+                              units='unitless',
                               desc="Line of sight to the sun", low=0, high=1)
         )
 
         self.add("P_comm", Array(np.ones((n_times, )), size=(n_times, ),
                                  dtype=np.float, iotype="in",
+                                 units='unitless',
                                  desc="Power required by the communication " + \
                                  "system", low=0, high=1)
         )
@@ -61,6 +66,7 @@ class ThermalTemperature(RK4):
         # Outputs
         self.add("temperature", Array(np.zeros((5, n_times)),
                                       shape=(5, n_times), dtype=np.float,
+                                      units="degK",
                                       iotype="out", desc="temperature for" + \
                                       " the 4 fins and body over time",
                                       low=50, high=400)
