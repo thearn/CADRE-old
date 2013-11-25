@@ -143,7 +143,7 @@ class BatteryPower(Component):
 
         # Outputs
         self.add('I_bat', Array(np.zeros((n, )), size=(n, ), dtype=np.float,
-                                iotype="out", units="I", desc="Battery Current over Time"))
+                                iotype="out", units="A", desc="Battery Current over Time"))
 
     def execute(self):
         """ Calculate output. """

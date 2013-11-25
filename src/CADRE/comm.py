@@ -267,7 +267,7 @@ class Comm_BitRate(Component):
         self.add('gain', Array(np.zeros(self.n), 
                                iotype='in',
                                shape=(self.n, ),
-                               units="dB",
+                               units="unitless",
                                desc="Transmitter gain"))
 
         self.add('GSdist', Array(np.zeros(self.n),
@@ -324,7 +324,7 @@ class Comm_BitRate(Component):
                 S2 = 1e-10
             self.Dr[i] = self.alpha * self.P_comm[i] * self.gain[i] * \
                          self.CommLOS[i] / S2 ** 2
-Dis
+
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
@@ -622,7 +622,7 @@ class Comm_GainPattern(Component):
         self.add('gain', Array(np.zeros(n),
                                iotype='out',
                                shape=(n,),
-                               units="dB",
+                               units="unitless",
                                desc="Transmitter gain"))
 
         pi = np.pi
@@ -775,7 +775,7 @@ class Comm_GSposECI(Component):
         # Outputs
         self.add('r_e2g_I', Array(np.zeros((3, self.n)),
                                   iotype='out',
-                                  shape=(3, self.n)
+                                  shape=(3, self.n),
                                   units="km",
                                   desc="Positional vector from earth to ground w.r.t. Earth-centered-intertial frame."))
 

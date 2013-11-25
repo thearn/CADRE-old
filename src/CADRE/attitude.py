@@ -310,11 +310,11 @@ class Attitude_Roll(Component):
 
         # Inputs
         self.add('Gamma', Array(np.zeros(n), iotype='in',
-                                shape=(n,)), units="rad", desc="Roll angle")
+                                shape=(n,), units="rad", desc="Roll angle"))
 
         # Outputs
         self.add('O_BR', Array(np.zeros((3, 3, n)), iotype='out',
-                               shape=(3, 3, n)), desc="Orientation matrix for rolled to body-fixed frame")
+                               shape=(3, 3, n), desc="Orientation matrix for rolled to body-fixed frame"))
 
         self.dO_dg = np.zeros((n, 3, 3))
 
