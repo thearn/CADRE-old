@@ -200,7 +200,7 @@ class Power_Total(Component):
         self.add(
             'P_sol', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
                            units='W',
-                           desc='Power from solar panels'
+                           desc='Power from solar panels',
                            iotype="in"))
         self.add(
             'P_comm', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
