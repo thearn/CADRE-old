@@ -593,7 +593,7 @@ class Attitude_Torque(Component):
         # Outputs
         self.add('T_tot', Array(np.zeros((3, n)),
                                 iotype='out',
-                                shape=(3, n)
+                                shape=(3, n),
                                 units="N*m",
                                 desc="Total torque"  ))
 
