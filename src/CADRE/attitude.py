@@ -101,7 +101,7 @@ class Attitude_AngularRates(Component):
         self.add('w_B', Array(np.zeros((3, n)), iotype='in', shape=(3, n),
                  units="rad/s", desc="Angular velocity vector of body-fixed frame"))
 
-        self.add('h', Float(28.8, iotype='in', units="s", "Time step for RK4 integration"))
+        self.add('h', Float(28.8, iotype='in', units="s", desc="Time step for RK4 integration"))
 
         # Outputs
         self.add('wdot_B', Array(np.zeros((3, n)), iotype='out', shape=(3, n),
