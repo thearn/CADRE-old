@@ -36,20 +36,19 @@ class BatterySOC(rk4.RK4):
 
         # Inputs
         self.add('iSOC',
-            Array([0.0], shape=(1, ), dtype=np.float,
+            Array([0.0], shape=(1, ), dtype=np.float, units="V",
                 iotype="in", desc="initial state of charge")
         )
 
         self.add('P_bat',
             Array(np.zeros((n_times, )), shape=(n_times, ), dtype=np.float,
-                iotype="in", desc="battery state of charge over time")
+                units="W", iotype="in", desc="battery power over time")
         )
 
         self.add('temperature',
             Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
-                iotype="in", desc="battery temperature over ftime")
+                units="K", iotype="in", desc="battery temperature over time")
         )
-
 
         # Outputs
         self.add('SOC',
@@ -133,15 +132,18 @@ class BatteryPower(Component):
 
         # Inputs
         self.add('SOC', Array(np.zeros((1, n)), size=(1, n), dtype=np.float,
-                              iotype="in"))
+                              iotype="in", desc="Battery state of charge over time"))
+
         self.add('temperature', Array(np.zeros((5, n)), size=(n, ),
-                                      dtype=np.float, iotype="in"))
+                                      dtype=np.float, iotype="in",
+                                      units="K", desc="Battery temperature over time"))
+
         self.add('P_bat', Array(np.zeros((n, )), size=(n, ), dtype=np.float,
-                                iotype="in"))
+                                iotype="in", units="W", desc="Battery power over time"))
 
         # Outputs
         self.add('I_bat', Array(np.zeros((n, )), size=(n, ), dtype=np.float,
-                                iotype="out", desc="Batter Current over Time"))
+                                iotype="out", units="I", desc="Battery Current over Time"))
 
     def execute(self):
         """ Calculate output. """
@@ -204,9 +206,9 @@ class BatteryConstraints(Component):
 
     # Outputs
     ConCh = Float(0.0, iotype="out",
-                  desc="Constraint on charging rate")
+                  units="A", desc="Constraint on charging rate")
     ConDs = Float(0.0, iotype="out",
-                  desc="Constraint on discharging rate")
+                  units="A", desc="Constraint on discharging rate")
     ConS0 = Float(0.0, iotype="out",
                   desc="Constraint on minimum state of charge")
     ConS1 = Float(0.0, iotype="out",
