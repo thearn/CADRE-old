@@ -15,10 +15,6 @@ from scipy.stats import kurtosis, moment
 
 class Uniformity(Component):
 
-    """ Measures the departure of a sample from a uniform distribution
-        based on excess kurtosis (4th order sample moment).
-    """
-
     def __init__(self, n):
         super(Uniformity, self).__init__()
         self.n = n
@@ -26,35 +22,22 @@ class Uniformity(Component):
         self.add('k', Float(0., iotype='out'))
 
     def execute(self):
-        self.k_ = kurtosis(self.sample.flatten())
-        self.k = (self.k_ + 6. / 5) ** 2
+        self.k  = max(self.sample) - min(self.sample)
 
     def linearize(self):
-        self.J = 2 * (self.k_ + 6. / 5) * self.d_kurtosis(self.sample)
+        self.J = np.zeros((1,self.n))
+        idx_max = np.where(self.sample == max(self.sample))
+        idx_min = np.where(self.sample == min(self.sample))
+        self.J[0,idx_max] = 1
+        self.J[0,idx_min] = -1
 
-    def apply_deriv(self, arg, result):
-        if "sample" in arg and "k" in result:
-            result['k'] += np.dot(self.J, arg['sample'])
+    def provideJ(self):
+        """Provide full Jacobian."""
 
-    def apply_derivT(self, arg, result):
-        if "sample" in result and "k" in arg:
-            result['sample'] += arg['k'] * self.J
+        input_keys = ('sample',)
+        output_keys = ('k',)
 
-    def d_kurtosis(self, x):
-        return (moment(x, 2) * self.d_moment(x, 4) - 2 * moment(x, 4)
-                * self.d_moment(x, 2)) / moment(x, 2) ** 3
-
-    def d_moment(self, x, p=2):
-        n = float(len(x))
-        return self.d_norm_p(x - np.mean(x), p) / n
-
-    def d_norm_p(self, x, p=2):
-        d = p * np.linalg.norm(x, p) ** (p - 1)
-        d = d * self.d_norm(x, p)
-        return d
-
-    def d_norm(self, x, p=2):
-        return np.abs(x) ** (p - 2) * (x) / (np.linalg.norm(x, p) ** (p - 1))
+        return input_keys, output_keys, self.J
 
 
 class GroundLOC(Component):
@@ -98,27 +81,13 @@ class GroundLOC(Component):
             self.J[i, 1, 2] = self.d_lon(O[1, 2], O[1, 1], O[1, 0], d,
                                          O[0, 2], O[0, 1], O[0, 0], r[2], r[1], r[0])
 
-            # self.J_O_IE[i, 0, 2, 0] = self.d_lat_O_IE(
-            #     r[0], r[1], r[2], d, O[2, 0], O[2, 1], O[2, 2])
-            # self.J_O_IE[i, 0, 2, 1] = self.d_lat_O_IE(
-            #     r[1], r[0], r[2], d, O[2, 1], O[2, 0], O[2, 2])
-            # self.J_O_IE[i, 0, 2, 2] = self.d_lat_O_IE(
-            #     r[2], r[1], r[0], d, O[2, 2], O[2, 1], O[2, 0])
-
-            # self.J_O_IE[i, 1, 0, 0] = self.d_lon_O_IE(r[0], r[1], r[2], d,
-            #                                           O[1, 0], O[1, 1],
-            #                                           O[1, 2], O[0, 0],
-            #                                           O[0, 1], O[0, 2])
-
-            # self.J_O_IE[i, 1, 0, 1] = self.d_lon_O_IE(r[1], r[0], r[2], d,
-            #                                           O[1, 0], O[1, 1],
-            #                                           O[1, 2], O[0, 1],
-            #                                           O[1, 0], O[0, 2])
-
     def apply_deriv(self, arg, result):
         if 'r_e2b_I' in arg:
-            result['lats'] += np.dot(self.J[:, 0,:], arg['r_e2b_I'][:3])
-            result['lons'] += np.dot(self.J[:, 1,:], arg['r_e2b_I'][:3])
+            for i in xrange(self.n):
+                if 'lats' in result:
+                    result['lats'][i] += np.dot(self.J[i, 0,:], arg['r_e2b_I'][:3,i])
+                if 'lons' in result:
+                    result['lons'][i] += np.dot(self.J[i, 1,:], arg['r_e2b_I'][:3,i])
 
     def apply_derivT(self, arg, result):
 
@@ -247,11 +216,12 @@ if __name__ == "__main__":
     from scipy.optimize import fmin, fmin_slsqp
     print 30 * "-"
     print "with OpenMDAO optimizer:"
-    a = CADRE_Launch()
+    a = CADRE_Launch(10)
+    a.Orbit_Initial.Inc = 15
     a.add('driver', SLSQPdriver())
     #a.add('driver', CONMINdriver())
     #a.driver.conmin_diff = True
-    a.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
+    a.driver.add_objective("-Lat_uniform.k - Lon_uniform.k")
     a.driver.add_parameter(
         ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
         low=500, high=1000)
@@ -265,7 +235,11 @@ if __name__ == "__main__":
     a.run()
     #outputs = ['Orbit_Dynamics.r_e2b_I']
     outputs = None
-    a.driver.workflow.check_gradient(outputs=outputs)
+
+    # hey ken!
+    # a.driver.workflow.check_gradient(inputs=['Orbit_Dynamics.r_e2b_I0[:3]'], outputs=[ "Orbit_Dynamics.r_e2b_I[:3,:]"])
+    a.driver.workflow.check_gradient(inputs=['Orbit_Dynamics.r_e2b_I0[:3]'], outputs=[ "Orbit_Dynamics.r_e2b_I[:3,:]"])
+    exit()
     l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
     print "min/max lats:", min(l1), max(l1)
     print "min/max lons:", min(l2), max(l2)
@@ -278,30 +252,31 @@ if __name__ == "__main__":
     print "Elapsed time: ", time.time() - tt, "seconds"
     print 30 * "-"
 
-    print "without OpenMDAO optimizer:"
-    a = CADRE_Launch()
-    tt = time.time()
+    # print "without OpenMDAO optimizer:"
+    # a = CADRE_Launch()
+    # a.Orbit_Initial.Inc = 10.
+    # tt = time.time()
 
-    def f(orbit):
-        a.Orbit_Initial.altPerigee = orbit[0]
-        a.Orbit_Initial.altApogee = orbit[0]
-        a.Orbit_Initial.RAAN = orbit[1]
-        a.Orbit_Initial.Inc = orbit[2]
-        a.run()
-        return a.Lat_uniform.k + a.Lon_uniform.k
-    
-    #start_point = [600, 0, 45]
-    start_point = [500, 66, 82]
-    fmin_slsqp(f, start_point, bounds=[
-               (500, 1000), (-180, 180), (0, 90)],
-               iprint=1)
-    l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
-    print "min/max lats:", min(l1), max(l1)
-    print "min/max lons:", min(l2), max(l2)
-    print "objective:", a.Lat_uniform.k + a.Lon_uniform.k
-    print(a.Orbit_Initial.altPerigee,
-          a.Orbit_Initial.altApogee,
-          a.Orbit_Initial.RAAN,
-          a.Orbit_Initial.Inc,
-          a.Orbit_Initial.argPerigee)
-    print "Elapsed time: ", time.time() - tt, "seconds"
+    # def f(orbit):
+    #     a.Orbit_Initial.altPerigee = orbit[0]
+    #     a.Orbit_Initial.altApogee = orbit[0]
+    #     a.Orbit_Initial.RAAN = orbit[1]
+    #     a.Orbit_Initial.Inc = orbit[2]
+    #     a.run()
+    #     return a.Lat_uniform.k + a.Lon_uniform.k
+
+    # #start_point = [600, 0, 45]
+    # start_point = [500, 66, 25]
+    # fmin_slsqp(f, start_point, bounds=[
+    #            (500, 1000), (-180, 180), (0, 90)],
+    #            iprint=1)
+    # l1, l2 = a.GroundLOC.lats, a.GroundLOC.lons
+    # print "min/max lats:", min(l1), max(l1)
+    # print "min/max lons:", min(l2), max(l2)
+    # print "objective:", a.Lat_uniform.k + a.Lon_uniform.k
+    # print(a.Orbit_Initial.altPerigee,
+    #       a.Orbit_Initial.altApogee,
+    #       a.Orbit_Initial.RAAN,
+    #       a.Orbit_Initial.Inc,
+    #       a.Orbit_Initial.argPerigee)
+    # print "Elapsed time: ", time.time() - tt, "seconds"
