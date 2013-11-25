@@ -24,13 +24,15 @@ class Attitude_Angular(Component):
 
         # Inputs
         self.add('O_BI', Array(np.zeros((3, 3, n)), iotype='in',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation matrix of body-fixed frame as seen in Earth-centered interial frame"))
+
         self.add('Odot_BI', Array(np.zeros((3, 3, n)), iotype='in',
-                                  shape=(3, 3, n)))
+                                  shape=(3, 3, n), desc="First derivative of O_BI"))
 
         # Outputs
         self.add('w_B', Array(np.zeros((3, n)), iotype='out',
-                              shape=(3, n)))
+                              shape=(3, n), units="rad/s", desc="Angular velocity vector of body-fixed frame."))
 
         self.dw_dOdot = np.zeros((n, 3, 3, 3))
         self.dw_dO = np.zeros((n, 3, 3, 3))
@@ -96,11 +98,14 @@ class Attitude_AngularRates(Component):
         self.n = n
 
         # Inputs
-        self.add('w_B', Array(np.zeros((3, n)), iotype='in', shape=(3, n)))
-        self.add('h', Float(28.8, iotype='in'))
+        self.add('w_B', Array(np.zeros((3, n)), iotype='in', shape=(3, n),
+                 units="rad/s", desc="Angular velocity vector of body-fixed frame"))
+
+        self.add('h', Float(28.8, iotype='in', units="s", "Time step for RK4 integration"))
 
         # Outputs
-        self.add('wdot_B', Array(np.zeros((3, n)), iotype='out', shape=(3, n)))
+        self.add('wdot_B', Array(np.zeros((3, n)), iotype='out', shape=(3, n),
+                 units="rad/s**2", desc="Time derivative of angular velocity vector of body-fixed frame"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -169,11 +174,13 @@ class Attitude_Attitude(Component):
 
         # Inputs
         self.add('r_e2b_I', Array(np.zeros((6, n)), iotype='in',
-                                  shape=(6, n)))
+                                  shape=(6, n),
+                                  desc="Transformation vector from vector pointing from satellite's origin to earht's origin to Earth-centered inertial frame"))
 
         # Outputs
         self.add('O_RI', Array(np.zeros((3, 3, n)), iotype='out',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation of rolled-fixed frame as seen in Earth-centerd intertial frame"))
 
         self.dO_dr = np.zeros((n, 3, 3, 6))
 
@@ -303,11 +310,11 @@ class Attitude_Roll(Component):
 
         # Inputs
         self.add('Gamma', Array(np.zeros(n), iotype='in',
-                                shape=(n,)))
+                                shape=(n,)), units="rad", desc="Roll angle")
 
         # Outputs
         self.add('O_BR', Array(np.zeros((3, 3, n)), iotype='out',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n)), desc="Orientation matrix for rolled to body-fixed frame")
 
         self.dO_dg = np.zeros((n, 3, 3))
 
@@ -362,13 +369,16 @@ class Attitude_RotationMtx(Component):
 
         # Inputs
         self.add('O_BR', Array(np.zeros((3, 3, n)), iotype='in',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation matrix of body-fixed frame as seen in roll body-fixed frame"))
         self.add('O_RI', Array(np.zeros((3, 3, n)), iotype='in',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation matrix of roll body-fixed frame as seen in Earth-centered intertial frame"))
 
         # Outputs
         self.add('O_BI', Array(np.zeros((3, 3, n)), iotype='out',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation matrix of body-fixed frame as seen in Earth-centered inertial frame"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -422,13 +432,15 @@ class Attitude_RotationMtxRates(Component):
         self.n = n
 
         # Inputs
-        self.add('h', Float(28.8, iotype='in'))
+        self.add('h', Float(28.8, iotype='in', units="s", desc="Time step for RK4 integration"))
         self.add('O_BI', Array(np.zeros((3, 3, n)), iotype='in',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation of body-fixed frame as seen in Earth-centered-intertial frame"))
 
         # Outputs
         self.add('Odot_BI', Array(np.zeros((3, 3, n)), iotype='out',
-                                  shape=(3, 3, n)))
+                                  shape=(3, 3, n),
+                                  desc="First derivative of O_BI"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -493,13 +505,19 @@ class Attitude_Sideslip(Component):
 
         # Inputs
         self.add('r_e2b_I', Array(np.zeros((6, n)), iotype='in',
-                                  shape=(6, n)))
+                                  shape=(6, n),
+                                  desc="Position vector from satellite's origin to earth's origin w.r.t. Earth-centered inertial frame"))
+
         self.add('O_BI', Array(np.zeros((3, 3, n)), iotype='in',
-                               shape=(3, 3, n)))
+                               shape=(3, 3, n),
+                               desc="Orientation matrix of body-fixed frame as seen in Earth-centered-inertial frame"))
 
         # Outputs
         self.add('v_e2b_B', Array(np.zeros((3, n)), iotype='out',
-                                  shape=(3, n)))
+                                  shape=(3, n)),
+                                  units="m/s",
+                                  desc="Velocity vector from body to earth w.r.t body-fixed frame"
+                                  )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -560,11 +578,24 @@ class Attitude_Torque(Component):
         self.n = n
 
         # Inputs
-        self.add('w_B', Array(np.zeros((3, n)), iotype='in', shape=(3, n)))
-        self.add('wdot_B', Array(np.zeros((3, n)), iotype='in', shape=(3, n)))
+        self.add('w_B', Array(np.zeros((3, n)),
+                              iotype='in',
+                              shape=(3, n),
+                              units="rad/s",
+                              desc="Angular velocity of body-fixed frame"))
+
+        self.add('wdot_B', Array(np.zeros((3, n)),
+                                 iotype='in',
+                                 shape=(3, n),
+                                 units="rad/s**2",
+                                 desc="Time derivative of w_B"))
 
         # Outputs
-        self.add('T_tot', Array(np.zeros((3, n)), iotype='out', shape=(3, n)))
+        self.add('T_tot', Array(np.zeros((3, n)),
+                                iotype='out',
+                                shape=(3, n)
+                                units="N*m",
+                                desc="Total torque"  ))
 
         self.dT_dwdot = np.zeros((n, 3, 3))
         self.dwx_dw = np.zeros((3, 3, 3))
