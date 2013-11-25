@@ -17,11 +17,15 @@ class Sun_LOS( Component ):
         self.r1 = 6378.137*0.85 # Earth's radius is 6378 km. 0.85 is the alpha in John Hwang's paper
         self.r2 = 6378.137
 
-        self.add('r_e2b_I', Array(np.zeros((6, n), order='F'), size=(6,n, ), dtype=np.float, iotype="in"))
-        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float, iotype="in"))
+        self.add('r_e2b_I', Array(np.zeros((6, n), order='F'), size=(6,n, ), dtype=np.float,
+                                  units = "km", desc="location and velocity vector of satellite in Earth-centered inertial frame",
+                                  iotype="in"))
+        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
+                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  iotype="in"))
 
-        self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ), dtype=np.float, iotype="out",
-            desc="Line of Sight over Time"))
+        self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ), dtype=np.float, units="unitless",
+                              iotype="out", desc="Line of sight"))
 
 
     def execute(self):
@@ -146,11 +150,15 @@ class Sun_PositionBody( Component ):
 
         self.n = n
 
-        self.add('O_BI', Array(np.zeros((3, 3, n), order='F'), size=(3,3,n, ), dtype=np.float, iotype="in"))
-        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float, iotype="in"))
+        self.add('O_BI', Array(np.zeros((3, 3, n), order='F'), size=(3,3,n, ), dtype=np.float,
+                               units="unitless", desc="Rotation matrix from the Earth-centered inertial frame to the satellite frame",
+                               iotype="in"))
+        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
+                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  iotype="in"))
 
         self.add('r_e2s_B', Array(np.zeros((3,n, ), order='F'), size=(3,n, ), dtype=np.float, iotype="out",
-            desc="TODO: Fill in"))
+                                  units = "km", desc="location of sun relative to Earth in body fixed frame" ))
 
 
     def execute(self):
@@ -199,10 +207,13 @@ class Sun_PositionECI( Component ):
 
         #self.add('LD', Array(np.zeros((1,), order='F'), size=(1,), dtype=np.float, iotype="in"))
 
-        self.add('t', Array(np.zeros((n,), order='F'), size=(n,), dtype=np.float, iotype="in"))
+        self.add('t', Array(np.zeros((n,), order='F'), size=(n,), dtype=np.float,
+                            units="s", desc="time", iotype="in"))
 
         self.add('r_e2s_I', Array(np.zeros((3,n, ), order='F'), size=(3,n, ),
-                                  dtype=np.float, iotype="out"))
+                                  dtype=np.float,
+                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  iotype="out"))
 
         self.Ja = np.zeros(3*self.n)
         self.Ji = np.zeros(3*self.n)
@@ -273,10 +284,17 @@ class Sun_PositionSpherical(Component):
         self.n = n
 
         self.add('r_e2s_B', Array(np.zeros((3, n)), size=(3, n),
+                                  units = "km", desc="location of sun relative to Earth in body fixed frame",
                                   dtype=np.float, iotype="in"))
 
-        self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float, iotype="out"))
-        self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float, iotype="out"))
+        self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float,
+                                  units='rad',
+                                  desc='azimuth angle of the sun in the body-fixed frame',
+                                  iotype="out"))
+        self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float,
+                                    units='km',
+                                    desc='elevation angle of the sun in the body-fixed frame',
+                                    iotype="out"))
 
     def execute(self):
         azimuth, elevation = computepositionspherical(self.n, self.r_e2s_B)
