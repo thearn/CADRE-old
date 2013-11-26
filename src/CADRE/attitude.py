@@ -549,10 +549,9 @@ class Attitude_Sideslip(Component):
         # Outputs
         self.add('v_e2b_B', Array(np.zeros((3, n)),
 		                  iotype='out',
-                                  shape=(3, n)),
+                                  shape=(3, n),
                                   units="m/s",
-                                  desc="Velocity vector from body to earth w.r.t body-fixed frame"
-                                  )
+                                  desc="Velocity vector from body to earth w.r.t body-fixed frame"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
