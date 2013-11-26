@@ -16,7 +16,7 @@ class ReactionWheel_Motor(Component):
         self.add('J_RW', 2.8e-5)
 
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
-                               units="kg*m**2",
+                               units="N*m",
                                desc="Torque vector of reaction wheel",
                                dtype=np.float, iotype='in'))
         self.add('w_B', Array(np.zeros((3,n)), size=(3,n),
@@ -29,7 +29,7 @@ class ReactionWheel_Motor(Component):
                                dtype=np.float, iotype='in'))
 
         self.add('T_m', Array(np.ones((3,n)), size=(3,n),
-                              units="kg*m**2",
+                              units="N*m",
                               desc="Torque vector of motor",
                               dtype=np.float, iotype='out'))
 
@@ -115,7 +115,7 @@ class ReactionWheel_Power(Component):
                                desc="Angular velocity vector of reaction wheel",
                                dtype=np.float, iotype='in'))
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
-                               units="kg*m**2",
+                               units="N*m",
                                desc="Torque vector of reaction wheel",
                                dtype=np.float, iotype='in'))
 
@@ -165,12 +165,12 @@ class ReactionWheel_Torque(Component):
         self.n = n
 
         self.add('T_tot', Array(np.zeros((3,n)), size=(3,n),
-                                units='kg*m**2',
+                                units='N*m',
                                 desc='Total torque',
                                 dtype=np.float, iotype='in'))
 
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
-                               units="kg*m**2",
+                               units="N*m",
                                desc="Torque vector of reaction wheel",
                                dtype=np.float, iotype='out'))
 
@@ -203,7 +203,7 @@ class ReactionWheel_Dynamics(rk4.RK4):
                               desc="Angular velocity vector of satellite",
                               dtype=np.float, iotype='in'))
         self.add('T_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
-                               units="kg*m**2",
+                               units="N*m",
                                desc="Torque vector of reaction wheel",
                                dtype=np.float, iotype='in'))
 
