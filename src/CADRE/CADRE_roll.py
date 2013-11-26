@@ -1,76 +1,74 @@
-from openmdao.main.api import Assembly, Component
-from openmdao.main.datatypes.api import Float, Array, Int
-import numpy as np
+from openmdao.main.api import Component
+from openmdao.main.datatypes.api import Float, Array
 from CADRE import CADRE
-from pyopt_driver import pyopt_driver
-from openmdao.lib.drivers.api import CONMINdriver
 from openmdao.lib.drivers.api import SLSQPdriver
 import os
+import pylab
+import numpy as np
 
 
 class NetGain(Component):
 
-    gain = Array(iotype="in")
+    """
+    Computes the sum of an inputted gain array
+    """
     net = Float(iotype="out")
+
+    def __init__(self, n):
+        super(NetGain, self).__init__()
+        self.n = n
+        self.add('gain', Array(np.zeros(n), iotype='in', shape=(n,)))
 
     def execute(self):
         self.net = sum(self.gain)
 
+    def apply_derivT(self, arg, result):
+        if 'gain' in result and 'net' in arg:
+            result['gain'] += arg['net'] * np.ones(self.n)
 
-class CADRE_Roll(Assembly):
 
-    def __init__(self, n=1500, m=300):
-        super(CADRE_Roll, self).__init__()
+n, m = 1500, 150
+top = CADRE(n, m)
 
-        # add SNOPT driver
-        self.add("driver", pyopt_driver.pyOptDriver())
-        self.driver.optimizer = "SNOPT"
-        self.driver.options = {'Major optimality tolerance': 1e-2,
-                               'Iterations limit': 5000}
+# orbit initial position and velocity
+r_e2b_I0 = [-4969.91222,  4624.84149,
+            1135.9414,  0.1874654, -1.62801666,  7.4302362]
 
-        #self.add("driver", SLSQPdriver())
-        # orbit position and velocity data for each design point
-        r_e2b_I0 = [-4969.91222,  4624.84149,
-                    1135.9414,  0.1874654, -1.62801666,  7.4302362]
+# number of days since launch
+LD = 5417.5
 
-        # number of days since launch for each design point
-        LD = 5417.5
+top.set("LD", LD)
+top.set("r_e2b_I0", r_e2b_I0)
 
-        self.add("CADRE", CADRE(n, m))
-        self.driver.workflow.add("CADRE")
-        self.CADRE.set("LD", LD)
-        self.CADRE.set("r_e2b_I0", r_e2b_I0)
-        self.CADRE.create_passthrough("Comm_GainPattern.gain")
-        self.create_passthrough("CADRE.gain")
+# Run model to get baseline net gain value
+top.run()
 
-        self.add("NetGain", NetGain())
-        self.driver.workflow.add("NetGain")
-        self.connect("gain", "NetGain.gain")
+obj1 = sum(top.Comm_GainPattern.gain)
 
-        self.driver.add_parameter("CADRE.CP_gamma", low=0,
-                                  high=np.pi / 2.)
+# Add in optimization driver
+top.add("driver", SLSQPdriver())
 
-        # add objective
-        self.driver.add_objective("-NetGain.net")
+top.add("NetGain", NetGain(n))
+top.driver.workflow.add("NetGain")
 
-if __name__ == "__main__":
-    import pylab
-    import pickle
-    a = CADRE_Roll()
-    print sum(a.gain)
-    a.run()
-    print sum(a.gain)
-    quit()
-    # a.run()
-    # pylab.figure()
-    # pylab.subplot(211)
-    # pylab.plot(a.Deflection.nd)
-    # pylab.plot(a.CADRE.Comm_GainPattern.gain)
+top.connect("Comm_GainPattern.gain", "NetGain.gain")
 
-    # a.CADRE.CP_gamma = pickle.load(
-    #     open("src/CADRE/test/data1346.pkl"))["3:CP_gamma"]
-    # a.run()
-    # pylab.subplot(212)
-    # pylab.plot(a.Deflection.nd)
-    # pylab.plot(a.CADRE.Comm_GainPattern.gain)
-    # pylab.show()
+top.driver.add_parameter("CP_gamma", low=0, high=np.pi / 2.)
+top.driver.add_objective("-NetGain.net")
+
+pylab.figure()
+pylab.title("Roll angle $\gamma$, Before optimization")
+pylab.subplot(211)
+pylab.plot(top.CP_gamma)
+
+top.run()
+obj2 = sum(top.Comm_GainPattern.gain)
+
+pylab.title("After")
+pylab.subplot(212)
+pylab.plot(top.CP_gamma)
+
+pylab.show()
+
+print "Net comm gain before optimization:", obj1
+print "Net comm gain after optimization:", obj2
