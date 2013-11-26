@@ -21,6 +21,7 @@ Now, we define an OpenMDAO component that computes the sum of an input array. We
 later on
 
 .. code-block:: python
+
     class NetGain(Component):
 
         """
@@ -44,6 +45,7 @@ Next, we create an instance of the CADRE base assembly, and set appropriate
 configuration data (starting position and velocity of the satellite, and number of days since launch)
 
 .. code-block:: python
+
     n, m = 1500, 150
     top = CADRE(n, m)
 
@@ -63,6 +65,7 @@ Our objective is to maximize the total communication gain (as computed by the Co
 so lets get that value:
 
 .. code-block:: python
+
     # Run model to get baseline net gain value
     top.run()
     obj1 = sum(top.Comm_GainPattern.gain)
@@ -72,6 +75,7 @@ Now we're ready to optimize. Replace the default "RunOnce" driver with the
 `SLSQPdriver()` optimization driver, add in the NetGain component, and configure the optimization problem:
 
 .. code-block:: python
+
     # Add in optimization driver
     top.add("driver", SLSQPdriver())
 
@@ -86,6 +90,7 @@ Now we're ready to optimize. Replace the default "RunOnce" driver with the
 Run the assembly to perform the optimization, and then record the new value of the gain:
 
 .. code-block:: python
+
     top.run()
     obj2 = sum(top.Comm_GainPattern.gain)
 
@@ -94,6 +99,7 @@ This value should be about a 23% improvement over the baseline.
 We can plot the roll angle, gamma, to visualize the craft roll angle over time, as selected by the optimizer:
 
 .. code-block:: python
+
     pylab.figure()
     pylab.plot(top.CP_gamma)
     pylab.show()

@@ -2,10 +2,10 @@
 Running the full CADRE problem
 ==============================
 
-The previous tutorials provided short practical introductions to some of the
+The previous tutorial provided short practical introductions to some of the
 OpenMDAO components which are used in the CADRE problem. To run the full
 CADRE problem:
-    - Install the 'MBI' library
+    - As before, be sure that you have installed the 'MBI' library
     - Obtain a license and source code for 'SNOPT <http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm>'
     - Build and install `PyOpt <http://www.pyopt.org/>' with SNOPT support
     - Install pyopt_driver for OpenMDAO
