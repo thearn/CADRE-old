@@ -2,10 +2,10 @@
 Running the full CADRE problem
 ==============================
 
-The previous tutorials provided short practical introductions to some of the
+The previous tutorial provided short practical introductions to some of the
 OpenMDAO components which are used in the CADRE problem. To run the full
 CADRE problem:
-    - Install the 'MBI' library
+    - As before, be sure that you have installed the 'MBI' library
     - Obtain a license and source code for 'SNOPT <http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm>'
     - Build and install `PyOpt <http://www.pyopt.org/>' with SNOPT support
     - Install pyopt_driver for OpenMDAO
@@ -30,7 +30,7 @@ The CADRE optimization problem can then by run by importing and running the
 
 This is implemented in `example.py`, in the top-level directory of the CADRE
 plugin repository.
-The purpose of the CSV case recorder is to save the state of the optimization
+The purpose of the CSV case recorder is to save the state of the optimizationimport
 after each iteration of the assembly's driver. These iteration states will be
 saved as lines in the file `CADRE.csv`. You can read from this file and
 examine the performance of the optimization after the optimization has completed,
