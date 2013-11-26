@@ -26,25 +26,40 @@ class Comm_DataDownloaded(rk4.RK4):
         super(Comm_DataDownloaded, self).__init__()
 
         # Inputs
-        self.add('Dr', Array(np.zeros(n_times),
-                             iotype='in',
-                             shape=(n_times,),
-                             units="Gibyte/s",
-                             desc="Downloaded data rate"))
+        self.add(
+            'Dr', 
+            Array(
+                np.zeros(n_times),
+                iotype='in',
+                shape=(n_times,),
+                units="Gibyte/s",
+                desc="Download rate over time"
+            )
+        )
 
         # Initial State
-        self.add('Data0', Array([0.0],
-                                iotype='in',
-                                shape=(1,),
-                                units="Gibyte",
-                                desc="Initial downloaded data state"))
+        self.add(
+            'Data0',
+            Array(
+                [0.0],
+                iotype='in',
+                shape=(1,),
+                units="Gibyte",
+                desc="Initial downloaded data state"
+            )
+        )
 
         # States
-        self.add('Data', Array(np.zeros((1, n_times)),
-                               iotype='out',
-                               shape=(1, n_times),
-                               units="Gibyte",
-                               desc="Downloaded data state over time"))
+        self.add(
+            'Data',
+            Array(
+                np.zeros((1, n_times)),
+                iotype='out',
+                shape=(1, n_times),
+                units="Gibyte",
+                desc="Downloaded data state over time"
+            )
+        )
 
         self.state_var = "Data"
         self.init_state_var = "Data0"
@@ -74,7 +89,16 @@ class Comm_AntRotation(Component):
         super(Comm_AntRotation, self).__init__()
 
         # Outputs
-        self.add('q_A', Array(np.zeros((4, n)), iotype='out', shape=(4, n)))
+        self.add(
+            'q_A',
+            Array(
+                np.zeros((4, n)),
+                iotype='out',
+                shape=(4, n),
+                units="unitless",
+                desc="Quarternion matrix in antenna angle frame over time"
+            )
+        )
 
         self.dq_dt = np.zeros(4)
 
@@ -121,16 +145,27 @@ class Comm_AntRotationMtx(Component):
         self.n = n
 
         # Inputs
-        self.add('q_A', Array(np.zeros((4, self.n)),
-                              iotype='in',
-                              shape=(4, self.n),
-                              desc="Antenna angle matrix w.r.t. quarternion coordinates"))
+        self.add(
+            'q_A',
+            Array(
+                np.zeros((4, self.n)),
+                iotype='in',
+                shape=(4, self.n),
+                desc="Quarternion matrix in antenna angle frame over time"
+            )
+        )
 
         # Outputs
-        self.add('O_AB', Array(np.zeros((3, 3, self.n)),
-                               iotype='out',
-                               shape=(3, 3, self.n),
-                               desc="Orientation matrix from antenna angle to body-fixed frame"))
+        self.add(
+            'O_AB', 
+            Array(
+                np.zeros((3, 3, self.n)),
+                iotype='out',
+                shape=(3, 3, self.n),
+                units="unitless",
+                desc="Rotation matrix from antenna angle to body-fixed frame over time"
+            )
+        )
 
         self.J = np.empty((self.n, 3, 3, 4))
 
@@ -258,36 +293,61 @@ class Comm_BitRate(Component):
         self.n = n
 
         # Inputs
-        self.add('P_comm', Array(np.zeros(self.n),
-                                 iotype='in',
-                                 shape=(self.n, ),
-                                 units="W",
-                                 desc="Communication power"))
+        self.add(
+            'P_comm',
+            Array(
+                np.zeros(self.n),
+                iotype='in',
+                shape=(self.n, ),
+                units="W",
+                desc="Communication power over time"
+            )
+        )
 
-        self.add('gain', Array(np.zeros(self.n), 
-                               iotype='in',
-                               shape=(self.n, ),
-                               units="unitless",
-                               desc="Transmitter gain"))
+        self.add(
+            'gain',
+            Array(
+                np.zeros(self.n), 
+                iotype='in',
+                shape=(self.n, ),
+                units="unitless",
+                desc="Transmitter gain over time"
+            )
+        )
 
-        self.add('GSdist', Array(np.zeros(self.n),
-                                 iotype='in',
-                                 shape=(self.n, ),
-                                 units="km",
-                                 desc="Distance from ground to satellite"))
+        self.add(
+            'GSdist',
+            Array(
+                np.zeros(self.n),
+                iotype='in',
+                shape=(self.n, ),
+                units="km",
+                desc="Distance from ground station to satellite over time"
+            )
+        )
 
-        self.add('CommLOS', Array(np.zeros(self.n),
-                                  iotype='in',
-                                  shape=(self.n, ),
-                                  units="km",
-                                  desc="Satellite to ground Line of Sight"))
+        self.add(
+            'CommLOS',
+            Array(
+                np.zeros(self.n),
+                iotype='in',
+                shape=(self.n, ),
+                units="unitless",
+                desc="Satellite to ground station line of sight over time"
+            )
+        )
 
         # Outputs
-        self.add('Dr', Array(np.zeros(self.n),
-                             iotype='out',
-                             shape=(self.n, ),
-                             units="Gibyte/s",
-                             desc="Downloaded date rate"))
+        self.add(
+            'Dr',
+            Array(
+                np.zeros(self.n),
+                iotype='out',
+                shape=(self.n, ),
+                units="Gibyte/s",
+                desc="Download rate over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -360,18 +420,28 @@ class Comm_Distance(Component):
         self.n = n
 
         # Inputs
-        self.add('r_b2g_A', Array(np.zeros((3, self.n)),
-                                  iotype='in',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from ground to satellite w.r.t. antenna angle coorinates"))
+        self.add(
+            'r_b2g_A', 
+            Array(
+                np.zeros((3, self.n)),
+                iotype='in',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from satellite to ground station in antenna angle frame over time"
+            )
+        )
 
         # Outputs
-        self.add('GSdist', Array(np.zeros(self.n),
-                                 iotype='out',
-                                 shape=(self.n,),
-                                 units="km",
-                                 desc="Distance from ground to satellite"))
+        self.add(
+            'GSdist',
+            Array(
+                np.zeros(self.n),
+                iotype='out',
+                shape=(self.n,),
+                units="km",
+                desc="Distance from ground station to satellite over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -423,10 +493,16 @@ class Comm_EarthsSpin(Component):
                             desc="Time"))
 
         # Outputs
-        self.add('q_E', Array(np.zeros((4, self.n)),
-                              iotype='out',
-                              shape=(4, self.n),
-                              desc="Earth's frame of reference w.r.t. quarternion coordinates"))
+        self.add(
+            'q_E',
+            Array(
+                np.zeros((4, self.n)),
+                iotype='out',
+                shape=(4, self.n),
+                units="unitless",
+                desc="Quarternion matrix in Earth-fixed frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -474,16 +550,28 @@ class Comm_EarthsSpinMtx(Component):
         self.n = n
 
         # Inputs
-        self.add('q_E', Array(np.zeros((4, self.n)),
-                              iotype='in',
-                              shape=(4, self.n),
-                              desc=""))
+        self.add(
+            'q_E',
+            Array(
+                np.zeros((4, self.n)),
+                iotype='in',
+                shape=(4, self.n),
+                units="unitless",
+                desc="Quarternion matrix in Earth-fixed frame over time" 
+            )
+        )
 
         # Outputs
-        self.add('O_IE', Array(np.zeros((3, 3, self.n)),
-                               iotype='out',
-                               shape=(3, 3, self.n),
-                               desc="Orientation matrix from Earth-centered-intertial frame to Earth frame"))
+        self.add(
+            'O_IE',
+            Array(
+                np.zeros((3, 3, self.n)),
+                iotype='out',
+                shape=(3, 3, self.n),
+                units="unitless",
+                desc="Rotation matrix from Earth-centered inertial frame to Earth-fixed frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -606,24 +694,34 @@ class Comm_GainPattern(Component):
             rawG = (10 ** (rawGdata / 10.0)).reshape((361, 361), order='F')
 
         # Inputs
-        self.add('azimuthGS', Array(np.zeros(n),
-                                    iotype='in',
-                                    shape=(n,),
-                                    units="rad",
-                                    desc="Ground to satellite azimuth"))
+        self.add(
+            'azimuthGS',
+            Array(
+                np.zeros(n),
+                iotype='in',
+                shape=(n,),
+                units="rad",
+                desc="Azimuth angle from satellite to ground station in Earth-fixed frame over time"
+            )
+        )
 
-        self.add('elevationGS', Array(np.zeros(n),
-                                      iotype='in',
-                                      shape=(self.n,),
-                                      units="km",
-                                      desc="Ground to satellite elevation"))
+        self.add(
+            'elevationGS',
+            Array(
+                np.zeros(n),
+                iotype='in',
+                shape=(self.n,),
+                units="rad",
+                desc="Elevation angle from satellite to ground station in Earth-fixed frame over time"
+            )
+        )
 
         # Outputs
         self.add('gain', Array(np.zeros(n),
                                iotype='out',
                                shape=(n,),
                                units="unitless",
-                               desc="Transmitter gain"))
+                               desc="Transmitter gain over time"))
 
         pi = np.pi
         az = np.linspace(0, 2 * pi, 361)
@@ -672,9 +770,9 @@ class Comm_GSposEarth(Component):
     d2r = np.pi / 180.
 
     # Inputs
-    lon = Float(0.0, iotype="in")
-    lat = Float(0.0, iotype="in")
-    alt = Float(0.0, iotype="in")
+    lon = Float(0.0, iotype="in", units="rad", desc="Longitude of ground station in Earth-fixed frame")
+    lat = Float(0.0, iotype="in", units="rad", desc="Latitude of ground station in Earth-fixed frame")
+    alt = Float(0.0, iotype="in", units="rad", desc="Altitude of ground station in Earth-fixed frame")
 
     def __init__(self, n):
         super(Comm_GSposEarth, self).__init__()
@@ -682,11 +780,16 @@ class Comm_GSposEarth(Component):
         self.n = n
 
         # Outputs
-        self.add('r_e2g_E', Array(np.zeros((3, self.n)),
-                                  iotype='out',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from earth to ground w.r.t. Earth frame"))
+        self.add(
+            'r_e2g_E',
+            Array(
+                np.zeros((3, self.n)),
+                iotype='out',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from earth to ground station in Earth-fixed frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -761,23 +864,39 @@ class Comm_GSposECI(Component):
         self.n = n
 
         # Inputs
-        self.add('O_IE', Array(np.zeros((3, 3, self.n)),
-                               iotype='in',
-                               shape=(3, 3, self.n),
-                               desc="Orientation matrix from Earth-centered-intertial frame to Earth-fixed frame"))
+        self.add(
+            'O_IE', 
+            Array(
+                np.zeros((3, 3, self.n)),
+                iotype='in',
+                shape=(3, 3, self.n),
+                units="unitless",
+                desc="Rotation matrix from Earth-centered inertial frame to Earth-fixed frame over time"
+            )
+        )
 
-        self.add('r_e2g_E', Array(np.zeros((3, self.n)),
-                                  iotype='in',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from earth to ground w.r.t. earth-fixed frame"))
+        self.add(
+            'r_e2g_E',
+            Array(
+                np.zeros((3, self.n)),
+                iotype='in',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from earth to ground station in Earth-fixed frame over time"
+            )
+        )
 
         # Outputs
-        self.add('r_e2g_I', Array(np.zeros((3, self.n)),
-                                  iotype='out',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from earth to ground w.r.t. Earth-centered-intertial frame."))
+        self.add(
+            'r_e2g_I',
+            Array(
+                np.zeros((3, self.n)),
+                iotype='out',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from earth to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -841,24 +960,39 @@ class Comm_LOS(Component):
         self.n = n
 
         # Inputs
-        self.add('r_b2g_I', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground w.r.t. Earth-centered-intertial frame"))
+        self.add(
+            'r_b2g_I', 
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from satellite to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
-        self.add('r_e2g_I', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from earth to ground w.r.t. Earth-cetnered-intertial frame"))
+        self.add(
+            'r_e2g_I',
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from earth to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
         # Outputs
-        self.add('CommLOS', Array(np.zeros(n),
-                            iotype='out',
-                            shape=(self.n, ),
-                            units="km",
-                            desc="Satellite to ground Line of Sight"))
+        self.add(
+            'CommLOS',
+            Array(
+                np.zeros(n),
+                iotype='out',
+                shape=(self.n, ),
+                units="unitless",
+                desc="Satellite to ground station line of sight over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -930,20 +1064,39 @@ class Comm_VectorAnt(Component):
         self.n = n
 
         # Inputs
-        self.add('r_b2g_B', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground in body-fixed frame coordinates"))
+        self.add(
+            'r_b2g_B', 
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from satellite to ground station in body-fixed frame over time"
+            )
+        )
 
-        self.add('O_AB', Array(np.zeros((3, 3, n)),
-                               iotype='in',
-                               shape=(3, 3, n),
-                               desc="Orientation matrix from antenna angle to body-fixed frame coordinates"))
+        self.add(
+            'O_AB',
+            Array(
+                np.zeros((3, 3, n)),
+                iotype='in',
+                shape=(3, 3, n),
+                units="unitless",
+                desc="Rotation matrix from antenna angle to body-fixed frame over time"
+            )
+        )
 
         # Outputs
-        self.add('r_b2g_A', Array(np.zeros((3, n)), iotype='out',
-                                  shape=(3, n)))
+        self.add(
+            'r_b2g_A',
+            Array(
+                np.zeros((3, n)),
+                iotype='out',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from satellite to ground station in antenna angle frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -996,23 +1149,39 @@ class Comm_VectorBody(Component):
         self.n = n
 
         # Inputs
-        self.add('r_b2g_I', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground in Earth-centered-intial frame coorinadtes"))
+        self.add(
+            'r_b2g_I',
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from satellite to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
-        self.add('O_BI', Array(np.zeros((3, 3, n)),
-                               iotype='in',
-                               shape=(3, 3, n),
-                               desc="Orientation matrix from body-fixed to Earth-centered-inertial frame coordinates"))
+        self.add(
+            'O_BI',
+            Array(
+                np.zeros((3, 3, n)),
+                iotype='in',
+                shape=(3, 3, n),
+                units="unitless",
+                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"
+            )
+        )
 
         # Outputs
-        self.add('r_b2g_B', Array(np.zeros((3, n)),
-                                  iotype='out',
-                                  shape=(3, n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground in body-fixed frame coordinates"))
+        self.add(
+            'r_b2g_B',
+            Array(
+                np.zeros((3, n)),
+                iotype='out',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from satellite to ground station in body-fixed frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -1071,23 +1240,39 @@ class Comm_VectorECI(Component):
         self.n = n
 
         # Inputs
-        self.add('r_e2g_I', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, n),
-                                  units="km",
-                                  desc="Positional vector from earth to ground in ECI frame"))
+        self.add(
+            'r_e2g_I',
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from earth to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
-        self.add('r_e2b_I', Array(np.zeros((6, n)),
-                                  iotype='in',
-                                  shape=(6, n),
-                                  desc="Positional vector from earth to satellite in ECI frame"))
+        self.add(
+            'r_e2b_I',
+            Array(
+                np.zeros((6, n)),
+                iotype='in',
+                shape=(6, n),
+                units="unitless",
+                desc="Position and velocity vector from earth to satellite in Earth-centered inertial frame over time"
+            )
+        )
 
         # Outputs
-        self.add('r_b2g_I', Array(np.zeros((3, n)),
-                                  iotype='out',
-                                  shape=(3, n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground in ECI frame"))
+        self.add(
+            'r_b2g_I',
+            Array(
+                np.zeros((3, n)),
+                iotype='out',
+                shape=(3, n),
+                units="km",
+                desc="Position vector from satellite to ground station in Earth-centered inertial frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -1126,23 +1311,39 @@ class Comm_VectorSpherical(Component):
         self.n = n
 
         # Inputs
-        self.add('r_b2g_A', Array(np.zeros((3, n)),
-                                  iotype='in',
-                                  shape=(3, self.n),
-                                  units="km",
-                                  desc="Positional vector from satellite to ground in antenna angle frame"))
+        self.add(
+            'r_b2g_A',
+            Array(
+                np.zeros((3, n)),
+                iotype='in',
+                shape=(3, self.n),
+                units="km",
+                desc="Position vector from satellite to ground station in antenna angle frame over time"
+            )
+        )
 
         # Outputs
-        self.add('azimuthGS', Array(np.zeros(n), 
-                                    iotype='out',
-                                    shape=(n,),
-                                    units="rad",
-                                    desc="Azimuth elevation from observer at ground station"))
+        self.add(
+            'azimuthGS',
+            Array(
+                np.zeros(n), 
+                iotype='out',
+                shape=(n,),
+                units="rad",
+                desc="Azimuth angle from satellite to ground station in Earth-fixed frame over time"
+            )
+        )
 
-        self.add('elevationGS', Array(np.zeros(n),
-                                      iotype='out',
-                                      shape=(n,),
-                                      units="km"))
+        self.add(
+            'elevationGS',
+            Array(
+                np.zeros(n),
+                iotype='out',
+                shape=(n,),
+                units="rad",
+                desc="Elevation angle from satellite to ground station in Earth-fixed frame over time"
+            )
+        )
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """

@@ -36,24 +36,24 @@ class BatterySOC(rk4.RK4):
 
         # Inputs
         self.add('iSOC',
-            Array([0.0], shape=(1, ), dtype=np.float, units="V",
-                iotype="in", desc="initial state of charge")
+            Array([0.0], shape=(1, ), dtype=np.float,
+                iotype="in", units="unitless", desc="Initial state of charge")
         )
 
         self.add('P_bat',
             Array(np.zeros((n_times, )), shape=(n_times, ), dtype=np.float,
-                units="W", iotype="in", desc="battery power over time")
+                units="W", iotype="in", desc="Battery power over time")
         )
 
         self.add('temperature',
             Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
-                units="K", iotype="in", desc="battery temperature over time")
+                units="K", iotype="in", desc="Battery temperature over time")
         )
 
         # Outputs
         self.add('SOC',
             Array(np.zeros((1, n_times)), shape=(1, n_times), dtype=np.float,
-                iotype="out", desc="battery state of charge over time")
+                iotype="out", units="unitless", desc="Battery state of charge over time")
         )
 
 
@@ -132,7 +132,7 @@ class BatteryPower(Component):
 
         # Inputs
         self.add('SOC', Array(np.zeros((1, n)), size=(1, n), dtype=np.float,
-                              iotype="in", desc="Battery state of charge over time"))
+                              iotype="in", units="unitless", desc="Battery state of charge over time"))
 
         self.add('temperature', Array(np.zeros((5, n)), size=(n, ),
                                       dtype=np.float, iotype="in",
@@ -143,7 +143,7 @@ class BatteryPower(Component):
 
         # Outputs
         self.add('I_bat', Array(np.zeros((n, )), size=(n, ), dtype=np.float,
-                                iotype="out", units="A", desc="Battery Current over Time"))
+                                iotype="out", units="A", desc="Battery Current over time"))
 
     def execute(self):
         """ Calculate output. """
@@ -205,13 +205,24 @@ class BatteryConstraints(Component):
     """
 
     # Outputs
-    ConCh = Float(0.0, iotype="out",
-                  units="A", desc="Constraint on charging rate")
-    ConDs = Float(0.0, iotype="out",
-                  units="A", desc="Constraint on discharging rate")
-    ConS0 = Float(0.0, iotype="out",
+    ConCh = Float(0.0,
+		  iotype="out",
+                  units="A",
+		  desc="Constraint on charging rate")
+
+    ConDs = Float(0.0,
+		  iotype="out",
+                  units="A",
+		  desc="Constraint on discharging rate")
+
+    ConS0 = Float(0.0,
+		  iotype="out",
+		  units="unitless",
                   desc="Constraint on minimum state of charge")
-    ConS1 = Float(0.0, iotype="out",
+
+    ConS1 = Float(0.0,
+		  iotype="out",
+		  units="unitless",
                   desc="Constraint on maximum state of charge")
 
     def __init__(self, n=2):
@@ -225,10 +236,17 @@ class BatteryConstraints(Component):
         self.SOC1 = 1.0
 
         # Inputs
-        self.add('I_bat', Array(np.zeros((n,)), size=(n,), iotype="in",
-            desc="Battery Current over time"))
-        self.add('SOC', Array(np.zeros((1, n)), size=(1, n), iotype="in",
-            desc="Battery State of Charge over time"))
+        self.add('I_bat', Array(np.zeros((n,)),
+		                size=(n,),
+				iotype="in",
+				units="A",
+                                desc="Battery current over time"))
+
+        self.add('SOC', Array(np.zeros((1, n)),
+		              size=(1, n),
+			      iotype="in",
+			      units="unitless",
+                              desc="Battery state of charge over time"))
 
         self.KS_ch = KS.KSfunction()
         self.KS_ds = KS.KSfunction()

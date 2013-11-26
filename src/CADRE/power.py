@@ -28,13 +28,11 @@ class Power_CellVoltage(Component):
         self.add(
             'temperature', Array(np.zeros((5, n)), size=(5, n,), dtype=np.float,
                                  units="degK",
-                                 desc="temperature of solar cells",
+                                 desc="Temperature of solar cells over time",
                                  iotype="in"))
         self.add(
             'exposedArea', Array(np.zeros((7, 12, n)), size=(7, 12, n), dtype=np.float,
-                                 desc="amount of each solar cell's area " +
-                                 "that is exposed to the sun, projected " +
-                                 "onto the plane normal to the sun's incidence.",
+                                 desc="Exposed area to sun for each solar cell over time",
                                  units="m**2",
                                  iotype="in"))
         self.add(
@@ -46,7 +44,7 @@ class Power_CellVoltage(Component):
         self.add(
             'V_sol', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
                            units="V",
-                           desc="Output voltage of solar panel",
+                           desc="Output voltage of solar panel over time",
                            iotype="out"))
 
         nT, nA, nI = dat[:3]
@@ -145,18 +143,24 @@ class Power_SolarPower(Component):
         self.n = n
 
         self.add(
-            'Isetpt', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
-                            units="A",
-                            desc="solar panel current",
-                            iotype="in"))
+            'Isetpt',
+	    Array(
+		    np.zeros((12, n)), size=(12, n),
+		    dtype=np.float,
+                    units="A",
+                    desc="Currents of the solar panels",
+                    iotype="in"
+	    )
+	)
+
         self.add(
             'V_sol', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
                            units="V",
-                           desc="Output voltage of solar panel",
+                           desc="Output voltage of solar panel over time",
                            iotype="in"))
         
         self.add('P_sol', Array(np.zeros((n, )), size=(n,), dtype=np.float,
-                                      iotype="out"))
+                                      iotype="out", units="W", desc="Solar panels power over time"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -200,23 +204,23 @@ class Power_Total(Component):
         self.add(
             'P_sol', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
                            units='W',
-                           desc='Power from solar panels',
+                           desc='Solar panels power over time',
                            iotype="in"))
         self.add(
             'P_comm', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
                             units='W',
-                            desc='Communication power',
+                            desc='Communication power over time',
                             iotype="in"))
         self.add(
             'P_RW', Array(np.zeros((3, n, ), order='F'), size=(3, n,), dtype=np.float,
                           units='W',
-                          desc='Power used by reaction wheel', # qqq ?
+                          desc='Power used by reaction wheel over time', # qqq ?
                           iotype="in"))
 
         self.add(
             'P_bat', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
                            units='W',
-                           desc='Battery power',
+                           desc='Battery power over time',
                            iotype="out"))
 
     def linearize(self):

@@ -43,7 +43,7 @@ class BsplineParameters(Component):
 		                   size=(self.m,),
 				   dtype=float,
                                    units='rad',
-                                   desc='satellite roll angle at control points',
+                                   desc='Satellite roll angle at control points',
                                    iotype='in'))
 
         self.add('CP_Isetpt', Array(np.zeros((12,self.m)),
@@ -56,21 +56,21 @@ class BsplineParameters(Component):
         self.add('P_comm', Array(np.ones((n,)),
 		                 size=(n,), dtype=float,
                                  units='W',
-                                 desc='Communication power',
+                                 desc='Communication power over time',
                                  iotype='out'))
 
         self.add('Gamma', Array(0.1*np.ones((n,)),
 		                size=(n,),
 				dtype=float,
                                 units='rad',
-                                desc='satellite roll angle',
+                                desc='Satellite roll angle over time',
                                 iotype='out'))
 
         self.add('Isetpt',Array(0.2*np.ones((12,n)),
 		                size=(12,n),
 				dtype=float,
                                 units="A",
-                                desc="Currents of the solar panels",
+                                desc="Currents of the solar panels over time",
                                 iotype='out'))
         
     def linearize(self):

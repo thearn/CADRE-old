@@ -17,20 +17,20 @@ class ReactionWheel_Motor(Component):
 
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
                                units="N*m",
-                               desc="Torque vector of reaction wheel",
+                               desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
         self.add('w_B', Array(np.zeros((3,n)), size=(3,n),
                               units="1/s",
-                              desc="Angular velocity vector of satellite",
+                              desc="Angular velocity vector in body-fixed frame over time",
                               dtype=np.float, iotype='in'))
         self.add('w_RW', Array(np.zeros((3,n)), size=(3,n),
                                units="1/s",
-                               desc="Angular velocity vector of reaction wheel",
+                               desc="Angular velocity vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
 
         self.add('T_m', Array(np.ones((3,n)), size=(3,n),
                               units="N*m",
-                              desc="Torque vector of motor",
+                              desc="Torque vector of motor over time",
                               dtype=np.float, iotype='out'))
 
     def linearize(self):
@@ -112,16 +112,16 @@ class ReactionWheel_Power(Component):
 
         self.add('w_RW', Array(np.zeros((3,n)), size=(3,n),
                                units="1/s",
-                               desc="Angular velocity vector of reaction wheel",
+                               desc="Angular velocity vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
                                units="N*m",
-                               desc="Torque vector of reaction wheel",
+                               desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
 
         self.add('P_RW', Array(np.ones((3,n)), size=(3,n),
                                units='W',
-                               desc='Reaction wheel power',
+                               desc='Reaction wheel power over time',
                                dtype=np.float, iotype='out'))
 
     def linearize(self):
@@ -166,12 +166,12 @@ class ReactionWheel_Torque(Component):
 
         self.add('T_tot', Array(np.zeros((3,n)), size=(3,n),
                                 units='N*m',
-                                desc='Total torque',
+                                desc='Total reaction wheel torque over time',
                                 dtype=np.float, iotype='in'))
 
         self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
                                units="N*m",
-                               desc="Torque vector of reaction wheel",
+                               desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='out'))
 
     def linearize(self):
@@ -200,16 +200,16 @@ class ReactionWheel_Dynamics(rk4.RK4):
 
         self.add('w_B', Array(np.zeros((3, n_times)), size=(3, n_times),
                               units="1/s",
-                              desc="Angular velocity vector of satellite",
+                              desc="Angular velocity vector in body-fixed frame over time",
                               dtype=np.float, iotype='in'))
         self.add('T_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
                                units="N*m",
-                               desc="Torque vector of reaction wheel",
+                               desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
 
         self.add('w_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
                                units="1/s",
-                               desc="Angular velocity vector of reaction wheel",
+                               desc="Angular velocity vector of reaction wheel over time",
                                dtype=np.float, iotype='out'))
         self.add('w_RW0', Array(np.zeros((3,)), size=(3,),
                                 units="1/s",

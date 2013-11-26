@@ -44,7 +44,7 @@ class ThermalTemperature(RK4):
                                       size=(7, 12 ,n_times),
 				      dtype=np.float,
                                       iotype="in",
-                                      desc="exposed area for each solar cell")
+                                      desc="Exposed area to the sun for each solar cell over time")
         )
 
         self.add("cellInstd", Array(np.ones((7, 12)),
@@ -62,7 +62,7 @@ class ThermalTemperature(RK4):
                               dtype=np.float,
 			      iotype="in",
                               units='unitless',
-                              desc="Line of sight to the sun",
+                              desc="Satellite to sun line of sight over time",
 			      low=0,
 			      high=1)
         )
@@ -72,7 +72,7 @@ class ThermalTemperature(RK4):
                                  dtype=np.float,
 				 iotype="in",
                                  units='W',
-                                 desc="Power required by the communication system",
+                                 desc="Communication power over time",
 				 low=0,
 				 high=1)
         )
@@ -81,7 +81,7 @@ class ThermalTemperature(RK4):
         self.add("temperature", Array(np.zeros((5, n_times)),
                                       shape=(5, n_times), dtype=np.float,
                                       units="degK",
-                                      iotype="out", desc="temperature for the 4 fins and body over time",
+                                      iotype="out", desc="Temperature for the 4 fins and body over time",
                                       low=50, high=400)
         )
 

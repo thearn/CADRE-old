@@ -23,6 +23,7 @@ C3 = -2.5*mu*J3*Re**3
 C4 = 1.875*mu*J4*Re**4
 
 class Orbit_Dynamics(rk4.RK4):
+    """Computes the Earth to body position vector in Earth-centered intertial frame"""
 
     def __init__(self, n_times):
         super(Orbit_Dynamics, self).__init__()
@@ -31,13 +32,17 @@ class Orbit_Dynamics(rk4.RK4):
         self.add('r_e2b_I0',Array(np.zeros((6,)),
                             size=(6,), iotype="in",
                             dtype=np.float,
-                            fd_step=1e-3))
+                            fd_step=1e-3,
+                            units="unitless",
+                            desc="Initial position and velocity vectors from earth to satellite in Earth-centered inertial frame"))
 
         # Outputs
         self.add('r_e2b_I', Array(1000*np.ones((6, n_times)),
                                   size=(6, n_times),
                                   dtype=np.float,
-                                  iotype="out"))
+                                  iotype="out",
+                                  units="unitless",
+                                  desc="Position and velocity vectors from earth to satellite in Earth-centered inertial frame over time"))
 
         self.state_var = 'r_e2b_I'
         self.init_state_var = 'r_e2b_I0'
@@ -138,6 +143,7 @@ class Orbit_Dynamics(rk4.RK4):
 
 
 class Orbit_Initial(Component):
+    """Computes initial position and velocity vectors of earth to body position"""
 
     # Inputs
     altPerigee = Float(500., iotype="in", copy=None)
@@ -154,7 +160,9 @@ class Orbit_Initial(Component):
         self.add('r_e2b_I0', Array(np.ones((6,)),
                                    size=(6,),
                                    dtype=np.float,
-                                   iotype='out'))
+                                   iotype='out',
+                                   units="unitless",
+                                   desc="Initial position and velocity vectors from earth to satellite in Earth-centered inertial frame"))
 
     def compute(self, altPerigee, altApogee, RAAN, Inc, argPerigee, trueAnomaly):
         ''' Compute position and velocity from orbital elements.'''

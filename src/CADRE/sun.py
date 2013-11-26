@@ -18,14 +18,14 @@ class Sun_LOS( Component ):
         self.r2 = 6378.137
 
         self.add('r_e2b_I', Array(np.zeros((6, n), order='F'), size=(6,n, ), dtype=np.float,
-                                  units = "km", desc="location and velocity vector of satellite in Earth-centered inertial frame",
+                                  units = "unitless", desc="Position and velocity vectors from earth to satellite in Earth-centered inertial frame over time",
                                   iotype="in"))
         self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
-                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
                                   iotype="in"))
 
         self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ), dtype=np.float, units="unitless",
-                              iotype="out", desc="Line of sight"))
+                              iotype="out", desc="Satellite to sun line of sight over time"))
 
 
     def execute(self):
@@ -154,11 +154,11 @@ class Sun_PositionBody( Component ):
                                units="unitless", desc="Rotation matrix from the Earth-centered inertial frame to the satellite frame",
                                iotype="in"))
         self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
-                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
                                   iotype="in"))
 
         self.add('r_e2s_B', Array(np.zeros((3,n, ), order='F'), size=(3,n, ), dtype=np.float, iotype="out",
-                                  units = "km", desc="location of sun relative to Earth in body fixed frame" ))
+                                  units = "km", desc="Position vector from earth to sun in body-fixed frame over time" ))
 
 
     def execute(self):
@@ -198,8 +198,8 @@ class Sun_PositionECI( Component ):
 
     #constants
     d2r = np.pi/180.
+    LD = Float(0., iotype="in", units="unitless", copy=None)
 
-    LD = Float(0., iotype="in", copy=None)
     def __init__(self, n=2):
         super(Sun_PositionECI, self).__init__()
 
@@ -207,12 +207,21 @@ class Sun_PositionECI( Component ):
 
         #self.add('LD', Array(np.zeros((1,), order='F'), size=(1,), dtype=np.float, iotype="in"))
 
-        self.add('t', Array(np.zeros((n,), order='F'), size=(n,), dtype=np.float,
-                            units="s", desc="time", iotype="in"))
+        self.add(
+		    't', 
+		    Array(
+		        np.zeros((n,), order='F'),
+			size=(n,),
+			dtype=np.float,
+                        units="s",
+			desc="Time",
+			iotype="in"
+		    )
+	)
 
         self.add('r_e2s_I', Array(np.zeros((3,n, ), order='F'), size=(3,n, ),
                                   dtype=np.float,
-                                  units="km", desc="location vector of sun in Earth-centered inertial frame",
+                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
                                   iotype="out"))
 
         self.Ja = np.zeros(3*self.n)
@@ -284,16 +293,16 @@ class Sun_PositionSpherical(Component):
         self.n = n
 
         self.add('r_e2s_B', Array(np.zeros((3, n)), size=(3, n),
-                                  units = "km", desc="location of sun relative to Earth in body fixed frame",
+                                  units = "km", desc="Position vector from earth to sun in body-fixed frame over time",
                                   dtype=np.float, iotype="in"))
 
         self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float,
                                   units='rad',
-                                  desc='azimuth angle of the sun in the body-fixed frame',
+                                  desc='Ezimuth angle of the sun in the body-fixed frame over time',
                                   iotype="out"))
         self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float,
-                                    units='km',
-                                    desc='elevation angle of the sun in the body-fixed frame',
+                                    units='rad',
+                                    desc='Elevation angle of the sun in the body-fixed frame over time',
                                     iotype="out"))
 
     def execute(self):
