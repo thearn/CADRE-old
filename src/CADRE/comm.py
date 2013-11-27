@@ -414,6 +414,8 @@ class Comm_BitRate(Component):
 
 class Comm_Distance(Component):
 
+    '''Calculates distance from ground station to satellitle'''
+
     def __init__(self, n):
         super(Comm_Distance, self).__init__()
 
@@ -1058,6 +1060,8 @@ class Comm_LOS(Component):
 
 
 class Comm_VectorAnt(Component):
+
+    '''Transform from antenna to body frame'''
 
     def __init__(self, n):
         super(Comm_VectorAnt, self).__init__()
