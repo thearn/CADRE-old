@@ -1,5 +1,7 @@
+''' Reaction wheel discipline for CADRE '''
+
 from openmdao.main.api import Component
-from openmdao.lib.datatypes.api import Float, Array
+from openmdao.lib.datatypes.api import Array
 
 import numpy as np
 
@@ -7,7 +9,7 @@ import rk4
 
 
 class ReactionWheel_Motor(Component):
-    '''Compute motor torque'''
+    '''Compute reaction wheel motor torque'''
     
     def __init__(self, n):
         super(ReactionWheel_Motor, self).__init__()
@@ -158,7 +160,7 @@ class ReactionWheel_Power(Component):
 
 
 class ReactionWheel_Torque(Component):
-    '''Compute reaction wheel torque'''
+    '''Compute torque vector of reaction wheel'''
     
     def __init__(self, n):
         super(ReactionWheel_Torque, self).__init__()
@@ -194,6 +196,7 @@ class ReactionWheel_Torque(Component):
 
 
 class ReactionWheel_Dynamics(rk4.RK4):
+    '''Compute the angular velocity vector of reaction wheel'''
 
     def __init__(self, n_times):
         super(ReactionWheel_Dynamics, self).__init__()
@@ -207,14 +210,15 @@ class ReactionWheel_Dynamics(rk4.RK4):
                                desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
 
-        self.add('w_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
-                               units="1/s",
-                               desc="Angular velocity vector of reaction wheel over time",
-                               dtype=np.float, iotype='out'))
         self.add('w_RW0', Array(np.zeros((3,)), size=(3,),
                                 units="1/s",
                                 desc="Initial angular velocity vector of reaction wheel",
                                 dtype=np.float, iotype='in'))
+
+        self.add('w_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
+                               units="1/s",
+                               desc="Angular velocity vector of reaction wheel over time",
+                               dtype=np.float, iotype='out'))
 
         self.state_var = 'w_RW'
         self.init_state_var = 'w_RW0'

@@ -1,3 +1,5 @@
+''' Sun discipline for CADRE '''
+
 import numpy as np
 import scipy.sparse
 
@@ -9,6 +11,8 @@ from kinematics import computepositionspherical, computepositionsphericaljacobia
 
 class Sun_LOS( Component ):
 
+    '''Compute the Satellite to sun line of sight'''
+    
     def __init__(self, n=2):
         super(Sun_LOS, self).__init__()
 
@@ -17,16 +21,28 @@ class Sun_LOS( Component ):
         self.r1 = 6378.137*0.85 # Earth's radius is 6378 km. 0.85 is the alpha in John Hwang's paper
         self.r2 = 6378.137
 
-        self.add('r_e2b_I', Array(np.zeros((6, n), order='F'), size=(6,n, ), dtype=np.float,
-                                  units = "unitless", desc="Position and velocity vectors from earth to satellite in Earth-centered inertial frame over time",
+        self.add('r_e2b_I', Array(np.zeros((6, n), order='F'),
+                                  size=(6,n, ), dtype=np.float,
+                                  units = "unitless",
+                                  desc="Position and velocity vectors from " +
+                                  "earth to satellite in Earth-centered " +
+                                  "inertial frame over time",
                                   iotype="in"))
-        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
-                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
+        
+        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ),
+                                  dtype=np.float,
+                                  units="km", desc="Position vector from " +
+                                  "earth to sun in Earth-centered inertial " +
+                                  "frame over time",
                                   iotype="in"))
 
-        self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ), dtype=np.float, units="unitless",
-                              iotype="out", desc="Satellite to sun line of sight over time"))
-
+        self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ),
+                              dtype=np.float,
+                              units="unitless",
+                              desc="Satellite to sun " +
+                              "line of sight over time",
+                              iotype="out"
+                              ))
 
     def execute(self):
 
@@ -63,7 +79,7 @@ class Sun_LOS( Component ):
         Bx = np.zeros(shape=(3,3,), dtype = np.int)
         Sx = np.zeros(shape=(3,3,), dtype = np.int)
         cross = np.zeros(shape=(3,), dtype = np.int)
-        ddist_cross = np.zeros(shape=(3,), dtype = np.int)
+        #ddist_cross = np.zeros(shape=(3,), dtype = np.int)
         dcross_drb = np.zeros(shape=(3,3,), dtype = np.int)
         dcross_drs = np.zeros(shape=(3,3,), dtype = np.int)
         dLOS_dx = np.zeros(shape=(3,), dtype = np.int)
@@ -90,7 +106,7 @@ class Sun_LOS( Component ):
                 dLOS_drs[:] = 0.0
             else:
                 x = (dist-self.r1)/(self.r2-self.r1)
-                LOS = 3*x**2 - 2*x**3
+                #LOS = 3*x**2 - 2*x**3
                 ddist_dcross = cross/dist
                 dcross_drb = Sx
                 dcross_drs = Bx
@@ -145,21 +161,34 @@ def crossMatrix(v):
 
 class Sun_PositionBody( Component ):
 
+    '''Position vector from earth to sun in body-fixed frame'''
+    
     def __init__(self, n=2):
         super(Sun_PositionBody, self).__init__()
 
         self.n = n
 
-        self.add('O_BI', Array(np.zeros((3, 3, n), order='F'), size=(3,3,n, ), dtype=np.float,
-                               units="unitless", desc="Rotation matrix from the Earth-centered inertial frame to the satellite frame",
+        self.add('O_BI', Array(np.zeros((3, 3, n), order='F'),
+                               size=(3,3,n, ), dtype=np.float,
+                               units="unitless",
+                               desc="Rotation matrix from the " +
+                               "Earth-centered inertial frame " +
+                               "to the satellite frame",
                                iotype="in"))
-        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ), dtype=np.float,
-                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
+
+        self.add('r_e2s_I', Array(np.zeros((3, n), order='F'),
+                                  size=(3,n, ), dtype=np.float,
+                                  units="km", desc="Position vector " +
+                                  "from earth to sun in Earth-centered " +
+                                  "inertial frame over time",
                                   iotype="in"))
 
-        self.add('r_e2s_B', Array(np.zeros((3,n, ), order='F'), size=(3,n, ), dtype=np.float, iotype="out",
-                                  units = "km", desc="Position vector from earth to sun in body-fixed frame over time" ))
-
+        self.add('r_e2s_B', Array(np.zeros((3,n, ), order='F'),
+                                  size=(3,n, ), dtype=np.float,
+                                  iotype="out",
+                                  units = "km", desc="Position vector " +
+                                  "from earth to sun in body-fixed " +
+                                  "frame over time" ))
 
     def execute(self):
         self.r_e2s_B = computepositionrotd(self.n, self.r_e2s_I, self.O_BI)
@@ -196,6 +225,11 @@ class Sun_PositionBody( Component ):
 
 class Sun_PositionECI( Component ):
 
+    '''
+    Compute the position vector from earth to sun in
+    Earth-centered inertial frame
+    '''
+
     #constants
     d2r = np.pi/180.
     LD = Float(0., iotype="in", units="unitless", copy=None)
@@ -219,9 +253,13 @@ class Sun_PositionECI( Component ):
 		    )
 	)
 
-        self.add('r_e2s_I', Array(np.zeros((3,n, ), order='F'), size=(3,n, ),
+        self.add('r_e2s_I', Array(np.zeros((3,n, ), order='F'),
+                                  size=(3,n, ),
                                   dtype=np.float,
-                                  units="km", desc="Position vector from earth to sun in Earth-centered inertial frame over time",
+                                  units="km",
+                                  desc="Position vector from earth " +
+                                  "to sun in Earth-centered inertial " +
+                                  "frame over time",
                                   iotype="out"))
 
         self.Ja = np.zeros(3*self.n)
@@ -287,22 +325,30 @@ class Sun_PositionECI( Component ):
 
 class Sun_PositionSpherical(Component):
 
+    '''Compute the elevation angle of the sun in the body-fixed frame'''
+
     def __init__(self, n=2):
         super(Sun_PositionSpherical, self).__init__()
 
         self.n = n
 
         self.add('r_e2s_B', Array(np.zeros((3, n)), size=(3, n),
-                                  units = "km", desc="Position vector from earth to sun in body-fixed frame over time",
+                                  units = "km",
+                                  desc="Position vector from " +
+                                      "earth to sun in body-fixed " +
+                                      "frame over time",
                                   dtype=np.float, iotype="in"))
 
         self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float,
                                   units='rad',
-                                  desc='Ezimuth angle of the sun in the body-fixed frame over time',
+                                  desc='Ezimuth angle of the sun ' +
+                                      'in the body-fixed frame over time',
                                   iotype="out"))
         self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float,
                                     units='rad',
-                                    desc='Elevation angle of the sun in the body-fixed frame over time',
+                                    desc="Elevation angle of the " +
+                                        "sun in the body-fixed frame " +
+                                        "over time",
                                     iotype="out"))
 
     def execute(self):

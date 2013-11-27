@@ -1,17 +1,20 @@
 ''' Power discipline for CADRE '''
 
 import numpy as np
-import scipy.sparse
 
 from openmdao.main.api import Component
-from openmdao.lib.datatypes.api import Float, Array
+from openmdao.lib.datatypes.api import Array
 
 import MBI
 import os
 
 
 class Power_CellVoltage(Component):
-
+    
+    '''
+    Compute the output voltage of the solar panels
+    '''
+    
     def __init__(self, n, dat=None):
         super(Power_CellVoltage, self).__init__()
 
@@ -137,6 +140,10 @@ class Power_CellVoltage(Component):
 
 class Power_SolarPower(Component):
 
+    '''
+    Compute the output power of the solar panels
+    '''
+    
     def __init__(self, n=2):
         super(Power_SolarPower, self).__init__()
 
@@ -160,7 +167,8 @@ class Power_SolarPower(Component):
                            iotype="in"))
         
         self.add('P_sol', Array(np.zeros((n, )), size=(n,), dtype=np.float,
-                                      iotype="out", units="W", desc="Solar panels power over time"))
+                                iotype="out", units="W",
+                                desc="Solar panels power over time"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -195,6 +203,13 @@ class Power_SolarPower(Component):
 
 
 class Power_Total(Component):
+
+    '''
+    Compute the battery power which is the sum of the loads.
+    This includes a 2 Watt constant power usage that
+    accounts for the scientific instruments on the satellite
+    and small actuator inputs in response to disturbance torques.
+    '''
 
     def __init__(self, n=2):
         super(Power_Total, self).__init__()

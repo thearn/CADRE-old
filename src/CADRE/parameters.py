@@ -1,5 +1,7 @@
+''' Bspline module for CADRE '''
+
 from openmdao.main.api import Component
-from openmdao.lib.datatypes.api import Float, Array, Int
+from openmdao.lib.datatypes.api import Float, Array
 
 from MBI.MBI import MBI
 
