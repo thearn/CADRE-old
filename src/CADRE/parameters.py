@@ -8,6 +8,10 @@ import numpy as np
 
 class BsplineParameters(Component):
 
+    '''Creates a Bspline interpolant for several CADRE variables
+       so that their time histories can be shaped with m control points
+       instead of n time points.'''
+
     def __init__(self, n, m):
         super(BsplineParameters, self).__init__()
 
