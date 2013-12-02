@@ -19,7 +19,7 @@ class RK4(Component):
     """
 
     h = Float(.01, units="s", iotype="in",
-              desc="time step used for the integration")
+              desc="Time step used for RK4 integration")
 
     state_var = Str("", iotype="in",
                     desc="name of the variable to be used for time "

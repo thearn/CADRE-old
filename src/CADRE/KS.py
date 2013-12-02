@@ -37,16 +37,24 @@ class KSComp(Component):
     """Aggregates a number of functions to a single value via the 
     Kreisselmeier-Steinhauser Function""" 
 
-    rho = Float(.1, iotype="in", desc="hyperparameter for the KS function")
-    KS = Float(0, iotype="out", desc="value of the aggregate KS function")
+    rho = Float(.1,
+                iotype="in",
+                desc="hyperparameter for the KS function")
+
+    KS = Float(0,
+               iotype="out",
+               desc="value of the aggregate KS function")
 
     def __init__(self, n=2): 
         super(KS, self).__init__()
 
         self.n = n
 
-        self.add('g',Array(zeros((n,)), size=(n,1), dtype=Float, iotype="in", 
-            desc="array of function values to be aggregated"))
+        self.add('g',Array(zeros((n,)),
+                           size=(n,1),
+                           dtype=Float,
+                           iotype="in",
+                           desc="array of function values to be aggregated"))
 
         self._ks = KSfunction()
 

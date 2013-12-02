@@ -1,17 +1,20 @@
 ''' Power discipline for CADRE '''
 
 import numpy as np
-import scipy.sparse
 
 from openmdao.main.api import Component
-from openmdao.lib.datatypes.api import Float, Array
+from openmdao.lib.datatypes.api import Array
 
 import MBI
 import os
 
 
 class Power_CellVoltage(Component):
-
+    
+    '''
+    Compute the output voltage of the solar panels
+    '''
+    
     def __init__(self, n, dat=None):
         super(Power_CellVoltage, self).__init__()
 
@@ -23,20 +26,29 @@ class Power_CellVoltage(Component):
 
         self.add(
             'LOS', Array(np.zeros((n)), size=(n, ), dtype=np.float, iotype="in",
-            desc="Line of Sight over Time"))
+                         units='unitless',
+                         desc="Line of Sight over Time"))
         self.add(
             'temperature', Array(np.zeros((5, n)), size=(5, n,), dtype=np.float,
-                                      iotype="in"))
+                                 units="degK",
+                                 desc="Temperature of solar cells over time",
+                                 iotype="in"))
         self.add(
             'exposedArea', Array(np.zeros((7, 12, n)), size=(7, 12, n), dtype=np.float,
-                                      iotype="in"))
+                                 desc="Exposed area to sun for each solar cell over time",
+                                 units="m**2",
+                                 iotype="in"))
         self.add(
             'Isetpt', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
-                                      iotype="in"))
+                            units="A",
+                            desc="Currents of the solar panels",
+                            iotype="in"))
 
         self.add(
             'V_sol', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
-                                      iotype="out"))
+                           units="V",
+                           desc="Output voltage of solar panel over time",
+                           iotype="out"))
 
         nT, nA, nI = dat[:3]
         T = dat[3:3 + nT]
@@ -128,20 +140,35 @@ class Power_CellVoltage(Component):
 
 class Power_SolarPower(Component):
 
+    '''
+    Compute the output power of the solar panels
+    '''
+    
     def __init__(self, n=2):
         super(Power_SolarPower, self).__init__()
 
         self.n = n
 
         self.add(
-            'Isetpt', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
-                                      iotype="in"))
+            'Isetpt',
+	    Array(
+		    np.zeros((12, n)), size=(12, n),
+		    dtype=np.float,
+                    units="A",
+                    desc="Currents of the solar panels",
+                    iotype="in"
+	    )
+	)
+
         self.add(
             'V_sol', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
-                                      iotype="in"))
-
+                           units="V",
+                           desc="Output voltage of solar panel over time",
+                           iotype="in"))
+        
         self.add('P_sol', Array(np.zeros((n, )), size=(n,), dtype=np.float,
-                                      iotype="out"))
+                                iotype="out", units="W",
+                                desc="Solar panels power over time"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -177,6 +204,13 @@ class Power_SolarPower(Component):
 
 class Power_Total(Component):
 
+    '''
+    Compute the battery power which is the sum of the loads.
+    This includes a 2 Watt constant power usage that
+    accounts for the scientific instruments on the satellite
+    and small actuator inputs in response to disturbance torques.
+    '''
+
     def __init__(self, n=2):
         super(Power_Total, self).__init__()
 
@@ -184,17 +218,25 @@ class Power_Total(Component):
 
         self.add(
             'P_sol', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
-                                      iotype="in"))
+                           units='W',
+                           desc='Solar panels power over time',
+                           iotype="in"))
         self.add(
             'P_comm', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
-                                      iotype="in"))
+                            units='W',
+                            desc='Communication power over time',
+                            iotype="in"))
         self.add(
             'P_RW', Array(np.zeros((3, n, ), order='F'), size=(3, n,), dtype=np.float,
-                                      iotype="in"))
+                          units='W',
+                          desc='Power used by reaction wheel over time', # qqq ?
+                          iotype="in"))
 
         self.add(
             'P_bat', Array(np.zeros((n, ), order='F'), size=(n,), dtype=np.float,
-                                      iotype="out"))
+                           units='W',
+                           desc='Battery power over time',
+                           iotype="out"))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
