@@ -32,7 +32,7 @@ class Orbit_Dynamics(rk4.RK4):
         self.add('r_e2b_I0',Array(np.zeros((6,)),
                             size=(6,), iotype="in",
                             dtype=np.float,
-                            fd_step=1e-3,
+                            fd_step=1e-2,
                             units="unitless",
                             desc="Initial position and velocity vectors from earth to satellite in Earth-centered inertial frame"))
 
@@ -134,7 +134,7 @@ class Orbit_Dynamics(rk4.RK4):
         dfdy[5, 2] = dfdy[5, 2] + z*(C3/r**7*dT3z_dz + C4/r**7*dT4z_dz)
         dfdy[5, 2] = dfdy[5, 2] + (C2/r**5*2 + C3/r**7*T3z + C4/r**7*T4z)
 
-
+        print dfdy
         return dfdy
 
     def df_dx(self, external, state):

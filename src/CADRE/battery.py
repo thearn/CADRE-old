@@ -36,25 +36,25 @@ class BatterySOC(rk4.RK4):
 
         # Inputs
         self.add('iSOC',
-            Array([0.0], shape=(1, ), dtype=np.float,
-                iotype="in", units="unitless", desc="Initial state of charge")
-        )
+                 Array([0.0], shape=(1, ), dtype=np.float,
+                       iotype="in", units="unitless", desc="Initial state of charge")
+                 )
 
         self.add('P_bat',
-            Array(np.zeros((n_times, )), shape=(n_times, ), dtype=np.float,
-                units="W", iotype="in", desc="Battery power over time")
-        )
+                 Array(np.zeros((n_times, )), shape=(n_times, ), dtype=np.float,
+                       units="W", iotype="in", desc="Battery power over time")
+                 )
 
         self.add('temperature',
-            Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
-                units="K", iotype="in", desc="Battery temperature over time")
-        )
+                 Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
+                       units="K", iotype="in", desc="Battery temperature over time")
+                 )
 
         # Outputs
         self.add('SOC',
-            Array(np.zeros((1, n_times)), shape=(1, n_times), dtype=np.float,
-                iotype="out", units="unitless", desc="Battery state of charge over time")
-        )
+                 Array(np.zeros((1, n_times)), shape=(1, n_times), dtype=np.float,
+                       iotype="out", units="unitless", desc="Battery state of charge over time")
+                 )
 
 
         self.state_var = "SOC"
@@ -171,13 +171,13 @@ class BatteryPower(Component):
         """ Matrix-vector product with the Jacobian. """
 
         if 'I_bat' in result:
-            
+
             if 'P_bat' in arg:
                 result['I_bat'] += self.dI_dP * arg['P_bat']
-                
+
             if 'temperature' in arg:
                 result['I_bat'] += self.dI_dT * arg['temperature'][4, :]
-                
+
             if 'SOC' in arg:
                 result['I_bat'] += self.dI_dSOC * arg['SOC'][0, :]
 
@@ -185,7 +185,7 @@ class BatteryPower(Component):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
         if 'I_bat' in arg:
-            
+
             if 'P_bat' in result:
                 result['P_bat'] += self.dI_dP * arg['I_bat']
 
@@ -205,24 +205,16 @@ class BatteryConstraints(Component):
     """
 
     # Outputs
-    ConCh = Float(0.0,
-		  iotype="out",
-                  units="A",
-		  desc="Constraint on charging rate")
+    ConCh = Float(0.0, iotype="out", units="A",
+                  desc="Constraint on charging rate")
 
-    ConDs = Float(0.0,
-		  iotype="out",
-                  units="A",
-		  desc="Constraint on discharging rate")
+    ConDs = Float(0.0, iotype="out", units="A",
+                  desc="Constraint on discharging rate")
 
-    ConS0 = Float(0.0,
-		  iotype="out",
-		  units="unitless",
+    ConS0 = Float(0.0, iotype="out", units="unitless",
                   desc="Constraint on minimum state of charge")
 
-    ConS1 = Float(0.0,
-		  iotype="out",
-		  units="unitless",
+    ConS1 = Float(0.0, iotype="out", units="unitless",
                   desc="Constraint on maximum state of charge")
 
     def __init__(self, n=2):
@@ -237,15 +229,15 @@ class BatteryConstraints(Component):
 
         # Inputs
         self.add('I_bat', Array(np.zeros((n,)),
-		                size=(n,),
-				iotype="in",
-				units="A",
+                                size=(n,),
+                                iotype="in",
+                                units="A",
                                 desc="Battery current over time"))
 
         self.add('SOC', Array(np.zeros((1, n)),
-		              size=(1, n),
-			      iotype="in",
-			      units="unitless",
+                              size=(1, n),
+                              iotype="in",
+                              units="unitless",
                               desc="Battery state of charge over time"))
 
         self.KS_ch = KS.KSfunction()
@@ -277,7 +269,7 @@ class BatteryConstraints(Component):
                 result['ConCh'] += np.dot(self.dCh_dg, arg['I_bat'])
             if 'ConDs' in result:
                 result['ConDs'] -= np.dot(self.dDs_dg, arg['I_bat'])
-                
+
         if 'SOC' in arg:
             if 'ConS0' in result:
                 result['ConS0'] -= np.dot(self.dS0_dg, arg['SOC'][0, :])
@@ -292,13 +284,12 @@ class BatteryConstraints(Component):
                 result['I_bat'] += self.dCh_dg * arg['ConCh']
             if 'ConDs' in arg:
                 result['I_bat'] -= self.dDs_dg * arg['ConDs']
-                
+
         if 'SOC' in result:
             if 'ConS0' in arg:
                 result['SOC'] -= self.dS0_dg * arg['ConS0']
             if 'ConS1' in arg:
                 result['SOC'] += self.dS1_dg * arg['ConS1']
-
 
 
 

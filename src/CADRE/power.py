@@ -10,11 +10,11 @@ import os
 
 
 class Power_CellVoltage(Component):
-    
+
     '''
     Compute the output voltage of the solar panels
     '''
-    
+
     def __init__(self, n, dat=None):
         super(Power_CellVoltage, self).__init__()
 
@@ -108,19 +108,19 @@ class Power_CellVoltage(Component):
         if 'V_sol' in result:
             if 'LOS' in arg:
                 result['V_sol'] += self.dV_dL.T * arg['LOS']
-    
+
             if 'temperature' in arg:
                 for p in range(12):
                     i = 4 if p < 4 else (p % 4)
                     result['V_sol'][p,:] += self.dV_dT[:, p, i] * arg['temperature'][i,:]
-    
+
             if 'Isetpt' in arg:
                 result['V_sol'] += self.dV_dI.T * arg['Isetpt']
-    
+
             if 'exposedArea' in arg:
                 for p in range(12):
                     result['V_sol'][p,:] += \
-                     np.sum(self.dV_dA[:,:, p] * arg['exposedArea'][:, p,:].T, 1)
+                        np.sum(self.dV_dA[:,:, p] * arg['exposedArea'][:, p,:].T, 1)
 
     def apply_derivT(self, arg, result):
 
@@ -143,7 +143,7 @@ class Power_SolarPower(Component):
     '''
     Compute the output power of the solar panels
     '''
-    
+
     def __init__(self, n=2):
         super(Power_SolarPower, self).__init__()
 
@@ -151,21 +151,21 @@ class Power_SolarPower(Component):
 
         self.add(
             'Isetpt',
-	    Array(
-		    np.zeros((12, n)), size=(12, n),
-		    dtype=np.float,
-                    units="A",
-                    desc="Currents of the solar panels",
-                    iotype="in"
-	    )
-	)
+            Array(
+                np.zeros((12, n)), size=(12, n),
+                dtype=np.float,
+                units="A",
+                desc="Currents of the solar panels",
+                iotype="in"
+            )
+        )
 
         self.add(
             'V_sol', Array(np.zeros((12, n)), size=(12, n), dtype=np.float,
                            units="V",
                            desc="Output voltage of solar panel over time",
                            iotype="in"))
-        
+
         self.add('P_sol', Array(np.zeros((n, )), size=(n,), dtype=np.float,
                                 iotype="out", units="W",
                                 desc="Solar panels power over time"))
@@ -187,7 +187,7 @@ class Power_SolarPower(Component):
             if 'V_sol' in arg:
                 for p in range(12):
                     result['P_sol'] += arg['V_sol'][p,:] * self.Isetpt[p,:]
-    
+
             if 'Isetpt' in arg:
                 for p in range(12):
                     result['P_sol'] += arg['Isetpt'][p,:] * self.V_sol[p,:]
@@ -268,4 +268,3 @@ class Power_Total(Component):
             if 'P_RW' in result:
                 for k in range(3):
                     result['P_RW'][k,:] -= arg['P_bat']
-                

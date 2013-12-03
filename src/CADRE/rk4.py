@@ -218,6 +218,8 @@ class RK4(Component):
                     #self.Jj[iJ] = k1 + j
                     self.Ji[iJ] = i*n_time + k + 1
                     self.Jj[iJ] = j*n_time + k
+                    
+                    #print self.Ji[iJ], self.Jj[iJ], self.Ja[iJ]
 
             # External vars (Inputs)
             df_dx = self.df_dx(ex, y)
@@ -266,7 +268,7 @@ class RK4(Component):
         #return result
 
 
-    def DISABLED_applyMinvT(self, arg, result): 
+    def _applyMinvT(self, arg, result): 
         """Apply derivatives with respect to state variables."""
 
         state = self.state_var
@@ -357,7 +359,7 @@ class RK4(Component):
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        mode = 'Ken'
+        mode = 'John'
         
         if mode == 'Ken':
             
@@ -408,7 +410,7 @@ class RK4(Component):
                         result[init_state] -= result[state][:, j]
             
         #print self.J
-        print 'arg', arg, 'result', result
+        #print 'arg', arg, 'result', result
         return result
 
     def _applyJextT(self, arg, required_results):
