@@ -57,16 +57,19 @@ top.driver.add_parameter("CP_gamma", low=0, high=np.pi / 2.)
 top.driver.add_objective("-NetGain.net")
 
 pylab.figure()
-pylab.title("Roll angle $\gamma$, Before optimization")
 pylab.subplot(211)
+pylab.title("Roll angle $\gamma$, Before optimization")
 pylab.plot(top.CP_gamma)
+pylab.ylabel("$\gamma$")
 
 top.run()
 obj2 = sum(top.Comm_GainPattern.gain)
 
-pylab.title("After")
 pylab.subplot(212)
+pylab.title("After optimization")
 pylab.plot(top.CP_gamma)
+pylab.ylabel("$\gamma$")
+pylab.xlabel("time")
 
 pylab.show()
 
