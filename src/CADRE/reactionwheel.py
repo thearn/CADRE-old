@@ -1,5 +1,7 @@
+''' Reaction wheel discipline for CADRE '''
+
 from openmdao.main.api import Component
-from openmdao.lib.datatypes.api import Float, Array
+from openmdao.lib.datatypes.api import Array
 
 import numpy as np
 
@@ -7,18 +9,31 @@ import rk4
 
 
 class ReactionWheel_Motor(Component):
-
+    '''Compute reaction wheel motor torque'''
+    
     def __init__(self, n):
         super(ReactionWheel_Motor, self).__init__()
         self.n = n
 
         self.add('J_RW', 2.8e-5)
 
-        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
-        self.add('w_B', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
-        self.add('w_RW', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
+        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
+                               units="N*m",
+                               desc="Torque vector of reaction wheel over time",
+                               dtype=np.float, iotype='in'))
+        self.add('w_B', Array(np.zeros((3,n)), size=(3,n),
+                              units="1/s",
+                              desc="Angular velocity vector in body-fixed frame over time",
+                              dtype=np.float, iotype='in'))
+        self.add('w_RW', Array(np.zeros((3,n)), size=(3,n),
+                               units="1/s",
+                               desc="Angular velocity vector of reaction wheel over time",
+                               dtype=np.float, iotype='in'))
 
-        self.add('T_m', Array(np.ones((3,n)), size=(3,n), dtype=np.float, iotype='out'))
+        self.add('T_m', Array(np.ones((3,n)), size=(3,n),
+                              units="N*m",
+                              desc="Torque vector of motor over time",
+                              dtype=np.float, iotype='out'))
 
     def linearize(self):
         w_Bx = np.zeros((3,3))
@@ -85,7 +100,8 @@ class ReactionWheel_Motor(Component):
 
 
 class ReactionWheel_Power(Component):
-
+    '''Compute reaction wheel power'''
+    
     #constants
     V = 4.0
     a = 4.9e-4
@@ -96,10 +112,19 @@ class ReactionWheel_Power(Component):
         super(ReactionWheel_Power, self).__init__()
         self.n = n
 
-        self.add('w_RW', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
-        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
+        self.add('w_RW', Array(np.zeros((3,n)), size=(3,n),
+                               units="1/s",
+                               desc="Angular velocity vector of reaction wheel over time",
+                               dtype=np.float, iotype='in'))
+        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
+                               units="N*m",
+                               desc="Torque vector of reaction wheel over time",
+                               dtype=np.float, iotype='in'))
 
-        self.add('P_RW', Array(np.ones((3,n)), size=(3,n), dtype=np.float, iotype='out'))
+        self.add('P_RW', Array(np.ones((3,n)), size=(3,n),
+                               units='W',
+                               desc='Reaction wheel power over time',
+                               dtype=np.float, iotype='out'))
 
     def linearize(self):
         self.dP_dw = np.zeros((self.n,3))
@@ -135,14 +160,21 @@ class ReactionWheel_Power(Component):
 
 
 class ReactionWheel_Torque(Component):
-
+    '''Compute torque vector of reaction wheel'''
+    
     def __init__(self, n):
         super(ReactionWheel_Torque, self).__init__()
         self.n = n
 
-        self.add('T_tot', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='in'))
+        self.add('T_tot', Array(np.zeros((3,n)), size=(3,n),
+                                units='N*m',
+                                desc='Total reaction wheel torque over time',
+                                dtype=np.float, iotype='in'))
 
-        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n), dtype=np.float, iotype='out'))
+        self.add('T_RW', Array(np.zeros((3,n)), size=(3,n),
+                               units="N*m",
+                               desc="Torque vector of reaction wheel over time",
+                               dtype=np.float, iotype='out'))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -164,19 +196,29 @@ class ReactionWheel_Torque(Component):
 
 
 class ReactionWheel_Dynamics(rk4.RK4):
+    '''Compute the angular velocity vector of reaction wheel'''
 
     def __init__(self, n_times):
         super(ReactionWheel_Dynamics, self).__init__()
 
         self.add('w_B', Array(np.zeros((3, n_times)), size=(3, n_times),
+                              units="1/s",
+                              desc="Angular velocity vector in body-fixed frame over time",
                               dtype=np.float, iotype='in'))
         self.add('T_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
+                               units="N*m",
+                               desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='in'))
 
-        self.add('w_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
-                               dtype=np.float, iotype='out'))
         self.add('w_RW0', Array(np.zeros((3,)), size=(3,),
+                                units="1/s",
+                                desc="Initial angular velocity vector of reaction wheel",
                                 dtype=np.float, iotype='in'))
+
+        self.add('w_RW', Array(np.zeros((3, n_times)), size=(3, n_times),
+                               units="1/s",
+                               desc="Angular velocity vector of reaction wheel over time",
+                               dtype=np.float, iotype='out'))
 
         self.state_var = 'w_RW'
         self.init_state_var = 'w_RW0'

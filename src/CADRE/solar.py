@@ -24,7 +24,7 @@ class Solar_ExposedArea(Component):
     '''
 
     # Inputs
-    finAngle = Float(0., iotype="in", copy=None)
+    finAngle = Float(0., iotype="in", units="rad", desc="Fin angle of solar panel", copy=None)
 
     def __init__(self, n, raw1=None, raw2=None):
         super(Solar_ExposedArea, self).__init__()
@@ -42,14 +42,20 @@ class Solar_ExposedArea(Component):
 
         # Inputs
         self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float,
+                                  units='rad',
+                                  desc='Azimuth angle of the sun in the body-fixed frame over time',
                                   iotype='in'))
         self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float,
+                                    units='rad',
+                                    desc='Elevation angle of the sun in the body-fixed frame over time',
                                     iotype='in'))
 
         # Outputs
         self.add('exposedArea', Array(np.zeros((self.nc, self.np, self.n)),
                                       size=(self.nc, self.np, self.n),
                                       dtype=np.float, iotype='out',
+                                      desc="Exposed area to sun for each solar cell over time",
+                                      units='m**2',
                                       low=-5e-3, high=1.834e-1))
 
         self.na = 10
