@@ -8,6 +8,7 @@ Contents:
    :maxdepth: 2
 
    overview
+   launch
    roll
    full
    usage
