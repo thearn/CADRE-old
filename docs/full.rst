@@ -29,7 +29,7 @@ The CADRE optimization problem can then by run by importing and running the
 
 This is implemented in `example.py`, in the top-level directory of the CADRE
 plugin repository.
-The purpose of the CSV case recorder is to save the state of the optimizationimport
+The purpose of the CSV case recorder is to save the state of the optimization
 after each iteration of the assembly's driver. These iteration states will be
 saved as lines in the file `CADRE.csv`. You can read from this file and
 examine the performance of the optimization after the optimization has completed,
@@ -162,5 +162,5 @@ the ground station.
     <input type="radio" name="pt" id="bt5" value="5" onclick="to(5);" />11 months after launch<br>
     <input type="radio" name="pt" id="bt6" value="6" onclick="to('all');" />All design points (map only)<br></td><td>
         <center><img src = "maps/0.png" id="plot" width=600></center></td></tr></table>
-      <iframe width="1200" height="800" id="map" src="maps/0_data.html" frameborder="0" allowfullscreen></iframe>
+      <iframe width="1000" height="500" id="map" src="maps/0_data.html" frameborder="0" allowfullscreen></iframe>
     </div>

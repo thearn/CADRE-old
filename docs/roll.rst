@@ -6,7 +6,7 @@ In this example, we will optimize the roll angle of the CADRE satellite as
 it passes over the ground station to maximize the gain of the communications system. This will demonstrate how to import the full CADRE assembly in order to solve a closely related (but smaller) optimization problem. This illustrates the flexibility of OpenMDAO's problem graph and derivatives system with respect to variations in problem formulation.
 
 The communication system gain is computed as the output of the
-`Comm_GainPattern` component, as is an intermediate result in the full CADRE problem. For the sake of simplicity of the example, the roll angle will be the only design variable considered.
+**Comm_GainPattern()** component, as is an intermediate result in the full CADRE problem. For the sake of simplicity of the example, the roll angle will be the only design variable considered.
 
 The internal graph representation of this problem in OpenMDAO allows an optimization driver to recognize that most of the components involved will never vary with respect to the roll angle. As a result these components will only run a single time, allowing for efficient optimization of this smaller-scale design problem.
 
@@ -65,7 +65,7 @@ configuration data (starting position and velocity of the satellite, and number 
 
 
 Running the assembly as-is gives us a baseline state of the model, with all design variables at their default values.
-Our objective is to maximize the total communication gain (as computed by the Comm_GainPattern component in the CADRE assembly),
+Our objective is to maximize the total communication gain (as computed by the **Comm_GainPattern()** component in the CADRE assembly),
 so lets get that value:
 
 .. code-block:: python
@@ -76,7 +76,7 @@ so lets get that value:
     print "Net comm gain before optimization:", obj1
 
 Now we're ready to optimize. Replace the default "RunOnce" driver with the
-`SLSQPdriver()` optimization driver, add in the NetGain component, and configure the optimization problem:
+**SLSQPdriver()** optimization driver, add in the NetGain component, and configure the optimization problem:
 
 .. code-block:: python
 

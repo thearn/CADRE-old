@@ -6,30 +6,25 @@ Overview of CADRE
 is a mission funded by the National Science Foundation to study the
 response of the thermosphere to auroral energy inputs.
 
-.. image:: cadre.jpg
-    :width: 250 px
+.. image:: cadre3.jpg
+    :width: 750 px
     :align: center
 
-.. image:: cadre2.jpg
-    :width: 250 px
-    :align: center
-
-The CADRE problem represents a class of problems with medium complexity and medium fidelity, and is remarkably scalable.
 A graph-free gradient based approach at multidisciplinary optimization of the CADRE
-problem has previously been used successfully by `Hwang et al <http://mdolab.engin.umich.edu/content/large-scale-mdo-small-satellite-using-novel-framework-solution-coupled-systems-and-their>`_. We have implemented
-the same problem formulation using OpenMDAO.
+system and mission has previously been used successfully by `Hwang et al <http://mdolab.engin.umich.edu/content/large-scale-mdo-small-satellite-using-novel-framework-solution-coupled-systems-and-their>`_. We have implemented
+the same problem formulation using OpenMDAO. The CADRE problem represents a class of problems with medium complexity and medium fidelity, and is remarkably scalable.
 
-The CADRE problem models the interaction of several disciplines (attitude control, communications, power and energy storage system, thermal dynamics, craft orbital dynamics, and sun-earth position) over the course of the mission. Specifically, the system is modeled over the course of 6 separate half-days of operation, computed at conditions 1, 3, 5, 7, 9, and 11 months after launch. This way, design parameters can be optimized to balance performance under diverse conditions over the course of the mission.
+The CADRE problem models the interaction of several disciplines (attitude control, communications, power and energy storage system, thermal dynamics, craft orbital dynamics, and sun-earth position) over the course of the mission. Specifically, the system is modeled over the course of 6 separate half-days of operation, computed at conditions 1, 3, 5, 7, 9, and 11 months after launch. This way, design parameters can be optimized to balance performance under diverse conditions (such as relative location of the sun, etc.) over the course of the mission. The objective of the optimization is to maximize the total amount of data transmitted to the ground station over the 6 design points.
 
+This figure shows the interaction between the separate components of the CADRE optimization problem:
 
 .. figure:: design.png
     :width: 1100 px
     :align: center
 
-
 There are 7 types of design parameters involved. 4 of these design parameters vary over time: Current of each solar cell ('Isetpt'), the craft roll angle ('Gamma'), communications system power ('P_comm'), battery initial state of charge ('iSOC').
 
-The remaining 3 design variables are static: the choice of whether is solar panel or radiator is installed in a particular location on the craft ('cellinstd'), the angle of the 4 fins ('finAngle'), and the angle of the communications antenna ('antAngle').
+The remaining 3 design variables are static: the choice of whether is solar panel or radiator is installed in a particular location on the craft ('Cellinstd'), the angle of the 4 fins ('finAngle'), and the angle of the communications antenna ('antAngle').
 
 The CADRE model is parameterized by the number of discrete time steps desired ('n') as well as a number of B-spline control points ('m') used to interpolate the design variables to arrays of size 'n' (in the array dimension representing time). So 'm' has direct influence on the number of the time-varying design variables in the problem, while 'n' controls the fidelity of the results.
 
