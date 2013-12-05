@@ -216,7 +216,6 @@ class CADRE_Launch(Assembly):
 
 
 if __name__ == "__main__":
-    import pylab
     a = CADRE_Launch(1000)
     a.run()
 
