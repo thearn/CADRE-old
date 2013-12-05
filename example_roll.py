@@ -48,13 +48,15 @@ obj1 = sum(top.Comm_GainPattern.gain)
 # Add in optimization driver
 top.add("driver", SLSQPdriver())
 
-top.add("NetGain", NetGain(n))
-top.driver.workflow.add("NetGain")
+# top.add("NetGain", NetGain(n))
+# top.driver.workflow.add("NetGain")
 
-top.connect("Comm_GainPattern.gain", "NetGain.gain")
+# top.connect("Comm_GainPattern.gain", "NetGain.gain")
 
 top.driver.add_parameter("CP_gamma", low=0, high=np.pi / 2.)
-top.driver.add_objective("-NetGain.net")
+# top.driver.add_objective("-NetGain.net")
+
+top.driver.add_objective("-sum(Comm_GainPattern.gain)")
 
 pylab.figure()
 pylab.subplot(211)
@@ -71,7 +73,7 @@ pylab.plot(top.CP_gamma)
 pylab.ylabel("$\gamma$")
 pylab.xlabel("time")
 
-pylab.show()
+# pylab.show()
 
 print "Net comm gain before optimization:", obj1
 print "Net comm gain after optimization:", obj2

@@ -220,5 +220,3 @@ if __name__ == "__main__":
           a.Orbit_Initial.RAAN,
           a.Orbit_Initial.Inc,
           a.Orbit_Initial.argPerigee)
-    print "Elapsed time: ", time.time() - tt, "seconds"
-    print 30 * "-"
