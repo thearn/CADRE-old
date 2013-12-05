@@ -11,73 +11,10 @@ by loading the last row of CADRE.csv
 Must install pygamps-extended first: https://github.com/thearn/pygmaps-extended
 """
 
-#data = pickle.load(open("src/CADRE/test/data1346.pkl"))
-data = {}
-savedir = "docs/maps"
-
-f = open("CADRE.csv", "rb")
-reader = csv.DictReader(f, skipinitialspace=True)
-
-for row in reader:
-    pass
-
-
-cellInstd = np.zeros((7, 12))
-
-for i in xrange(7):
-    for k in xrange(12):
-        st = "pt0.cellInstd[%s]" % str(i * k)
-        cellInstd[i, k] = float(row[st])
-
-st = "pt0.finAngle[0]"
-finAngle = float(row[st])
-
-st = "pt0.antAngle[0]"
-antAngle = float(row[st])
-
-for i in xrange(6):
-    CP_Isetpt = np.zeros((12, 300))
-    CP_gamma = np.zeros((300,))
-    CP_P_comm = np.zeros((300,))
-
-    for k in xrange(300):
-        for j in xrange(12):
-            st = "pt%s.CP_Isetpt[%s]" % (str(i), str(k * j))
-            CP_Isetpt[j, k] = float(row[st])
-
-        st = "pt%s.CP_gamma[%s]" % (str(i), str(k))
-        CP_gamma[k] = float(row[st])
-
-        st = "pt%s.CP_P_comm[%s]" % (str(i), str(k))
-        CP_P_comm[k] = float(row[st])
-
-    st = "pt%s.iSOC[0][0]" % str(i)
-    iSOC = np.array([float(row[st])])
-    a = CADRE(1500, 300)
-
-    a.LD = LDs[i]
-    a.r_e2b_I0 = r_e2b_I0s[i]
-
-    a.CP_Isetpt = CP_Isetpt
-    a.CP_gamma = CP_gamma
-    a.CP_P_comm = CP_P_comm
-    a.iSOC = iSOC
-    a.cellInstd = cellInstd
-    a.finAngle = finAngle
-    a.antAngle = antAngle
-    a.run()
-
-    print "getting data for design pt", i
-
-    data["%s:Dr" % str(i)] = a.Comm_BitRate.Dr
-    data["%s:P_comm" % str(i)] = a.Comm_BitRate.P_comm
-    data["%s:gamma" % str(i)] = a.Attitude_Roll.Gamma
-    data["%s:SOC" % str(i)] = a.BatterySOC.SOC
-    data["%s:O_IE" % str(i)] = a.Comm_EarthsSpinMtx.O_IE
-    data["%s:r_e2b_I" % str(i)] = a.Comm_VectorECI.r_e2b_I
-
 
 def val2hex(v, scale=1.0):
+    """Produces a hexadecimal color code from a float"""
+
     if not v:
         return "#000044"
     j = pylab.get_cmap("jet")
@@ -87,6 +24,8 @@ def val2hex(v, scale=1.0):
 
 
 def calc_lat_lon(r_e2b_I, O_IE):
+    """Computes latitude and longitude positions"""
+
     r2d = 180 / np.pi
     rgs = 6378.137
     lats, lons = [], []
@@ -104,11 +43,81 @@ def calc_lat_lon(r_e2b_I, O_IE):
 
     return lats, lons
 
-mxdata = max([max(data["%s:Dr" % str(i)]) for i in xrange(6)])
+npts = 6
+data = {}
+savedir = "docs/maps"
 
+f = open("CADRE.csv", "rb")
+reader = csv.DictReader(f, skipinitialspace=True)
+
+for row in reader:
+    # just grabs the last row of the CSV file
+    pass
+
+# get values for design vars common to each design point
+
+cellInstd = np.zeros((7, 12))
+for i in xrange(7):
+    for k in xrange(12):
+        st = "pt0.cellInstd[%s]" % str(i * k)
+        cellInstd[i, k] = float(row[st])
+st = "pt0.finAngle[0]"
+finAngle = float(row[st])
+st = "pt0.antAngle[0]"
+antAngle = float(row[st])
+
+a = CADRE(1500, 300)
+a.cellInstd = cellInstd
+a.finAngle = finAngle
+a.antAngle = antAngle
+
+# get values for design vars that are different for each design point
+for i in xrange(npts):
+    CP_Isetpt = np.zeros(12 * 300)
+    CP_gamma = np.zeros((300,))
+    CP_P_comm = np.zeros((300,))
+
+    for j in xrange(12 * 300):
+        st = "pt%s.CP_Isetpt[%s]" % (str(i), str(j))
+        CP_Isetpt[j] = float(row[st])
+
+    for k in xrange(300):
+
+        st = "pt%s.CP_gamma[%s]" % (str(i), str(k))
+        CP_gamma[k] = float(row[st])
+
+        st = "pt%s.CP_P_comm[%s]" % (str(i), str(k))
+        CP_P_comm[k] = float(row[st])
+
+    st = "pt%s.iSOC[0][0]" % str(i)
+    iSOC = np.array([float(row[st])])
+
+    a.LD = LDs[i]
+    a.r_e2b_I0 = r_e2b_I0s[i]
+
+    a.CP_Isetpt = CP_Isetpt.reshape((12, 300))
+    a.CP_gamma = CP_gamma
+    a.CP_P_comm = CP_P_comm
+    a.iSOC = iSOC
+    a.run()
+
+    print "getting data for design pt", i
+
+    data["%s:Dr" % str(i)] = a.Comm_BitRate.Dr.copy()
+    data["%s:P_comm" % str(i)] = a.Comm_BitRate.P_comm.copy()
+    data["%s:gamma" % str(i)] = a.Attitude_Roll.Gamma.copy()
+    data["%s:SOC" % str(i)] = a.BatteryPower.SOC.copy()
+    data["%s:O_IE" % str(i)] = a.Comm_EarthsSpinMtx.O_IE.copy()
+    data["%s:r_e2b_I" % str(i)] = a.Comm_VectorECI.r_e2b_I.copy()
+
+# determine the total data rate scale
+mxdata = max([max(data["%s:Dr" % str(i)]) for i in xrange(npts)])
+
+# create map for all data points
 gmap_all = pygmaps.gmap(41, -88, 2)
 
-for i in xrange(6):
+# create data plot and map for each design point
+for i in xrange(npts):
     si = str(i)
     dr = data[si + ":Dr"]
     p = data[si + ":P_comm"]
