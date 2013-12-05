@@ -501,10 +501,6 @@ class RK4(Component):
                     Jsub = self.Jx[k + 1, i_ext:i_ext_end, :]
                     result[name][:, k] += Jsub.dot(argsum[k, :])
 
-                # Experimental attempt at tensor dot
-                #Jsub = self.Jx[:, i_ext:i_ext+ext_length, :]
-                #result[name] += np.tensordot(Jsub, argsum, axes = ([2], [0]))
-
             # Time-invariant inputs
             for name in self.fixed_external_vars:
 
