@@ -11,7 +11,7 @@ class Uniformity(Component):
 
     """
     Computes the maximum value minus the minimum
-    value of a 1D array
+    value of the sine of a 1D array of degree values
     """
 
     def __init__(self, n):
@@ -21,14 +21,21 @@ class Uniformity(Component):
         self.add('k', Float(0., iotype='out'))
 
     def execute(self):
+        """Computes the sine and max - min of the input array"""
+
+        s = np.sin(self.sample * np.pi / 180.)
         self.k = max(self.sample) - min(self.sample)
 
     def linearize(self):
+        """Computes the Jacobian matrix"""
+
+        s = np.sin(self.sample * np.pi / 180.)
+        c = np.cos(self.sample * np.pi / 180.)
         self.J = np.zeros((1, self.n))
-        idx_max = np.where(self.sample == max(self.sample))
-        idx_min = np.where(self.sample == min(self.sample))
-        self.J[0, idx_max] = 1
-        self.J[0, idx_min] = -1
+        idx_max = np.where(s == max(s))
+        idx_min = np.where(s == min(s))
+        self.J[0, idx_max] = c[idx_max]
+        self.J[0, idx_min] = - c[idx_max]
 
     def provideJ(self):
         """Provide full Jacobian."""
