@@ -229,20 +229,20 @@ the selected ground station.
 Fullscreen map views:
 
 - :download:`Ann Arbor, design point 1 <maps/0_0_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_1_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_2_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_3_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_4_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_5_data.html>`
-- :download:`Ann Arbor, design point 1 <maps/0_all_data.html>`
+- :download:`Ann Arbor, design point 2 <maps/0_1_data.html>`
+- :download:`Ann Arbor, design point 3 <maps/0_2_data.html>`
+- :download:`Ann Arbor, design point 4 <maps/0_3_data.html>`
+- :download:`Ann Arbor, design point 5 <maps/0_4_data.html>`
+- :download:`Ann Arbor, design point 6 <maps/0_5_data.html>`
+- :download:`Ann Arbor, all design points <maps/0_all_data.html>`
 
 - :download:`McMurdo Station, design point 1 <maps/1_0_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_1_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_2_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_3_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_4_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_5_data.html>`
-- :download:`McMurdo Station, design point 1 <maps/1_all_data.html>`
+- :download:`McMurdo Station, design point 2 <maps/1_1_data.html>`
+- :download:`McMurdo Station, design point 3 <maps/1_2_data.html>`
+- :download:`McMurdo Station, design point 4 <maps/1_3_data.html>`
+- :download:`McMurdo Station, design point 5 <maps/1_4_data.html>`
+- :download:`McMurdo Station, design point 6 <maps/1_5_data.html>`
+- :download:`McMurdo Station, all design points <maps/1_all_data.html>`
 
 .. image:: maps/0_0.png
     :width: 0 px

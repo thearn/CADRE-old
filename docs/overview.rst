@@ -64,7 +64,13 @@ Example usage:
     top = CADRE_Optimization(n=1500, m=300) # Set with n and m values
     top.run() # Optimizes the full CADRE model across all 6 design points
 
-A more thorough example is given in the full problem tutorial.
+Within this assembly, the CADRE design point sub-assemblies are named `pt0`, `pt1`, `pt2`, `pt3`, `pt4`, and `pt5`. For example, to print (or assign) the initial state of charge (`iSOC`) at the first design point, you would write:
+
+.. code-block:: python
+
+    print top.pt0.iSOC
+
+A more thorough example of running this assembly is given in the full problem tutorial.
 
 In addition to these two assemblies, all of the individual components of the CADRE model can be imported and used directly as well.
 
