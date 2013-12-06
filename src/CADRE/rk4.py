@@ -173,19 +173,19 @@ class RK4(Component):
         I = np.eye(n_state)
 
         # Sparse Jacobian with respect to states
-        self.Ja = np.zeros((self.nJ, ))
-        self.Ji = np.zeros((self.nJ, ))
-        self.Jj = np.zeros((self.nJ, ))
+        #self.Ja = np.zeros((self.nJ, ))
+        #self.Ji = np.zeros((self.nJ, ))
+        #self.Jj = np.zeros((self.nJ, ))
 
         # Full Jacobian with respect to states
-        self.Jxx = np.zeros((self.n, self.n_states, self.n_states))
+        self.Jy = np.zeros((self.n, self.n_states, self.n_states))
         
         # Full Jacobian with respect to inputs
         self.Jx = np.zeros((self.n, self.n_external, self.n_states))
 
-        self.Ja[:self.ny] = np.ones((self.ny, ))
-        self.Ji[:self.ny] = np.arange(self.ny)
-        self.Jj[:self.ny] = np.arange(self.ny)
+        #self.Ja[:self.ny] = np.ones((self.ny, ))
+        #self.Ji[:self.ny] = np.arange(self.ny)
+        #self.Jj[:self.ny] = np.arange(self.ny)
 
         for k in xrange(0, n_time-1):
 
@@ -212,18 +212,18 @@ class RK4(Component):
             dd_dy = di_dy + di_dy.dot(h*dc_dy)
 
             dR_dy = -I - self.h/6.*(da_dy + 2*(db_dy + dc_dy) + dd_dy)
-            self.Jxx[k, :, :] = dR_dy
+            self.Jy[k, :, :] = dR_dy
             
-            for i in xrange(n_state):
-                for j in xrange(n_state):
-                    iJ = self.ny + i + n_state*(j + k1)
-                    self.Ja[iJ] = dR_dy[i, j]
-                    #self.Ji[iJ] = k2 + i
-                    #self.Jj[iJ] = k1 + j
-                    self.Ji[iJ] = i*n_time + k + 1
-                    self.Jj[iJ] = j*n_time + k
+            #for i in xrange(n_state):
+                #for j in xrange(n_state):
+                    #iJ = self.ny + i + n_state*(j + k1)
+                    #self.Ja[iJ] = dR_dy[i, j]
+                    ##self.Ji[iJ] = k2 + i
+                    ##self.Jj[iJ] = k1 + j
+                    #self.Ji[iJ] = i*n_time + k + 1
+                    #self.Jj[iJ] = j*n_time + k
                     
-                    #print self.Ji[iJ], self.Jj[iJ], self.Ja[iJ]
+                    ##print self.Ji[iJ], self.Jj[iJ], self.Ja[iJ]
 
             # External vars (Inputs)
             df_dx = self.df_dx(ex, y)
@@ -240,11 +240,10 @@ class RK4(Component):
             # No Jacobian with respect to previous time points.
             self.Jx[k+1, :, :] = h/6*(da_dx + 2*(db_dx + dc_dx) + dd_dx).T
 
-        self.J = scipy.sparse.csc_matrix((self.Ja, (self.Ji, self.Jj)),
-                                         shape=(self.ny, self.ny))
-        self.JT = self.J.transpose()
-        self.Minv = scipy.sparse.linalg.splu(self.J).solve
-
+        #self.J = scipy.sparse.csc_matrix((self.Ja, (self.Ji, self.Jj)),
+                                         #shape=(self.ny, self.ny))
+        #self.JT = self.J.transpose()
+        #self.Minv = scipy.sparse.linalg.splu(self.J).solve
 
 
     def apply_deriv(self, arg, result):
@@ -272,16 +271,16 @@ class RK4(Component):
         #return result
 
 
-    def _applyMinvT(self, arg, result): 
-        """Apply derivatives with respect to state variables."""
+    #def _applyMinvT(self, arg, result): 
+        #"""Apply derivatives with respect to state variables."""
 
-        state = self.state_var
-        z = result.copy()
-        if self.state_var in arg:
-            flat_y = arg[state].flatten()
-            result[state] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
+        #state = self.state_var
+        #z = result.copy()
+        #if self.state_var in arg:
+            #flat_y = arg[state].flatten()
+            #result[state] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
 
-        return result
+        #return result
 
 
     def _applyJint(self, arg, result):
@@ -358,7 +357,7 @@ class RK4(Component):
                 fact = np.eye(self.n_states)
                 result[:, 0] = arg[name]
                 for j in xrange(1, n_time):
-                    fact = fact.dot(-self.Jxx[j-1, :, :])
+                    fact = fact.dot(-self.Jy[j-1, :, :])
                     result[:, j] += fact.dot(arg[name])
 
         return result
@@ -366,7 +365,7 @@ class RK4(Component):
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
-        mode = 'John'
+        mode = 'Ken'
         
         if mode == 'Ken':
             
@@ -529,10 +528,10 @@ class RK4(Component):
             # Initial State
             name = self.init_state_var
             if name in required_results:
-                fact = -self.Jxx[0, :, :].T
+                fact = -self.Jy[0, :, :].T
                 result[name] = argsv[0, :] + fact.dot(argsv[1, :])
                 for k in xrange(1, n_time-1):
-                    fact = fact.dot(-self.Jxx[k, :, :].T)
+                    fact = fact.dot(-self.Jy[k, :, :].T)
                     result[name] += fact.dot(argsv[k+1, :])
 
         for k, v in result.iteritems():

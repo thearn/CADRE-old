@@ -29,7 +29,7 @@ from CADRE.thermal_temperature import ThermalTemperature
 
 import os
 
-NTIME = 5
+NTIME = 2
 
 # Ignore the numerical warnings from performing the rel error calc.
 warnings.simplefilter("ignore")
