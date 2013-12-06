@@ -21,7 +21,7 @@ class CADRE_Optimization(Assembly):
                                'Iterations limit': 500000000,
                                "New basis file": 10}
         if os.path.exists("fort.10"):
-            driver.options["Old basis file"] = 10
+            self.driver.options["Old basis file"] = 10
 
         #driver = self.add("driver", CONMINdriver())
 
@@ -53,29 +53,29 @@ class CADRE_Optimization(Assembly):
             comp.set("r_e2b_I0", r_e2b_I0s[i])
 
             # add parameters to driver
-            driver.add_parameter("%s.CP_Isetpt" % name, low=0., high=0.4)
-            driver.add_parameter("%s.CP_gamma" % name, low=0, high=np.pi / 2.)
-            driver.add_parameter("%s.CP_P_comm" % name, low=0., high=25.)
-            driver.add_parameter("%s.iSOC[0]" % name, low=0.2, high=1.)
+            self.driver.add_parameter("%s.CP_Isetpt" % name, low=0., high=0.4)
+            self.driver.add_parameter("%s.CP_gamma" % name, low=0, high=np.pi / 2.)
+            self.driver.add_parameter("%s.CP_P_comm" % name, low=0., high=25.)
+            self.driver.add_parameter("%s.iSOC[0]" % name, low=0.2, high=1.)
 
             # add constraints
-            driver.add_constraint("%s.ConCh <= 0" % name)
-            driver.add_constraint("%s.ConDs <= 0" % name)
-            driver.add_constraint("%s.ConS0 <= 0" % name)
-            driver.add_constraint("%s.ConS1 <= 0" % name)
-            driver.add_constraint(
+            self.driver.add_constraint("%s.ConCh <= 0" % name)
+            self.driver.add_constraint("%s.ConDs <= 0" % name)
+            self.driver.add_constraint("%s.ConS0 <= 0" % name)
+            self.driver.add_constraint("%s.ConS1 <= 0" % name)
+            self.driver.add_constraint(
                 "%s.SOC[0][0] = %s.SOC[0][-1]" % (name, name))
 
         # add parameter groups
         cell_param = ["%s.cellInstd" % name for name in names]
-        driver.add_parameter(cell_param, low=0, high=1)
+        self.driver.add_parameter(cell_param, low=0, high=1)
 
         finangles = ["%s.finAngle" % name for name in names]
-        driver.add_parameter(finangles, low=0, high=np.pi / 2.)
+        self.driver.add_parameter(finangles, low=0, high=np.pi / 2.)
 
         antangles = ["%s.antAngle" % name for name in names]
-        driver.add_parameter(antangles, low=-np.pi / 4, high=np.pi / 4)
+        self.driver.add_parameter(antangles, low=-np.pi / 4, high=np.pi / 4)
 
         # add objective
         obj = ''.join(["-%s.Data[0][-1]" % name for name in names])
-        driver.add_objective(obj)
+        self.driver.add_objective(obj)

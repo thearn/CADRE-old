@@ -46,9 +46,9 @@ class BatterySOC(rk4.RK4):
                  )
 
         self.add('temperature',
-                 Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
-                       units="K", iotype="in", desc="Battery temperature over time")
-                 )
+            Array(np.zeros((5, n_times )), shape=(5, n_times ), dtype=np.float,
+                  units="degK", iotype="in", desc="Battery temperature over time")
+        )
 
         # Outputs
         self.add('SOC',
@@ -136,7 +136,7 @@ class BatteryPower(Component):
 
         self.add('temperature', Array(np.zeros((5, n)), size=(n, ),
                                       dtype=np.float, iotype="in",
-                                      units="K", desc="Battery temperature over time"))
+                                      units="degK", desc="Battery temperature over time"))
 
         self.add('P_bat', Array(np.zeros((n, )), size=(n, ), dtype=np.float,
                                 iotype="in", units="W", desc="Battery power over time"))
