@@ -32,50 +32,50 @@ class ThermalTemperature(RK4):
 
         # Inputs
         self.add("T0", Array(273.*np.ones((5,)),
-		             shape=(5,),
-			     dtype=np.float,
-			     units="degK",
+                             shape=(5,),
+                             dtype=np.float,
+                             units="degK",
                              iotype="in",
-			     desc="initial temperatures for the 4 fins and body")
-        )
+                             desc="initial temperatures for the 4 fins and body")
+                 )
 
         self.add("exposedArea", Array(np.zeros((7, 12, n_times)),
                                       units="m**2",
                                       size=(7, 12 ,n_times),
-				      dtype=np.float,
+                                      dtype=np.float,
                                       iotype="in",
                                       desc="Exposed area to the sun for each solar cell over time")
-        )
+                 )
 
         self.add("cellInstd", Array(np.ones((7, 12)),
-		                    size=(7, 12),
+                                    size=(7, 12),
                                     dtype=np.float,
-				    iotype="in",
+                                    iotype="in",
                                     units='unitless',
                                     desc="Cell/Radiator indication",
                                     low=0,
-				    high=1)
-        )
+                                    high=1)
+                 )
 
         self.add("LOS", Array(np.zeros((n_times, )),
-		              size=(n_times, ),
+                              size=(n_times, ),
                               dtype=np.float,
-			      iotype="in",
+                              iotype="in",
                               units='unitless',
                               desc="Satellite to sun line of sight over time",
-			      low=0,
-			      high=1)
-        )
+                              low=0,
+                              high=1)
+                 )
 
         self.add("P_comm", Array(np.ones((n_times, )),
-		                 size=(n_times, ),
+                                 size=(n_times, ),
                                  dtype=np.float,
-				 iotype="in",
+                                 iotype="in",
                                  units='W',
                                  desc="Communication power over time",
-				 low=0,
-				 high=1)
-        )
+                                 low=0,
+                                 high=1)
+                 )
 
         # Outputs
         self.add("temperature", Array(np.zeros((5, n_times)),
@@ -83,7 +83,7 @@ class ThermalTemperature(RK4):
                                       units="degK",
                                       iotype="out", desc="Temperature for the 4 fins and body over time",
                                       low=50, high=400)
-        )
+                 )
 
         self.state_var = "temperature"
         self.init_state_var = "T0"
@@ -124,7 +124,7 @@ class ThermalTemperature(RK4):
                 f_i = (p+1)%4
                 m = m_f
                 cp = cp_f
-            
+
             # Cells
             fact1 = q_sol*LOS/(m*cp)
             fact2 = K*A_T*state[f_i]**4/(m*cp)
@@ -196,16 +196,15 @@ class ThermalTemperature(RK4):
             fact3 = q_sol/(m*cp)
             fact1 = fact3*LOS
             fact2 = K*A_T*state[f_i]**4/(m*cp)
-                
+
             dfdx[f_i, p:p+84:12] += alpha[:, p] * fact1
             dfdx[f_i, p+86:p+170:12] += dalpha_dw * exposedArea[:, p] * fact1 - \
-                                          deps_dw * fact2
+                deps_dw * fact2
             dfdx[f_i, 84] += np.sum(alpha[:, p] * exposedArea[:, p]) * fact3
 
         dfdx[4, 85] += 4.0 / m_b / cp_b
 
         return dfdx
-
 
 
 

@@ -585,6 +585,9 @@ class Testcase_CADRE(unittest.TestCase):
         state0 = []
 
         self.setup(compname, inputs, state0)
+        shape = self.model.comp.r_e2b_I0.shape
+        self.model.comp.r_e2b_I0[:3] = np.random.random((3)) * 1e6
+        self.model.comp.r_e2b_I0[3:] = np.random.random((3)) * 1e5
         self.run_model()
         self.compare_derivatives(inputs+state0, outputs)
 

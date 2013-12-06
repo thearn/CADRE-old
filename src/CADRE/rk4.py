@@ -173,16 +173,19 @@ class RK4(Component):
         I = np.eye(n_state)
 
         # Sparse Jacobian with respect to states
-        self.Ja = np.zeros((self.nJ, ))
-        self.Ji = np.zeros((self.nJ, ))
-        self.Jj = np.zeros((self.nJ, ))
+        #self.Ja = np.zeros((self.nJ, ))
+        #self.Ji = np.zeros((self.nJ, ))
+        #self.Jj = np.zeros((self.nJ, ))
 
+        # Full Jacobian with respect to states
+        self.Jy = np.zeros((self.n, self.n_states, self.n_states))
+        
         # Full Jacobian with respect to inputs
         self.Jx = np.zeros((self.n, self.n_external, self.n_states))
 
-        self.Ja[:self.ny] = np.ones((self.ny, ))
-        self.Ji[:self.ny] = np.arange(self.ny)
-        self.Jj[:self.ny] = np.arange(self.ny)
+        #self.Ja[:self.ny] = np.ones((self.ny, ))
+        #self.Ji[:self.ny] = np.arange(self.ny)
+        #self.Jj[:self.ny] = np.arange(self.ny)
 
         for k in xrange(0, n_time-1):
 
@@ -209,15 +212,18 @@ class RK4(Component):
             dd_dy = di_dy + di_dy.dot(h*dc_dy)
 
             dR_dy = -I - self.h/6.*(da_dy + 2*(db_dy + dc_dy) + dd_dy)
-
-            for i in xrange(n_state):
-                for j in xrange(n_state):
-                    iJ = self.ny + i + n_state*(j + k1)
-                    self.Ja[iJ] = dR_dy[i, j]
-                    #self.Ji[iJ] = k2 + i
-                    #self.Jj[iJ] = k1 + j
-                    self.Ji[iJ] = i*n_time + k + 1
-                    self.Jj[iJ] = j*n_time + k
+            self.Jy[k, :, :] = dR_dy
+            
+            #for i in xrange(n_state):
+                #for j in xrange(n_state):
+                    #iJ = self.ny + i + n_state*(j + k1)
+                    #self.Ja[iJ] = dR_dy[i, j]
+                    ##self.Ji[iJ] = k2 + i
+                    ##self.Jj[iJ] = k1 + j
+                    #self.Ji[iJ] = i*n_time + k + 1
+                    #self.Jj[iJ] = j*n_time + k
+                    
+                    ##print self.Ji[iJ], self.Jj[iJ], self.Ja[iJ]
 
             # External vars (Inputs)
             df_dx = self.df_dx(ex, y)
@@ -234,11 +240,10 @@ class RK4(Component):
             # No Jacobian with respect to previous time points.
             self.Jx[k+1, :, :] = h/6*(da_dx + 2*(db_dx + dc_dx) + dd_dx).T
 
-        self.J = scipy.sparse.csc_matrix((self.Ja, (self.Ji, self.Jj)),
-                                         shape=(self.ny, self.ny))
-        self.JT = self.J.transpose()
-        self.Minv = scipy.sparse.linalg.splu(self.J).solve
-
+        #self.J = scipy.sparse.csc_matrix((self.Ja, (self.Ji, self.Jj)),
+                                         #shape=(self.ny, self.ny))
+        #self.JT = self.J.transpose()
+        #self.Minv = scipy.sparse.linalg.splu(self.J).solve
 
 
     def apply_deriv(self, arg, result):
@@ -266,16 +271,16 @@ class RK4(Component):
         #return result
 
 
-    def DISABLED_applyMinvT(self, arg, result): 
-        """Apply derivatives with respect to state variables."""
+    #def _applyMinvT(self, arg, result): 
+        #"""Apply derivatives with respect to state variables."""
 
-        state = self.state_var
-        z = result.copy()
-        if self.state_var in arg:
-            flat_y = arg[state].flatten()
-            result[state] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
+        #state = self.state_var
+        #z = result.copy()
+        #if self.state_var in arg:
+            #flat_y = arg[state].flatten()
+            #result[state] = self.Minv(flat_y, 'T').reshape((self.n_states, self.n))
 
-        return result
+        #return result
 
 
     def _applyJint(self, arg, result):
@@ -349,8 +354,11 @@ class RK4(Component):
 
             # take advantage of fact that arg is often pretty sparse
             if len(np.nonzero(arg[name])[0]) > 0:
-                for j in xrange(n_time):
-                    result[:, j] += arg[name]
+                fact = np.eye(self.n_states)
+                result[:, 0] = arg[name]
+                for j in xrange(1, n_time):
+                    fact = fact.dot(-self.Jy[j-1, :, :])
+                    result[:, j] += fact.dot(arg[name])
 
         return result
 
@@ -408,7 +416,7 @@ class RK4(Component):
                         result[init_state] -= result[state][:, j]
             
         #print self.J
-        print 'arg', arg, 'result', result
+        #print 'arg', arg, 'result', result
         return result
 
     def _applyJextT(self, arg, required_results):
@@ -467,6 +475,72 @@ class RK4(Component):
         return result
 
     def _applyJextT_limited(self, arg, required_results):
+        """Apply derivatives with respect to inputs"""
+
+        # Jx --> (n_times, n_external, n_states)
+        n_time = self.n
+        result = {}
+
+        if self.state_var in arg:
+
+            argsv = arg[self.state_var].T
+            argsum = np.zeros(argsv.shape)
+
+            # Calculate these once, and use for every output
+            for k in xrange(n_time - 1):
+                argsum[k, :] = np.sum(argsv[k + 1:, :], 0)
+
+            # argsum is often sparse, so save indices.
+            nonzero_k = np.unique(argsum.nonzero()[0])
+
+            # Time-varying inputs
+            for name in self.external_vars:
+
+                if name not in required_results:
+                    continue
+
+                ext_var = getattr(self, name)
+                i_ext = self.ext_index_map[name]
+                ext_length = np.prod(ext_var.shape) / n_time
+                result[name] = np.zeros((ext_length, n_time))
+
+                i_ext_end = i_ext + ext_length
+                for k in nonzero_k:
+                    Jsub = self.Jx[k + 1, i_ext:i_ext_end, :]
+                    result[name][:, k] += Jsub.dot(argsum[k, :])
+
+            # Time-invariant inputs
+            for name in self.fixed_external_vars:
+
+                if name not in required_results:
+                    continue
+
+                ext_var = getattr(self, name)
+                i_ext = self.ext_index_map[name]
+                ext_length = np.prod(ext_var.shape)
+                result[name] = np.zeros((ext_length))
+
+                i_ext_end = i_ext + ext_length
+                for k in nonzero_k:
+                    Jsub = self.Jx[k + 1, i_ext:i_ext_end, :]
+                    result[name] += Jsub.dot(argsum[k, :])
+
+            # Initial State
+            name = self.init_state_var
+            if name in required_results:
+                fact = -self.Jy[0, :, :].T
+                result[name] = argsv[0, :] + fact.dot(argsv[1, :])
+                for k in xrange(1, n_time-1):
+                    fact = fact.dot(-self.Jy[k, :, :].T)
+                    result[name] += fact.dot(argsv[k+1, :])
+
+        for k, v in result.iteritems():
+            ext_var = getattr(self, k)
+            result[k] = v.reshape(ext_var.shape)
+
+        return result
+    
+    def _applyJextT_limited_old(self, arg, required_results):
         """Apply derivatives with respect to inputs"""
 
         # Jx --> (n_times, n_external, n_states)

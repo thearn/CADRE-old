@@ -12,7 +12,7 @@ from CADRE.kinematics import fixangles, computepositionspherical, \
      computepositionrotdjacobian
 
 import rk4
-
+7
 # Allow non-standard variable names for scientific calc
 # pylint: disable-msg=C0103
 
@@ -231,7 +231,7 @@ class Comm_AntRotationMtx(Component):
 
             for k in range(0, 4):
                 self.J[i,:,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
-                                     np.dot(A.T, dB_dq[:,:, k])
+                    np.dot(A.T, dB_dq[:,:, k])
 
     def execute(self):
         """ Calculate output. """
@@ -270,7 +270,7 @@ class Comm_AntRotationMtx(Component):
                 for v in range(3):
                     for k in range(4):
                         result['q_A'][k,:] += self.J[:, u, v, k] * \
-                                               arg['O_AB'][u, v,:]
+                            arg['O_AB'][u, v,:]
 
 
 class Comm_BitRate(Component):
@@ -366,11 +366,11 @@ class Comm_BitRate(Component):
                 S2 = 1e-10
 
             self.dD_dP[i] = self.alpha * self.gain[i] * \
-                            self.CommLOS[i] / S2 ** 2
+                self.CommLOS[i] / S2 ** 2
             self.dD_dGt[i] = self.alpha * self.P_comm[i] * \
-                             self.CommLOS[i] / S2 ** 2
+                self.CommLOS[i] / S2 ** 2
             self.dD_dS[i] = -2.0 * 1e3 * self.alpha * self.P_comm[i] * \
-                             self.gain[i] * self.CommLOS[i] / S2 ** 3
+                self.gain[i] * self.CommLOS[i] / S2 ** 3
             self.dD_dLOS[i] = self.alpha * \
                 self.P_comm[i] * self.gain[i] / S2 ** 2
 
@@ -383,7 +383,7 @@ class Comm_BitRate(Component):
             else:
                 S2 = 1e-10
             self.Dr[i] = self.alpha * self.P_comm[i] * self.gain[i] * \
-                         self.CommLOS[i] / S2 ** 2
+                self.CommLOS[i] / S2 ** 2
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -495,9 +495,7 @@ class Comm_EarthsSpin(Component):
                             desc="Time"))
 
         # Outputs
-        self.add(
-            'q_E',
-            Array(
+        self.add('q_E', Array(
                 np.zeros((4, self.n)),
                 iotype='out',
                 shape=(4, self.n),
@@ -640,7 +638,7 @@ class Comm_EarthsSpinMtx(Component):
 
             for k in range(0, 4):
                 self.J[i,:,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
-                                     np.dot(A.T, dB_dq[:,:, k])
+                    np.dot(A.T, dB_dq[:,:, k])
 
     def execute(self):
         """ Calculate output. """
@@ -669,7 +667,7 @@ class Comm_EarthsSpinMtx(Component):
                 for v in range(3):
                     for k in range(4):
                         result['O_IE'][u, v,:] += self.J[:, u, v, k] * \
-                                                   arg['q_E'][k,:]
+                            arg['q_E'][k,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -679,7 +677,7 @@ class Comm_EarthsSpinMtx(Component):
                 for v in range(3):
                     for k in range(4):
                         result['q_E'][k,:] += self.J[:, u, v, k] * \
-                                               arg['O_IE'][u, v,:]
+                            arg['O_IE'][u, v,:]
 
 
 class Comm_GainPattern(Component):
@@ -927,11 +925,11 @@ class Comm_GSposECI(Component):
                     if 'O_IE' in arg:
                         for v in xrange(3):
                             result['r_e2g_I'][k,:] += self.J1[:, k, u, v] * \
-                                                       arg['O_IE'][u, v,:]
+                                arg['O_IE'][u, v,:]
 
                     if 'r_e2g_E' in arg:
                         result['r_e2g_I'][k,:] += self.J2[:, k, u] * \
-                                                   arg['r_e2g_E'][u,:]
+                            arg['r_e2g_E'][u,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -942,11 +940,11 @@ class Comm_GSposECI(Component):
                     for u in xrange(3):
                         for v in xrange(3):
                             result['O_IE'][u, v,:] += self.J1[:, k, u, v] * \
-                                                       arg['r_e2g_I'][k,:]
+                                arg['r_e2g_I'][k,:]
                 if 'r_e2g_E' in result:
                     for j in xrange(3):
                         result['r_e2g_E'][j,:] += self.J2[:, k, j] * \
-                                                   arg['r_e2g_I'][k,:]
+                            arg['r_e2g_I'][k,:]
 
 
 class Comm_LOS(Component):
@@ -1122,11 +1120,11 @@ class Comm_VectorAnt(Component):
                     for u in xrange(3):
                         for v in xrange(3):
                             result['r_b2g_A'][k,:] += self.J1[:, k, u, v] * \
-                                                       arg['O_AB'][u, v,:]
+                                arg['O_AB'][u, v,:]
                 if 'r_b2g_B' in arg:
                     for j in xrange(3):
                         result['r_b2g_A'][k,:] += self.J2[:, k, j] * \
-                                                   arg['r_b2g_B'][j,:]
+                            arg['r_b2g_B'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1137,11 +1135,11 @@ class Comm_VectorAnt(Component):
                     for u in xrange(3):
                         for v in xrange(3):
                             result['O_AB'][u, v,:] += self.J1[:, k, u, v] * \
-                                                       arg['r_b2g_A'][k,:]
+                                arg['r_b2g_A'][k,:]
                 if 'r_b2g_B' in result:
                     for j in xrange(3):
                         result['r_b2g_B'][j,:] += self.J2[:, k, j] * \
-                                                   arg['r_b2g_A'][k,:]
+                            arg['r_b2g_A'][k,:]
 
 
 class Comm_VectorBody(Component):
@@ -1213,11 +1211,11 @@ class Comm_VectorBody(Component):
                     for u in range(3):
                         for v in range(3):
                             result['r_b2g_B'][k,:] += self.J1[:, k, u, v] * \
-                                                       arg['O_BI'][u, v,:]
+                                arg['O_BI'][u, v,:]
                 if 'r_b2g_I' in arg:
                     for j in range(3):
                         result['r_b2g_B'][k,:] += self.J2[:, k, j] * \
-                                                   arg['r_b2g_I'][j,:]
+                            arg['r_b2g_I'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1228,11 +1226,11 @@ class Comm_VectorBody(Component):
                     for u in range(3):
                         for v in range(3):
                             result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
-                                                       arg['r_b2g_B'][k,:]
+                                arg['r_b2g_B'][k,:]
                 if 'r_b2g_I' in result:
                     for j in range(3):
                         result['r_b2g_I'][j,:] += self.J2[:, k, j] * \
-                                                   arg['r_b2g_B'][k,:]
+                            arg['r_b2g_B'][k,:]
 
 
 class Comm_VectorECI(Component):
@@ -1385,8 +1383,8 @@ class Comm_VectorSpherical(Component):
         if 'azimuthGS' in arg:
             az_GS = arg['azimuthGS']
             result['r_b2g_A'] += (self.J1T.dot(az_GS)).reshape((3, self.n),
-                                                              order='F')
+                                                               order='F')
         if 'elevationGS' in arg:
             el_GS = arg['elevationGS']
             result['r_b2g_A'] += (self.J2T.dot(el_GS)).reshape((3, self.n),
-                                                                order='F')
+                                                               order='F')
