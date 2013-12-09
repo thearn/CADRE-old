@@ -1,4 +1,3 @@
-import pickle
 import numpy as np
 import pylab
 import pygmaps
@@ -50,11 +49,14 @@ savedir = "docs/maps"
 f = open("CADRE.csv", "rb")
 reader = csv.DictReader(f, skipinitialspace=True)
 
+rows = []
 for row in reader:
     # just grabs the last row of the CSV file
-    pass
+    rows.append(row)
 
 # get values for design vars common to each design point
+
+row = rows[-1]
 
 cellInstd = np.zeros((7, 12))
 for i in xrange(7):
@@ -66,7 +68,11 @@ finAngle = float(row[st])
 st = "pt0.antAngle[0]"
 antAngle = float(row[st])
 
+
 a = CADRE(1500, 300)
+a.lat = -77.85
+a.lon = 166.666667
+a.alt = 2.835
 a.cellInstd = cellInstd
 a.finAngle = finAngle
 a.antAngle = antAngle
@@ -99,6 +105,7 @@ for i in xrange(npts):
     a.CP_gamma = CP_gamma
     a.CP_P_comm = CP_P_comm
     a.iSOC = iSOC
+
     a.run()
 
     print "getting data for design pt", i
@@ -114,7 +121,7 @@ for i in xrange(npts):
 mxdata = max([max(data["%s:Dr" % str(i)]) for i in xrange(npts)])
 
 # create map for all data points
-gmap_all = pygmaps.gmap(41, -88, 2)
+gmap_all = pygmaps.gmap(a.lat, a.lon, 2)
 
 # create data plot and map for each design point
 for i in xrange(npts):
@@ -123,6 +130,7 @@ for i in xrange(npts):
     p = data[si + ":P_comm"]
     g = data[si + ":gamma"]
     s = data[si + ":SOC"]
+
     pylab.figure()
     pylab.suptitle("CADRE Design Point " + si)
     pylab.subplot(411)
@@ -144,11 +152,11 @@ for i in xrange(npts):
     pylab.title("SOC")
     pylab.plot(s[0])
 
-    pylab.gcf().savefig(savedir + "/" + si + '.png', bbox_inches='tight')
+    pylab.gcf().savefig(savedir + "/1_" + si + '.png', bbox_inches='tight')
 
     O_IE = data["%s:O_IE" % si]
 
-    gmap = pygmaps.gmap(41, -88, 2)
+    gmap = pygmaps.gmap(a.lat, a.lon, 2)
     r_e2b_I = data["%s:r_e2b_I" % si]
 
     lats, lons = calc_lat_lon(r_e2b_I, O_IE)
@@ -156,5 +164,5 @@ for i in xrange(npts):
     path = zip(lats, lons)
     gmap.add_weighted_path(path, dr, scale=mxdata)
     gmap_all.add_weighted_path(path, dr, scale=mxdata)
-    gmap.draw(savedir + "/" + si + '_data.html')
-gmap_all.draw(savedir + '/all_data.html')
+    gmap.draw(savedir + "/1_" + si + '_data.html')
+gmap_all.draw(savedir + '/1_all_data.html')

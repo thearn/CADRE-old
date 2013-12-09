@@ -172,7 +172,7 @@ class CADRE_Launch(Assembly):
         # Orbit components
         self.add("Orbit_Initial", Orbit_Initial())
         self.driver.workflow.add("Orbit_Initial")
-        self.Orbit_Initial.Inc = 1
+        self.Orbit_Initial.Inc = 15
 
         self.add("Orbit_Dynamics", Orbit_Dynamics(n))
         self.driver.workflow.add("Orbit_Dynamics")
@@ -204,15 +204,15 @@ class CADRE_Launch(Assembly):
         self.connect("GroundLOC.lons", "Lon_uniform.sample")
 
         self.driver.add_objective("-Lat_uniform.k -Lon_uniform.k")
-        self.driver.add_parameter(
-            ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
-            low=500, high=1000)
-        self.driver.add_parameter(
-            "Orbit_Initial.RAAN", low=-180, high=180)
+        #self.driver.add_parameter(
+        #    ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
+        #    low=500, high=1000)
+        #self.driver.add_parameter(
+        #    "Orbit_Initial.RAAN", low=-180, high=180)
         self.driver.add_parameter(
             "Orbit_Initial.Inc", low=0, high=90)
-        self.driver.add_parameter(
-            "Orbit_Initial.argPerigee", low=0, high=90)
+        #self.driver.add_parameter(
+        #    "Orbit_Initial.argPerigee", low=0, high=90)
 
 
 if __name__ == "__main__":
