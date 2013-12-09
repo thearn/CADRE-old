@@ -32,7 +32,7 @@ class Orbit_Dynamics(rk4.RK4):
         self.add('r_e2b_I0',Array(np.zeros((6,)),
                             size=(6,), iotype="in",
                             dtype=np.float,
-                            fd_step=1e-3,
+                            fd_step=1e-2,
                             units="unitless",
                             desc="Initial position and velocity vectors from earth to satellite in Earth-centered inertial frame"))
 
@@ -77,12 +77,6 @@ class Orbit_Dynamics(rk4.RK4):
         z = state[2] if abs(state[2]) > 1e-15 else 1e-5
 
         r = (x**2 + y**2 + z**2)**0.5
-
-        T2 = 1 - 5*z**2/r**2
-        T3 = 3*z - 7*z**3/r**2
-        T4 = 1 - 14*z**2/r**2 + 21*z**4/r**4
-        T3z = 3*z - 0.6*r**2/z
-        T4z = 4 - 28.0/3.0*z**2/r**2
 
         drdx = x/r
         drdy = y/r
@@ -133,8 +127,9 @@ class Orbit_Dynamics(rk4.RK4):
         dfdy[5, 1] = dfdy[5, 1] + z*(C3/r**7*dT3z_dy + C4/r**7*dT4z_dy)
         dfdy[5, 2] = dfdy[5, 2] + z*(C3/r**7*dT3z_dz + C4/r**7*dT4z_dz)
         dfdy[5, 2] = dfdy[5, 2] + (C2/r**5*2 + C3/r**7*T3z + C4/r**7*T4z)
-
-
+        #dfdy[5, 2] = dfdy[5, 2] + (2.0*C2 + (C3*T3z + C4*T4z)/r**2)/r**5
+        
+        #print dfdy
         return dfdy
 
     def df_dx(self, external, state):

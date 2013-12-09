@@ -24,23 +24,23 @@ class Attitude_Angular(Component):
 
         # Inputs
         self.add('O_BI', Array(np.zeros((3, 3, n)),
-		               iotype='in',
+                               iotype='in',
                                shape=(3, 3, n),
                                units="unitless",
                                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"))
 
         self.add('Odot_BI', Array(np.zeros((3, 3, n)),
-		                  iotype='in',
+                                  iotype='in',
                                   shape=(3, 3, n),
                                   units="unitless",
-				  desc="First derivative of O_BI over time"))
+                                  desc="First derivative of O_BI over time"))
 
         # Outputs
         self.add('w_B', Array(np.zeros((3, n)),
-		              iotype='out',
+                              iotype='out',
                               shape=(3, n),
-			      units="1/s",
-			      desc="Angular velocity vector in body-fixed frame over time"))
+                              units="1/s",
+                              desc="Angular velocity vector in body-fixed frame over time"))
 
         self.dw_dOdot = np.zeros((n, 3, 3, 3))
         self.dw_dO = np.zeros((n, 3, 3, 3))
@@ -75,10 +75,10 @@ class Attitude_Angular(Component):
                     for j in xrange(3):
                         if 'O_BI' in arg:
                             result['w_B'][k,:] += self.dw_dO[:, k, i, j] * \
-                                                   arg['O_BI'][i, j,:]
+                                arg['O_BI'][i, j,:]
                         if 'Odot_BI' in arg:
                             result['w_B'][k,:] += self.dw_dOdot[:, k, i, j] * \
-                                                   arg['Odot_BI'][i, j,:]
+                                arg['Odot_BI'][i, j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -89,10 +89,10 @@ class Attitude_Angular(Component):
                     for j in xrange(3):
                         if 'O_BI' in result:
                             result['O_BI'][i, j,:] += self.dw_dO[:, k, i, j] * \
-                                                       arg['w_B'][k,:]
+                                arg['w_B'][k,:]
                         if 'Odot_BI' in result:
                             result['Odot_BI'][i, j,:] += self.dw_dOdot[:, k, i, j] * \
-                                                          arg['w_B'][k,:]
+                                arg['w_B'][k,:]
 
 
 class Attitude_AngularRates(Component):
@@ -106,24 +106,18 @@ class Attitude_AngularRates(Component):
         self.n = n
 
         # Inputs
-        self.add(
-            'w_B',
-            Array(
-                np.zeros((3, n)),
-                iotype='in',
-                shape=(3, n),
-                units="1/s",
-                desc="Angular velocity vector in body-fixed frame over time"
+        self.add('w_B', Array(np.zeros((3, n)),
+                              iotype='in',
+                              shape=(3, n),
+                              units="1/s",
+                              desc="Angular velocity vector in body-fixed frame over time"
             )
         )
 
-        self.add(
-            'h',
-            Float(
-                28.8,
-                iotype='in',
-                units="s",
-                desc="Time step for RK4 integration"
+        self.add('h', Float(28.8,
+                            iotype='in',
+                            units="s",
+                            desc="Time step for RK4 integration"
             )
         )
 
@@ -206,14 +200,14 @@ class Attitude_Attitude(Component):
 
         # Inputs
         self.add('r_e2b_I', Array(np.zeros((6, n)),
-		                  iotype='in',
+                                  iotype='in',
                                   shape=(6, n),
                                   units="unitless",
                                   desc="Position and velocity vector from earth to satellite in Earth-centered inertial frame over time"))
 
         # Outputs
         self.add('O_RI', Array(np.zeros((3, 3, n)),
-		               iotype='out',
+                               iotype='out',
                                shape=(3, 3, n),
                                units="unitless",
                                desc="Rotation matrix from rolled body-fixed frame to Earth-centerd inertial frame over time"))
@@ -276,7 +270,7 @@ class Attitude_Attitude(Component):
 
             self.dO_dr[i, 1,:, 0:3] = np.dot(np.dot(djB_diB, diB_dr), dr_dr)
             self.dO_dr[i, 1,:, 3:] = np.dot(np.dot(djB_diB, diB_dv) + djB_dv,
-                                             dv_dv)
+                                            dv_dv)
 
             self.dO_dr[i, 2,:, 3:] = -dv_dv
 
@@ -321,7 +315,7 @@ class Attitude_Attitude(Component):
                 for j in xrange(3):
                     for i in xrange(6):
                         result['O_RI'][k, j,:] += self.dO_dr[:, k, j, i] * \
-                                                   arg['r_e2b_I'][i,:]
+                            arg['r_e2b_I'][i,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -331,7 +325,7 @@ class Attitude_Attitude(Component):
                 for j in xrange(3):
                     for i in xrange(6):
                         result['r_e2b_I'][i,:] += self.dO_dr[:, k, j, i] * \
-                                                   arg['O_RI'][k, j,:]
+                            arg['O_RI'][k, j,:]
 
 
 class Attitude_Roll(Component):
@@ -346,17 +340,17 @@ class Attitude_Roll(Component):
 
         # Inputs
         self.add('Gamma', Array(np.zeros(n),
-		                iotype='in',
+                                iotype='in',
                                 shape=(n,),
-				units="rad",
-				desc="Satellite roll angle over time"))
+                                units="rad",
+                                desc="Satellite roll angle over time"))
 
         # Outputs
         self.add('O_BR', Array(np.zeros((3, 3, n)),
-		               iotype='out',
+                               iotype='out',
                                shape=(3, 3, n),
                                units="unitless",
-			       desc="Rotation matrix from body-fixed frame to rolled body-fixed frame over time"))
+                               desc="Rotation matrix from body-fixed frame to rolled body-fixed frame over time"))
 
         self.dO_dg = np.zeros((n, 3, 3))
 
@@ -386,7 +380,7 @@ class Attitude_Roll(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     result['O_BR'][k, j,:] += self.dO_dg[:, k, j] * \
-                                               arg['Gamma']
+                        arg['Gamma']
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -395,7 +389,7 @@ class Attitude_Roll(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     result['Gamma'] += self.dO_dg[:, k, j] * \
-                                       arg['O_BR'][k, j,:]
+                        arg['O_BR'][k, j,:]
 
 
 class Attitude_RotationMtx(Component):
@@ -410,39 +404,27 @@ class Attitude_RotationMtx(Component):
         self.n = n
 
         # Inputs
-        self.add(
-            'O_BR',
-            Array(
-                np.zeros((3, 3, n)),
-		iotype='in',
-                shape=(3, 3, n),
-                units="unitless",
-                desc="Rotation matrix from body-fixed frame to rolled body-fixed frame over time"
-            )
-        )
+        self.add('O_BR', Array(np.zeros((3, 3, n)),
+                               iotype='in',
+                               shape=(3, 3, n),
+                               units="unitless",
+                               desc="Rotation matrix from body-fixed frame to rolled body-fixed frame over time"
+                               ))
 
-        self.add(
-            'O_RI',
-            Array(
-                np.zeros((3, 3, n)),
-		iotype='in',
-                shape=(3, 3, n),
-                units="unitless",
-                desc="Rotation matrix from rolled body-fixed frame to Earth-centered inertial frame over time"
-            )
-        )
+        self.add('O_RI', Array(np.zeros((3, 3, n)),
+                               iotype='in',
+                               shape=(3, 3, n),
+                               units="unitless",
+                               desc="Rotation matrix from rolled body-fixed frame to Earth-centered inertial frame over time"
+                               ))
 
         # Outputs
-        self.add(
-            'O_BI',
-            Array(
-                np.zeros((3, 3, n)),
-		iotype='out',
-                shape=(3, 3, n),
-                units="unitless",
-                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"
-            )
-        )
+        self.add('O_BI', Array(np.zeros((3, 3, n)),
+                               iotype='out',
+                               shape=(3, 3, n),
+                               units="unitless",
+                               desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"
+                               ))
 
     def linearize(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
@@ -465,10 +447,10 @@ class Attitude_RotationMtx(Component):
                     for k in xrange(3):
                         if 'O_RI' in arg:
                             result['O_BI'][u, v,:] += self.O_BR[u, k,:] * \
-                                                       arg['O_RI'][k, v,:]
+                                arg['O_RI'][k, v,:]
                         if 'O_BR' in arg:
                             result['O_BI'][u, v,:] += arg['O_BR'][u, k,:] * \
-                                                       self.O_RI[k, v,:]
+                                self.O_RI[k, v,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -479,10 +461,10 @@ class Attitude_RotationMtx(Component):
                     for k in xrange(3):
                         if 'O_RI' in result:
                             result['O_RI'][k, v,:] += self.O_BR[u, k,:] * \
-                                                       arg['O_BI'][u, v,:]
+                                arg['O_BI'][u, v,:]
                         if 'O_BR' in result:
                             result['O_BR'][u, k,:] += arg['O_BI'][u, v,:] * \
-                                                       self.O_RI[k, v,:]
+                                self.O_RI[k, v,:]
 
 
 class Attitude_RotationMtxRates(Component):
@@ -497,19 +479,19 @@ class Attitude_RotationMtxRates(Component):
 
         # Inputs
         self.add('h', Float(28.8,
-		            iotype='in',
-			    units="s",
-			    desc="Time step for RK4 integration"))
+                            iotype='in',
+                            units="s",
+                            desc="Time step for RK4 integration"))
 
         self.add('O_BI', Array(np.zeros((3, 3, n)),
-		               iotype='in',
+                               iotype='in',
                                shape=(3, 3, n),
                                units="unitless",
                                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"))
 
         # Outputs
         self.add('Odot_BI', Array(np.zeros((3, 3, n)),
-		                  iotype='out',
+                                  iotype='out',
                                   shape=(3, 3, n),
                                   units="unitless",
                                   desc="First derivative of O_BI over time"))
@@ -541,13 +523,13 @@ class Attitude_RotationMtxRates(Component):
                     result['Odot_BI'][k, j, 0] += arg['O_BI'][k, j, 1] / self.h
                     result['Odot_BI'][k, j, 0] -= arg['O_BI'][k, j, 0] / self.h
                     result['Odot_BI'][k, j, 1:-1] += arg['O_BI'][k, j, 2:] / \
-                                                     2.0 / self.h
+                        2.0 / self.h
                     result['Odot_BI'][k, j, 1:-1] -= arg['O_BI'][k, j, :-2] / \
-                                                     2.0 / self.h
+                        2.0 / self.h
                     result['Odot_BI'][k, j, -1] += arg['O_BI'][k, j, -1] / \
-                                                   self.h
+                        self.h
                     result['Odot_BI'][k, j, -1] -= arg['O_BI'][k, j, -2] / \
-                                                   self.h
+                        self.h
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -558,13 +540,13 @@ class Attitude_RotationMtxRates(Component):
                     result['O_BI'][k, j, 1] += arg['Odot_BI'][k, j, 0] / self.h
                     result['O_BI'][k, j, 0] -= arg['Odot_BI'][k, j, 0] / self.h
                     result['O_BI'][k, j, 2:] += arg['Odot_BI'][k, j, 1:-1] / \
-                                                2.0 / self.h
+                        2.0 / self.h
                     result['O_BI'][k, j, :-2] -= arg['Odot_BI'][k, j, 1:-1] / \
-                                                 2.0 / self.h
+                        2.0 / self.h
                     result['O_BI'][k, j, -1] += arg['Odot_BI'][k, j, -1] / \
-                                                self.h
+                        self.h
                     result['O_BI'][k, j, -2] -= arg['Odot_BI'][k, j, -1] / \
-                                                self.h
+                        self.h
 
 
 class Attitude_Sideslip(Component):
@@ -576,26 +558,22 @@ class Attitude_Sideslip(Component):
         self.n = n
 
         # Inputs
-        self.add(
-            'r_e2b_I',
-            Array(
-                np.zeros((6, n)),
-		iotype='in',
-                shape=(6, n),
-                units="unitless",
-                desc="Position and velocity vector from earth to satellite in Earth-centered inertial frame over time"
-            )
-        )
+        self.add('r_e2b_I', Array(np.zeros((6, n)),
+                                  iotype='in',
+                                  shape=(6, n),
+                                  units="unitless",
+                                  desc="Position and velocity vector from earth to satellite in Earth-centered inertial frame over time"
+                                  ))
 
         self.add('O_BI', Array(np.zeros((3, 3, n)),
-		               iotype='in',
+                               iotype='in',
                                shape=(3, 3, n),
                                units="unitless",
                                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"))
 
         # Outputs
         self.add('v_e2b_B', Array(np.zeros((3, n)),
-		                  iotype='out',
+                                  iotype='out',
                                   shape=(3, n),
                                   units="m/s",
                                   desc="Velocity vector from earth to satellite in body-fixed frame over time"))
@@ -622,11 +600,11 @@ class Attitude_Sideslip(Component):
                     for u in xrange(3):
                         for v in xrange(3):
                             result['v_e2b_B'][k,:] += self.J1[:, k, u, v] * \
-                                                       arg['O_BI'][u, v,:]
+                                arg['O_BI'][u, v,:]
                 if 'r_e2b_I' in arg:
                     for j in xrange(3):
                         result['v_e2b_B'][k,:] += self.J2[:, k, j] * \
-                                                   arg['r_e2b_I'][3+j,:]
+                            arg['r_e2b_I'][3+j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -637,11 +615,11 @@ class Attitude_Sideslip(Component):
                     for u in xrange(3):
                         for v in xrange(3):
                             result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
-                                                       arg['v_e2b_B'][k,:]
+                                arg['v_e2b_B'][k,:]
                 if 'r_e2b_I' in result:
                     for j in xrange(3):
                         result['r_e2b_I'][3+j,:] += self.J2[:, k, j] * \
-                                                     arg['v_e2b_B'][k,:]
+                            arg['v_e2b_B'][k,:]
 
 
 class Attitude_Torque(Component):
@@ -709,7 +687,7 @@ class Attitude_Torque(Component):
 
             for k in range(0, 3):
                 self.dT_dw[i,:, k] += np.dot(self.dwx_dw[:,:, k],
-                                              np.dot(self.J, self.w_B[:, i]))
+                                             np.dot(self.J, self.w_B[:, i]))
 
     def execute(self):
         """ Calculate output. """
@@ -720,7 +698,7 @@ class Attitude_Torque(Component):
             wx[1,:] = (self.w_B[2, i], 0., -self.w_B[0, i])
             wx[2,:] = (-self.w_B[1, i], self.w_B[0, i], 0.)
             self.T_tot[:, i] = np.dot(self.J, self.wdot_B[:, i]) + \
-                               np.dot(wx, np.dot(self.J, self.w_B[:, i]))
+                np.dot(wx, np.dot(self.J, self.w_B[:, i]))
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -730,10 +708,10 @@ class Attitude_Torque(Component):
                 for j in xrange(3):
                     if 'w_B' in arg:
                         result['T_tot'][k,:] += self.dT_dw[:, k, j] * \
-                                                 arg['w_B'][j,:]
+                            arg['w_B'][j,:]
                     if 'wdot_B' in arg:
                         result['T_tot'][k,:] += self.dT_dwdot[:, k, j] * \
-                                                 arg['wdot_B'][j,:]
+                            arg['wdot_B'][j,:]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -743,7 +721,7 @@ class Attitude_Torque(Component):
                 for j in xrange(3):
                     if 'w_B' in result:
                         result['w_B'][j,:] += self.dT_dw[:, k, j] * \
-                                               arg['T_tot'][k,:]
+                            arg['T_tot'][k,:]
                     if 'wdot_B' in result:
                         result['wdot_B'][j,:] += self.dT_dwdot[:, k, j] * \
-                                                  arg['T_tot'][k,:]
+                            arg['T_tot'][k,:]
