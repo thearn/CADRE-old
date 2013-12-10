@@ -267,12 +267,12 @@ class CADRE(Assembly):
                     outputs[output_name].append(compname)
                     
         io = {}
-        print "{0},{1},{2},{3}".format(
-             "Variable",
-             "Component",
-             "Units",
-             "Description"
-         )
+        #print "{0},{1},{2},{3}".format(
+             #"Variable",
+             #"Component",
+             #"Units",
+             #"Description"
+         #)
  
         for compname in self.list_components():
             comp_io = self.get(compname).list_inputs() + \
@@ -300,12 +300,12 @@ class CADRE(Assembly):
                 p = '.'.join( [compname, io_name] )
                 metadata = self.get_metadata( p )
                 #print p, metadata.get('units','None'), metadata.get('desc','None')
-                print "{0},{1},{2},\"{3}\"".format(
-                     io_name,
-                     compname,
-                     metadata.get('units','None'),
-                     metadata.get('desc','None')
-                 )
+                #print "{0},{1},{2},\"{3}\"".format(
+                     #io_name,
+                     #compname,
+                     #metadata.get('units','None'),
+                     #metadata.get('desc','None')
+                 #)
  
                 # if input_name not in [ 'directory', 'force_execute', 'state_var', 'init_state_var','external_vars','fixed_external_vars' ]:
                 #     p = '.'.join( [compname, input_name] )
