@@ -26,25 +26,6 @@ class Uniformity(Component):
         s = np.sin(self.sample * np.pi / 180.)
         self.k = max(s) - min(s)
 
-    def linearize(self):
-        """Computes the Jacobian matrix"""
-
-        s = np.sin(self.sample * np.pi / 180.)
-        c = np.cos(self.sample * np.pi / 180.)
-        self.J = np.zeros((1, self.n))
-        idx_max = np.where(s == max(s))
-        idx_min = np.where(s == min(s))
-        self.J[0, idx_max] = c[idx_max]
-        self.J[0, idx_min] = - c[idx_max]
-
-    def provideJ(self):
-        """Provide full Jacobian."""
-
-        input_keys = ('sample',)
-        output_keys = ('k',)
-
-        return input_keys, output_keys, self.J
-
 
 class GroundLOC(Component):
 
@@ -172,9 +153,10 @@ class CADRE_Launch(Assembly):
         # Orbit components
         self.add("Orbit_Initial", Orbit_Initial())
         self.driver.workflow.add("Orbit_Initial")
-        self.Orbit_Initial.Inc = 1
+        self.Orbit_Initial.Inc = 0.1
 
         self.add("Orbit_Dynamics", Orbit_Dynamics(n))
+        self.Orbit_Dynamics.force_fd = True
         self.driver.workflow.add("Orbit_Dynamics")
 
         self.add("Comm_EarthsSpin", Comm_EarthsSpin(n))
@@ -216,7 +198,6 @@ class CADRE_Launch(Assembly):
 
 
 if __name__ == "__main__":
-    import pylab
     a = CADRE_Launch(1000)
     a.run()
 

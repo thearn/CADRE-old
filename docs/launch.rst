@@ -47,71 +47,81 @@ Now we define the assembly. We add in the components and variables needed, the s
 
 .. code-block:: python
 
-    def __init__(self, n=200):
+    class CADRE_Launch(Assembly):
 
-        super(CADRE_Launch, self).__init__()
+        """ Allows for analysis of the launch parameters of CADRE.
 
-        # Analysis parameters
-        self.n = n
-        self.add('t', Array(np.zeros((n,)), size=(n,),
-                            dtype=np.float, iotype="in"))
-        self.add('t1', Float(0., iotype='in'))
-        # Model will simulate period of 3 days (259200 s)
-        self.add('t2', Float(259200., iotype='in'))
-        # Compute step size
-        h = (self.t2 - self.t1) / (self.n - 1)
-        self.add("h", Float(h, iotype="in", copy=None))
+            Considers multiple launch parameters and their effects on
+            coverage of the Earth's thermosphere.
 
-        self.t = np.array(range(0, n)) * h
+            Ultimately, a launch that provides the most uniform sampling is
+            favorable, which is expected to be given by a polar orbit
+            (Inclination near 90). Other launch parameters are probably not
+            very useful in comparison.
+        """
 
-        self.add('driver', SLSQPdriver())
+        def __init__(self, n=200):
 
-        # Orbit components
-        self.add("Orbit_Initial", Orbit_Initial())
-        self.driver.workflow.add("Orbit_Initial")
+            super(CADRE_Launch, self).__init__()
 
-        self.add("Orbit_Dynamics", Orbit_Dynamics(n))
-        self.driver.workflow.add("Orbit_Dynamics")
+            # Analysis parameters
+            self.n = n
+            self.add('t', Array(np.zeros((n,)), size=(n,),
+                                dtype=np.float, iotype="in"))
+            self.add('t1', Float(0., iotype='in'))
+            self.add('t2', Float(259200., iotype='in'))
+            h = (self.t2 - self.t1) / (self.n - 1)
+            self.add("h", Float(h, iotype="in", copy=None))
 
-        self.add("Comm_EarthsSpin", Comm_EarthsSpin(n))
-        self.driver.workflow.add("Comm_EarthsSpin")
+            self.t = np.array(range(0, n)) * h
 
-        self.add("Comm_EarthsSpinMtx", Comm_EarthsSpinMtx(n))
-        self.driver.workflow.add("Comm_EarthsSpinMtx")
+            self.add('driver', SLSQPdriver())
 
-        self.add("GroundLOC", GroundLOC(n))
-        self.driver.workflow.add("GroundLOC")
+            # Orbit components
+            self.add("Orbit_Initial", Orbit_Initial())
+            self.driver.workflow.add("Orbit_Initial")
+            self.Orbit_Initial.Inc = 0.1
 
-        self.add("Lon_uniform", Uniformity(n))
-        self.driver.workflow.add("Lon_uniform")
+            self.add("Orbit_Dynamics", Orbit_Dynamics(n))
+            self.Orbit_Dynamics.force_fd = True
+            self.driver.workflow.add("Orbit_Dynamics")
 
-        self.add("Lat_uniform", Uniformity(n))
-        self.driver.workflow.add("Lat_uniform")
+            self.add("Comm_EarthsSpin", Comm_EarthsSpin(n))
+            self.driver.workflow.add("Comm_EarthsSpin")
 
-        # Connect top level parameters to components
-        self.connect("t", "Comm_EarthsSpin.t")
-        self.connect("h", "Orbit_Dynamics.h")
+            self.add("Comm_EarthsSpinMtx", Comm_EarthsSpinMtx(n))
+            self.driver.workflow.add("Comm_EarthsSpinMtx")
 
-        # Make rest of connections
-        self.connect("Comm_EarthsSpin.q_E", "Comm_EarthsSpinMtx.q_E")
-        self.connect("Comm_EarthsSpinMtx.O_IE", "GroundLOC.O_IE")
+            self.add("GroundLOC", GroundLOC(n))
+            self.driver.workflow.add("GroundLOC")
 
-        self.connect("Orbit_Initial.r_e2b_I0", "Orbit_Dynamics.r_e2b_I0")
-        self.connect("Orbit_Dynamics.r_e2b_I", "GroundLOC.r_e2b_I")
+            self.add("Lon_uniform", Uniformity(n))
+            self.driver.workflow.add("Lon_uniform")
 
-        self.connect("GroundLOC.lats", "Lat_uniform.sample")
-        self.connect("GroundLOC.lons", "Lon_uniform.sample")
+            self.add("Lat_uniform", Uniformity(n))
+            self.driver.workflow.add("Lat_uniform")
 
-        self.driver.add_objective("Lat_uniform.k + Lon_uniform.k")
-        self.driver.add_parameter(
-            ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
-            low=500, high=1000)
-        self.driver.add_parameter(
-            "Orbit_Initial.RAAN", low=-180, high=180)
-        self.driver.add_parameter(
-            "Orbit_Initial.Inc", low=0, high=90)
-        self.driver.add_parameter(
-            "Orbit_Initial.argPerigee", low=0, high=90)
+            self.connect("t", "Comm_EarthsSpin.t")
+            self.connect("h", "Orbit_Dynamics.h")
+            self.connect("Comm_EarthsSpin.q_E", "Comm_EarthsSpinMtx.q_E")
+            self.connect("Comm_EarthsSpinMtx.O_IE", "GroundLOC.O_IE")
+
+            self.connect("Orbit_Initial.r_e2b_I0", "Orbit_Dynamics.r_e2b_I0")
+            self.connect("Orbit_Dynamics.r_e2b_I", "GroundLOC.r_e2b_I")
+
+            self.connect("GroundLOC.lats", "Lat_uniform.sample")
+            self.connect("GroundLOC.lons", "Lon_uniform.sample")
+
+            self.driver.add_objective("-Lat_uniform.k -Lon_uniform.k")
+            self.driver.add_parameter(
+                ["Orbit_Initial.altPerigee", "Orbit_Initial.altApogee"],
+                low=500, high=1000)
+            self.driver.add_parameter(
+                "Orbit_Initial.RAAN", low=-180, high=180)
+            self.driver.add_parameter(
+                "Orbit_Initial.Inc", low=0, high=90)
+            self.driver.add_parameter(
+                "Orbit_Initial.argPerigee", low=0, high=90)
 
 Note that the orbital altitude was specified as an optimization parameter by setting both the perigee and apogee values together as a single input. This indicates to the optimization driver that we want to vary these two values together, which is sufficient for constraining the optimization to circular orbits of a set altitude.
 
@@ -229,21 +239,6 @@ Next, the **Uniformity()** component is defined. For this component, instead of 
 
         def execute(self):
             self.k = max(self.sample) - min(self.sample)
-
-        def linearize(self):
-            self.J = np.zeros((1, self.n))
-            idx_max = np.where(self.sample == max(self.sample))
-            idx_min = np.where(self.sample == min(self.sample))
-            self.J[0, idx_max] = 1
-            self.J[0, idx_min] = -1
-
-        def provideJ(self):
-            """Provide full Jacobian."""
-
-            input_keys = ('sample',)
-            output_keys = ('k',)
-
-            return input_keys, output_keys, self.J
 
 
 If you wanted to quickly visualize the dependence of the objective function on the orbital inclination parameter, you could comment out the portions of the assembly related to the optimization driver and run:

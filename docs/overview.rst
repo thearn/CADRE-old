@@ -14,7 +14,7 @@ A graph-free gradient based approach at multidisciplinary optimization of the CA
 system and mission has previously been used successfully by `Hwang et al <http://mdolab.engin.umich.edu/content/large-scale-mdo-small-satellite-using-novel-framework-solution-coupled-systems-and-their>`_. We have implemented
 the same problem formulation using OpenMDAO. The CADRE problem represents a class of problems with medium complexity and medium fidelity, and is remarkably scalable.
 
-The CADRE problem models the interaction of several disciplines (attitude control, communications, power and energy storage system, thermal dynamics, craft orbital dynamics, and sun-earth position) over the course of the mission. Specifically, the system is modeled over the course of 6 separate half-days of operation, computed at conditions 1, 3, 5, 7, 9, and 11 months after launch. This way, design parameters can be optimized to balance performance under diverse conditions (such as relative location of the sun, etc.) over the course of the mission. The objective of the optimization is to maximize the total amount of data transmitted to the ground station over the 6 design points.
+The CADRE problem models the interaction of several disciplines (attitude control, communications, power and energy storage system, thermal dynamics, craft orbital dynamics, and sun-earth position) over the course of the mission. Specifically, the system is modeled over the course of 6 separate half-days of operation, computed at conditions 1, 3, 5, 7, 9, and 11 months after launch. This way, design parameters can be optimized to balance performance under diverse conditions (such as relative location of the sun, etc.) over the course of the mission. The objective of the optimization is to maximize the total amount of data transmitted to the ground station (Ann Arbor, MI) over the 6 design points.
 
 This figure shows the interaction between the separate components of the CADRE optimization problem:
 
@@ -64,7 +64,13 @@ Example usage:
     top = CADRE_Optimization(n=1500, m=300) # Set with n and m values
     top.run() # Optimizes the full CADRE model across all 6 design points
 
-A more thorough example is given in the full problem tutorial.
+Within this assembly, the CADRE design point sub-assemblies are named `pt0`, `pt1`, `pt2`, `pt3`, `pt4`, and `pt5`. For example, to print (or assign) the initial state of charge (`iSOC`) at the first design point, you would write:
+
+.. code-block:: python
+
+    print top.pt0.iSOC
+
+A more thorough example of running this assembly is given in the full problem tutorial.
 
 In addition to these two assemblies, all of the individual components of the CADRE model can be imported and used directly as well.
 

@@ -120,47 +120,170 @@ the next time that the optimization is run in the same directory. If you would
 rather cold-start the problem, this file can simply be deleted prior to
 initializing an optimization if it exists.
 
+We can easily rerun the problem with different configurations, such as a change in placement of the ground station, different lengths of time for the design points, etc. For example, if we wanted to re-optimize the entire problem but with McMurdo Station, Antarctica as the ground station, we could run:
+
+.. code-block:: python
+
+    from openmdao.lib.casehandlers.api import CSVCaseRecorder
+    from CADRE import CADRE_Optimization
+
+    print "setting up"
+    top = CADRE_Optimization(n=1500, m=300)
+
+    # reset ground station for each CADRE design point
+    for i in xrange(6):
+        pt = top.get("pt%s" % str(i))
+        pt.lat = -77.85 # McMurdo latitude
+        pt.lon = 166.666667 # longitude
+        pt.alt = 2.835 # Altitude
+
+    top.driver.recorders = [CSVCaseRecorder(filename='CADRE.csv')]
+    printvars = []
+    for var in ['Data', 'ConCh', 'ConDs', 'ConS0', 'ConS1', 'SOC']:
+        printvars += ["pt" + str(i) + ".Data" for i in xrange(6)]
+    top.driver.printvars = printvars
+    print "running"
+    top.run()
+
+This will generate a CADRE.csv file, just as before.
+
+
 ==============================
 Interactive visualization of results
 ==============================
 
-The results of the optimization can also be interactively visualized below.
-Select a design point to view from the list. This will display a plot of several
+Once an optimization of CADRE has successfully completed, you can run `generate_maps.py` in the top-level directory of the CADRE
+plugin repository to generate some graphical summaries of the optimized design.
+
+This will render a plot of several
 optimized parameters over time period covered by that design point: The data download rate,
 the power to the communications system, the roll angle, and the battery state-of-charge.
 
-Below this figure, a Google Maps frame will load in an interactive frame which has the trajectories
+This script will also generate a Google Maps document (html file) that has the trajectories
 of the CADRE satellite plotted for the selected design point. These trajectory lines
 are colored based on the data download rate of the satellite at that period of time.
 
-Note that the loading of the maps frame does require an Internet connection.
-Clicking the "Earth" button in the maps figure will render the results using
+Note that the loading of the maps documents does require an Internet connection.
+
+Examples of these plots and maps are shown interactively below. You can click on the radio buttons to select between two separate optimizations: one with Ann Arbor, MI as the ground station (default), or one with McMurdo Station as the ground station. You can also select to view data for each of the 6 CADRE design points individually.
+
+Clicking the "Earth" button in the maps view will render the results using
 Google Earth (which requires the Google Earth plugin for your browser).
 
 These two plots can be compared directly: peaks in the download rate indicated in
-the first figure should correspond to a pass of the satellite's orbit near to
-the ground station.
+the data figure should correspond to a pass of the satellite's orbit near to
+the selected ground station.
 
 .. raw:: html
 
     <script>
-    function to(val) {
-        url = "maps/" + String(val) + "_data.html";
-        url2 = "maps/" + String(val) + ".png";
+
+    total_data = {0:30820, 1:82727}
+
+    gs_id = 0;
+    pt = 0;
+
+    function refresh() {
+        url = "_downloads/" + String(gs_id) + "_" + String(pt) + "_data.html";
+        url2 = "_images/" + String(gs_id) + "_" + String(pt) + ".png";
         document.getElementById('map').src = url;
         document.getElementById('plot').src = url2;
+        $('#totaldata').text(total_data[gs_id]);
     }
+
+    function to(val) {
+        pt = val;
+        refresh();
+    }
+
+    function gs_change(val) {
+        gs_id = val;
+        refresh();
+    }
+
     </script>
     <div style="margin-top:10px;">
-    <table><tr><td>
-    Design point:<br><br>
+    <table style="width: auto; margin: auto;"><tr><td style="width: auto; margin: auto;"><hr>
+    Ground station:<hr>
+    <input type="radio" name="gs" id="gs0" value="0" onclick="gs_change(0);" checked="checked" />Ann Arbor, MI, USA<br>
+    <input type="radio" name="gs" id="gs1" value="1" onclick="gs_change(1);" />McMurdo Station, Antarctica<br><hr>
+
+    Design point:<hr>
     <input type="radio" name="pt" id="bt0" value="0" onclick="to(0);" checked="checked" />1 month after launch<br>
     <input type="radio" name="pt" id="bt1" value="1" onclick="to(1);" />3 months after launch<br>
     <input type="radio" name="pt" id="bt2" value="2" onclick="to(2);" />5 months after launch<br>
     <input type="radio" name="pt" id="bt3" value="3" onclick="to(3);" />7 months after launch<br>
     <input type="radio" name="pt" id="bt4" value="4" onclick="to(4);" />9 months after launch<br>
     <input type="radio" name="pt" id="bt5" value="5" onclick="to(5);" />11 months after launch<br>
-    <input type="radio" name="pt" id="bt6" value="6" onclick="to('all');" />All design points (map only)<br></td><td>
-        <center><img src = "maps/0.png" id="plot" width=600></center></td></tr></table>
-      <iframe width="1000" height="500" id="map" src="maps/0_data.html" frameborder="0" allowfullscreen></iframe>
+    <input type="radio" name="pt" id="bt6" value="6" onclick="to('all');" />All design points (map only)<br><hr>
+
+    <br>Total Data Downloaded:<br><br><center><h3><span id="totaldata">
+    30820
+    </span> Gb</b></h3></center>
+    </td><td style="width: auto; margin: auto;">
+        <center><img src = "_images/0_0.png" id="plot" width=500></center></td></tr></table>
+        <center>
+      <iframe width="1000" height="500" id="map" src="_downloads/0_0_data.html" frameborder="0" allowfullscreen></iframe></center>
     </div>
+
+Fullscreen map views:
+
+- :download:`Ann Arbor, design point 1 <maps/0_0_data.html>`
+- :download:`Ann Arbor, design point 2 <maps/0_1_data.html>`
+- :download:`Ann Arbor, design point 3 <maps/0_2_data.html>`
+- :download:`Ann Arbor, design point 4 <maps/0_3_data.html>`
+- :download:`Ann Arbor, design point 5 <maps/0_4_data.html>`
+- :download:`Ann Arbor, design point 6 <maps/0_5_data.html>`
+- :download:`Ann Arbor, all design points <maps/0_all_data.html>`
+
+- :download:`McMurdo Station, design point 1 <maps/1_0_data.html>`
+- :download:`McMurdo Station, design point 2 <maps/1_1_data.html>`
+- :download:`McMurdo Station, design point 3 <maps/1_2_data.html>`
+- :download:`McMurdo Station, design point 4 <maps/1_3_data.html>`
+- :download:`McMurdo Station, design point 5 <maps/1_4_data.html>`
+- :download:`McMurdo Station, design point 6 <maps/1_5_data.html>`
+- :download:`McMurdo Station, all design points <maps/1_all_data.html>`
+
+.. image:: maps/0_0.png
+    :width: 0 px
+
+.. image:: maps/0_1.png
+    :width: 0 px
+
+.. image:: maps/0_2.png
+    :width: 0 px
+
+.. image:: maps/0_3.png
+    :width: 0 px
+
+.. image:: maps/0_4.png
+    :width: 0 px
+
+.. image:: maps/0_5.png
+    :width: 0 px
+
+.. image:: maps/0_all.png
+    :width: 0 px
+
+
+.. image:: maps/1_0.png
+    :width: 0 px
+
+.. image:: maps/1_1.png
+    :width: 0 px
+
+.. image:: maps/1_2.png
+    :width: 0 px
+
+.. image:: maps/1_3.png
+    :width: 0 px
+
+.. image:: maps/1_4.png
+    :width: 0 px
+
+.. image:: maps/1_5.png
+    :width: 0 px
+
+.. image:: maps/1_all.png
+    :width: 0 px
+
