@@ -25,6 +25,8 @@ function ba(a){var b=a.k,c=a.c=k[s]("DIV");o(c[y],"absolute");n(c[y],0);p(c[y],0
 function Q(a,b){var c=[],d=W[b],f;for(f in d)if(d.hasOwnProperty(f)){var e=d[f];e.get("map")==a.b&&c.push(e)}return c}var W={};function ja(){var a=$,b=google[C][a][H];b.__gme_setMapOriginal=b.setMap;W[a]={};google[C][a][H].setMap=function(b){if(b){if(!this.__gme_id)this.__gme_id=ka++,W[a][this.__gme_id]=this}else delete W[a][this.__gme_id],this.__gme_id=void 0;this.__gme_setMapOriginal(b)}}
 for(var P="Marker,Polyline,Polygon,Rectangle,Circle,KmlLayer,GroundOverlay,InfoWindow".split(","),ka=0,la=P,ma=0,$;$=la[ma];ma++)if(ja(),$=="InfoWindow")google[C][B][H].p=google[C][B][H].open,W.InfoWindow={},google[C][B][H].open=function(a,b){if(a){if(!this.__gme_id)this.__gme_id=ka++,W[B][this.__gme_id]=this}else delete W[B][this.__gme_id],this.__gme_id=void 0;google[C][L].trigger(a,"GEInfoWindowOpened",this);this.p(a,b)};})();
 </script><script type="text/javascript">
+
+
 google.load("earth", "1");var map;var googleEarth;	function initialize() {
 		var centerlatlng = new google.maps.LatLng(41.000000, -88.000000);
 		var myOptions = {
@@ -33,7 +35,12 @@ google.load("earth", "1");var map;var googleEarth;	function initialize() {
 			mapTypeId: google.maps.MapTypeId.HYBRID
 		};
 		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-googleEarth = new GoogleEarth(map);
+
+for (var i=0; i<navigator.plugins.length; i++) {
+    if (navigator.plugins[i].name == "Google Earth Plug-in") {googleEarth = new GoogleEarth(map);}
+}
+
+
 var PolylineCoordinates = [
 new google.maps.LatLng(-34.936488, -37.058183),
 new google.maps.LatLng(-34.038040, -36.935088),

@@ -33,7 +33,9 @@ google.load("earth", "1");var map;var googleEarth;	function initialize() {
 			mapTypeId: google.maps.MapTypeId.HYBRID
 		};
 		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-googleEarth = new GoogleEarth(map);
+for (var i=0; i<navigator.plugins.length; i++) {
+    if (navigator.plugins[i].name == "Google Earth Plug-in") {googleEarth = new GoogleEarth(map);}
+}
 var PolylineCoordinates = [
 new google.maps.LatLng(9.498924, 137.059728),
 new google.maps.LatLng(10.402541, 137.129827),
