@@ -29,6 +29,7 @@ Package Metadata
     CADRE.sun.Sun_PositionBody=CADRE.sun:Sun_PositionBody
     CADRE.comm.Comm_EarthsSpinMtx=CADRE.comm:Comm_EarthsSpinMtx
     CADRE.comm.Comm_LOS=CADRE.comm:Comm_LOS
+    CADRE.CADRE_launch.Uniformity=CADRE.CADRE_launch:Uniformity
     CADRE.comm.Comm_GSposEarth=CADRE.comm:Comm_GSposEarth
     CADRE.comm.Comm_VectorBody=CADRE.comm:Comm_VectorBody
     CADRE.sun.Sun_PositionSpherical=CADRE.sun:Sun_PositionSpherical
@@ -42,11 +43,12 @@ Package Metadata
     CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
     CADRE.battery.BatteryPower=CADRE.battery:BatteryPower
     CADRE.rk4.RK4=CADRE.rk4:RK4
-    CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
+    CADRE.CADRE_launch.GroundLOC=CADRE.CADRE_launch:GroundLOC
     CADRE.comm.Comm_AntRotationMtx=CADRE.comm:Comm_AntRotationMtx
     CADRE.power.Power_Total=CADRE.power:Power_Total
     CADRE.test.test_rk_deriv.RKTest=CADRE.test.test_rk_deriv:RKTest
     CADRE.CADRE_assembly.CADRE=CADRE.CADRE_assembly:CADRE
+    CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
     CADRE.comm.Comm_AntRotation=CADRE.comm:Comm_AntRotation
     CADRE.comm.Comm_VectorAnt=CADRE.comm:Comm_VectorAnt
     CADRE.KS.KSComp=CADRE.KS:KSComp
@@ -59,6 +61,7 @@ Package Metadata
     CADRE.sun.Sun_LOS=CADRE.sun:Sun_LOS
     CADRE.CADRE_mdp.CADRE_Optimization=CADRE.CADRE_mdp:CADRE_Optimization
     CADRE.thermal_temperature.ThermalTemperature=CADRE.thermal_temperature:ThermalTemperature
+    CADRE.CADRE_launch.CADRE_Launch=CADRE.CADRE_launch:CADRE_Launch
     CADRE.comm.Comm_Distance=CADRE.comm:Comm_Distance
     [openmdao.container]
     CADRE.solar.Solar_ExposedArea=CADRE.solar:Solar_ExposedArea
@@ -73,6 +76,7 @@ Package Metadata
     CADRE.sun.Sun_PositionBody=CADRE.sun:Sun_PositionBody
     CADRE.comm.Comm_EarthsSpinMtx=CADRE.comm:Comm_EarthsSpinMtx
     CADRE.comm.Comm_LOS=CADRE.comm:Comm_LOS
+    CADRE.CADRE_launch.Uniformity=CADRE.CADRE_launch:Uniformity
     CADRE.comm.Comm_GSposEarth=CADRE.comm:Comm_GSposEarth
     CADRE.comm.Comm_VectorBody=CADRE.comm:Comm_VectorBody
     CADRE.sun.Sun_PositionSpherical=CADRE.sun:Sun_PositionSpherical
@@ -86,11 +90,12 @@ Package Metadata
     CADRE.reactionwheel.ReactionWheel_Power=CADRE.reactionwheel:ReactionWheel_Power
     CADRE.battery.BatteryPower=CADRE.battery:BatteryPower
     CADRE.rk4.RK4=CADRE.rk4:RK4
-    CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
+    CADRE.CADRE_launch.GroundLOC=CADRE.CADRE_launch:GroundLOC
     CADRE.comm.Comm_AntRotationMtx=CADRE.comm:Comm_AntRotationMtx
     CADRE.power.Power_Total=CADRE.power:Power_Total
     CADRE.test.test_rk_deriv.RKTest=CADRE.test.test_rk_deriv:RKTest
     CADRE.CADRE_assembly.CADRE=CADRE.CADRE_assembly:CADRE
+    CADRE.comm.Comm_EarthsSpin=CADRE.comm:Comm_EarthsSpin
     CADRE.comm.Comm_AntRotation=CADRE.comm:Comm_AntRotation
     CADRE.comm.Comm_VectorAnt=CADRE.comm:Comm_VectorAnt
     CADRE.KS.KSComp=CADRE.KS:KSComp
@@ -103,6 +108,7 @@ Package Metadata
     CADRE.sun.Sun_LOS=CADRE.sun:Sun_LOS
     CADRE.CADRE_mdp.CADRE_Optimization=CADRE.CADRE_mdp:CADRE_Optimization
     CADRE.thermal_temperature.ThermalTemperature=CADRE.thermal_temperature:ThermalTemperature
+    CADRE.CADRE_launch.CADRE_Launch=CADRE.CADRE_launch:CADRE_Launch
     CADRE.comm.Comm_Distance=CADRE.comm:Comm_Distance
 
 - **home-page:** https://github.com/OpenMDAO-Plugins/CADRE
@@ -128,5 +134,5 @@ Package Metadata
 
 - **summary:** OpenMDAO implementation of the CADRE CubeSat design problem
 
-- **version:** 0.1
+- **version:** 0.2
 

@@ -20,6 +20,19 @@ CADRE_assembly.py
    :show-inheritance:
 
         
+.. index:: CADRE_launch.py
+
+.. _CADRE.CADRE_launch.py:
+
+CADRE_launch.py
+---------------
+
+.. automodule:: CADRE.CADRE_launch
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+        
 .. index:: CADRE_mdp.py
 
 .. _CADRE.CADRE_mdp.py:
