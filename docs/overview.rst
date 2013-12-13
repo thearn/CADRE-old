@@ -1,6 +1,6 @@
-===========
+============================================================
 Overview of CADRE
-===========
+============================================================
 
 `CADRE <http://exploration.engin.umich.edu/blog/?page_id=961>`_ (Cubesat investigating Atmospheric Density Response to Extreme driving)
 is a mission funded by the National Science Foundation to study the
@@ -35,9 +35,9 @@ Very thorough descriptions of the engineering modeled by each discipline in the 
 The default values for 'n' and 'm' are 1500 and 300 respectively, which gives a full design problem with **over 25,000 design variables**. The graph structure of OpenMDAO's derivatives system together with high-performance optimizers enable problems of this size to be solved efficiently.
 
 
-============
+============================================================
 Structure of the CADRE plugin
-============
+============================================================
 
 The CADRE plugin has the following structure:
 

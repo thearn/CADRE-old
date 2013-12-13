@@ -1,6 +1,6 @@
-===========
+============================================================
 Example: Optimization of the CADRE roll angle
-===========
+============================================================
 
 In this example, we will optimize the roll angle of the CADRE satellite as
 it passes over the ground station to maximize the gain of the communications system. This will demonstrate how to import the full CADRE assembly in order to solve a closely related (but smaller) optimization problem. This illustrates the flexibility of OpenMDAO's problem graph and derivatives system with respect to variations in problem formulation.
@@ -13,6 +13,7 @@ The internal graph representation of this problem in OpenMDAO allows an optimiza
 To begin, in a new python file, we first import the libraries that we will use, which includes (among other things) the CADRE assembly, the standard OpenMDAO Component and Assembly classes, and the SLSQP optimization driver.
 
 .. code-block:: python
+
     from openmdao.main.api import Component
     from openmdao.main.datatypes.api import Float, Array
     from CADRE import CADRE
