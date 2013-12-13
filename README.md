@@ -1,4 +1,4 @@
-#OpenMDAO implementation of the CADRE CubeSat design problem.
+#CADRE CubeSat design problem OpenMDAO Plugin.
 
 
 ##Installation
