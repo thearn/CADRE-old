@@ -5,6 +5,7 @@ Running the full CADRE problem
 The previous tutorials provided short practical introductions to some of the
 OpenMDAO components which are used in the CADRE problem. To run the full
 CADRE problem:
+
     - Obtain a license and source code for `SNOPT <http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm>`_
     - Build and install `PyOpt <http://www.pyopt.org/>`_ with SNOPT support
     - Install `pyopt_driver <https://github.com/OpenMDAO-Plugins/pyopt_driver>`_ for OpenMDAO
@@ -148,9 +149,9 @@ We can easily rerun the problem with different configurations, such as a change 
 This will generate a CADRE.csv file, just as before.
 
 
-==============================
+============================================================
 Interactive visualization of results
-==============================
+============================================================
 
 Once an optimization of CADRE has successfully completed, you can run `generate_maps.py` in the top-level directory of the CADRE
 plugin repository to generate some graphical summaries of the optimized design.

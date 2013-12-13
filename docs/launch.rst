@@ -1,6 +1,6 @@
-===========
+============================================================
 Example: Optimization of the CADRE orbital parameters
-===========
+============================================================
 
 In this example, we will formulate a small-scale Assembly that will simply optimize the parameters of the CADRE satellite's orbit for the scientific utility of the mission alone. This will demonstrate how to import individual components of the CADRE problem to construct new assemblies, along with some basic usage of OpenMDAO's derivative system.
 
