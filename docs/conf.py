@@ -17,7 +17,7 @@ def _sys_path_add(toadd=None):
         distdir = os.path.dirname(os.path.dirname(__file__))
         sys.path = [distdir] + [os.path.join(distdir, p) for p in toadd] + sys.path
 
-_sys_path_add(['src', 'src/CADRE', 'src/CADRE/data', 'src/CADRE/test', 'src/CADRE/data/Comm', 'src/CADRE/data/Launch', 'src/CADRE/data/Power', 'src/CADRE/data/Solar'])
+_sys_path_add(['src', 'temp', 'src/CADRE', 'src/CADRE/data', 'src/CADRE/test', 'src/CADRE/data/Comm', 'src/CADRE/data/Launch', 'src/CADRE/data/Power', 'src/CADRE/data/Solar'])
 
 # General configuration
 # ---------------------
