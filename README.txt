@@ -1,7 +1,7 @@
-# OpenMDAO implementation of the CADRE CubeSat design problem.
+#OpenMDAO implementation of the CADRE CubeSat design problem.
 
 
-## Installation
+##Installation
 To install this plugin, first [activate your openmdao environment](http://openmdao.org/docs/getting-started/install.html#installation). 
 
 then type plugin install --github CADRE
