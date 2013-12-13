@@ -4,7 +4,6 @@ from openmdao.main.api import Assembly, Component
 
 from openmdao.lib.drivers.api import CONMINdriver
 from openmdao.lib.drivers.api import SLSQPdriver
-from pyopt_driver import pyopt_driver
 
 from openmdao.main.datatypes.api import Float, Array, Int
 
@@ -159,14 +158,6 @@ class CADRE_Launch(Assembly):
 
         self.t = np.array(range(0, n)) * h
 
-        #self.add("driver", pyopt_driver.pyOptDriver())
-        #self.driver.optimizer = "SNOPT"
-
-        #self.add('driver', SLSQPdriver())
-
-        #self.add('driver', CONMINdriver())
-
-        # Orbit components
         self.add("Orbit_Initial", Orbit_Initial())
         self.driver.workflow.add("Orbit_Initial")
 
