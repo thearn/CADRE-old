@@ -4,8 +4,13 @@ import numpy as np
 from openmdao.main.api import Assembly
 from openmdao.lib.drivers.api import CONMINdriver
 
-from pyopt_driver import pyopt_driver
-
+import warnings
+try:
+    from pyopt_driver import pyopt_driver
+except ImportError:
+    warnings.warn(
+        "pyopt_driver must be installed to run the full CADRE optimization",
+        ImportWarning)
 from .CADRE_assembly import CADRE
 
 
@@ -54,7 +59,8 @@ class CADRE_Optimization(Assembly):
 
             # add parameters to driver
             self.driver.add_parameter("%s.CP_Isetpt" % name, low=0., high=0.4)
-            self.driver.add_parameter("%s.CP_gamma" % name, low=0, high=np.pi / 2.)
+            self.driver.add_parameter("%s.CP_gamma" %
+                                      name, low=0, high=np.pi / 2.)
             self.driver.add_parameter("%s.CP_P_comm" % name, low=0., high=25.)
             self.driver.add_parameter("%s.iSOC[0]" % name, low=0.2, high=1.)
 
