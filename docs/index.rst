@@ -11,7 +11,6 @@ Contents:
    launch
    roll
    full
-   usage
    srcdocs
    pkgdocs
 
