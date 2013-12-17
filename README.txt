@@ -13,5 +13,5 @@ To view the Sphinx documentation for this distribution, type:
 
 plugin docs CADRE
 
-pyopt_driver with SNOPT support is needed to run some (but not all) of the
-example code.
+pyopt_driver and the SNOPT optimizer are needed to run the full example, but several
+smaller examples are also included that don't depend on this.
