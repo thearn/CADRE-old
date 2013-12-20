@@ -46,7 +46,7 @@ class Attitude_Angular(Component):
         self.dw_dO = np.zeros((n, 3, 3, 3))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         for i in range(0, self.n):
             self.dw_dOdot[i, 0, 2,:] = self.O_BI[1,:, i]
@@ -355,7 +355,7 @@ class Attitude_Roll(Component):
         self.dO_dg = np.zeros((n, 3, 3))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives, (i.e., Jacobian) """
 
         self.dO_dg = np.zeros((self.n, 3, 3))
         self.dO_dg[:, 0, 0] = -np.sin(self.Gamma)
@@ -497,7 +497,7 @@ class Attitude_RotationMtxRates(Component):
                                   desc="First derivative of O_BI over time"))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian) """
 
         # Calculation is fairly simple, so not cached.
         return
@@ -551,7 +551,7 @@ class Attitude_RotationMtxRates(Component):
 
 class Attitude_Sideslip(Component):
 
-    """ Determine velocity in the body frame"""
+    """ Determine velocity in the body frame."""
 
     def __init__(self, n=2):
         super(Attitude_Sideslip, self).__init__()
@@ -579,7 +579,7 @@ class Attitude_Sideslip(Component):
                                   desc="Velocity vector from earth to satellite in body-fixed frame over time"))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1, self.J2 = computepositionrotdjacobian(self.n,
                                                        self.r_e2b_I[3:,:],

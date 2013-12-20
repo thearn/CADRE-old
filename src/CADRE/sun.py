@@ -11,7 +11,7 @@ from kinematics import computepositionspherical, computepositionsphericaljacobia
 
 class Sun_LOS( Component ):
 
-    '''Compute the Satellite to sun line of sight'''
+    '''Compute the Satellite to sun line of sight.'''
     
     def __init__(self, n=2):
         super(Sun_LOS, self).__init__()
@@ -25,15 +25,15 @@ class Sun_LOS( Component ):
                                   size=(6,n, ), dtype=np.float,
                                   units = "unitless",
                                   desc="Position and velocity vectors from " +
-                                  "earth to satellite in Earth-centered " +
-                                  "inertial frame over time",
+                                  "Earth to satellite in Earth-centered " +
+                                  "inertial frame over time.",
                                   iotype="in"))
         
         self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ),
                                   dtype=np.float,
                                   units="km", desc="Position vector from " +
-                                  "earth to sun in Earth-centered inertial " +
-                                  "frame over time",
+                                  "Earth to sun in Earth-centered inertial " +
+                                  "frame over time.",
                                   iotype="in"))
 
         self.add('LOS', Array(np.zeros((n, ), order='F'), size=(n, ),
@@ -173,22 +173,22 @@ class Sun_PositionBody( Component ):
                                units="unitless",
                                desc="Rotation matrix from the " +
                                "Earth-centered inertial frame " +
-                               "to the satellite frame",
+                               "to the satellite frame.",
                                iotype="in"))
 
         self.add('r_e2s_I', Array(np.zeros((3, n), order='F'),
                                   size=(3,n, ), dtype=np.float,
                                   units="km", desc="Position vector " +
-                                  "from earth to sun in Earth-centered " +
-                                  "inertial frame over time",
+                                  "from Earth to Sun in Earth-centered " +
+                                  "inertial frame over time.",
                                   iotype="in"))
 
         self.add('r_e2s_B', Array(np.zeros((3,n, ), order='F'),
                                   size=(3,n, ), dtype=np.float,
                                   iotype="out",
                                   units = "km", desc="Position vector " +
-                                  "from earth to sun in body-fixed " +
-                                  "frame over time" ))
+                                  "from Earth to Sun in body-fixed " +
+                                  "frame over time." ))
 
     def execute(self):
         self.r_e2s_B = computepositionrotd(self.n, self.r_e2s_I, self.O_BI)
@@ -226,8 +226,8 @@ class Sun_PositionBody( Component ):
 class Sun_PositionECI( Component ):
 
     '''
-    Compute the position vector from earth to sun in
-    Earth-centered inertial frame
+    Compute the position vector from Earth to Sun in
+    Earth-centered inertial frame.
     '''
 
     #constants
@@ -257,9 +257,9 @@ class Sun_PositionECI( Component ):
                                   size=(3,n, ),
                                   dtype=np.float,
                                   units="km",
-                                  desc="Position vector from earth " +
-                                  "to sun in Earth-centered inertial " +
-                                  "frame over time",
+                                  desc="Position vector from Earth " +
+                                  "to Sun in Earth-centered inertial " +
+                                  "frame over time.",
                                   iotype="out"))
 
         self.Ja = np.zeros(3*self.n)
@@ -325,7 +325,7 @@ class Sun_PositionECI( Component ):
 
 class Sun_PositionSpherical(Component):
 
-    '''Compute the elevation angle of the sun in the body-fixed frame'''
+    '''Compute the elevation angle of the Sun in the body-fixed frame.'''
 
     def __init__(self, n=2):
         super(Sun_PositionSpherical, self).__init__()
@@ -335,20 +335,20 @@ class Sun_PositionSpherical(Component):
         self.add('r_e2s_B', Array(np.zeros((3, n)), size=(3, n),
                                   units = "km",
                                   desc="Position vector from " +
-                                      "earth to sun in body-fixed " +
-                                      "frame over time",
+                                      "Earth to Sun in body-fixed " +
+                                      "frame over time.",
                                   dtype=np.float, iotype="in"))
 
         self.add('azimuth', Array(np.zeros((n,)), size=(n,), dtype=np.float,
                                   units='rad',
-                                  desc='Ezimuth angle of the sun ' +
-                                      'in the body-fixed frame over time',
+                                  desc='Ezimuth angle of the Sun ' +
+                                      'in the body-fixed frame over time.',
                                   iotype="out"))
         self.add('elevation', Array(np.zeros((n,)), size=(n,), dtype=np.float,
                                     units='rad',
                                     desc="Elevation angle of the " +
-                                        "sun in the body-fixed frame " +
-                                        "over time",
+                                        "Sun in the body-fixed frame " +
+                                        "over time.",
                                     iotype="out"))
 
     def execute(self):

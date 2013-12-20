@@ -6,10 +6,10 @@ from openmdao.lib.datatypes.api import Float, Array
 
 class KSfunction(object): 
     """Helper class that can be used inside other components to aggregate constraint 
-    vectors with a KS function"""
+    vectors with a KS function."""
 
     def compute(self, g, rho=50): 
-        """gets the value of the KS function for the given array of constraints"""
+        """Gets the value of the KS function for the given array of constraints."""
 
         self.rho = rho
         self.g_max = np.max(g)
@@ -35,15 +35,15 @@ class KSfunction(object):
 
 class KSComp(Component): 
     """Aggregates a number of functions to a single value via the 
-    Kreisselmeier-Steinhauser Function""" 
+    Kreisselmeier-Steinhauser Function.""" 
 
     rho = Float(.1,
                 iotype="in",
-                desc="hyperparameter for the KS function")
+                desc="Hyperparameter for the KS function")
 
     KS = Float(0,
                iotype="out",
-               desc="value of the aggregate KS function")
+               desc="Value of the aggregate KS function")
 
     def __init__(self, n=2): 
         super(KS, self).__init__()
@@ -54,7 +54,7 @@ class KSComp(Component):
                            size=(n,1),
                            dtype=Float,
                            iotype="in",
-                           desc="array of function values to be aggregated"))
+                           desc="Array of function values to be aggregated"))
 
         self._ks = KSfunction()
 
@@ -62,7 +62,7 @@ class KSComp(Component):
         self.KS = self._ks.compute(self.g, self.rho)
 
     def linearize(self): 
-        """linearize around the last executed point""" 
+        """Linearize around the last executed point""" 
 
         #use g_max, exponsnte, summation from last executed point
         self.J = np.hstack(self._ks.derivatives())

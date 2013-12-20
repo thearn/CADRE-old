@@ -12,7 +12,7 @@ import os
 class Power_CellVoltage(Component):
 
     '''
-    Compute the output voltage of the solar panels
+    Compute the output voltage of the solar panels.
     '''
 
     def __init__(self, n, dat=None):
@@ -141,7 +141,7 @@ class Power_CellVoltage(Component):
 class Power_SolarPower(Component):
 
     '''
-    Compute the output power of the solar panels
+    Compute the output power of the solar panels.
     '''
 
     def __init__(self, n=2):
@@ -171,7 +171,7 @@ class Power_SolarPower(Component):
                                 desc="Solar panels power over time"))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
 
@@ -206,7 +206,7 @@ class Power_Total(Component):
 
     '''
     Compute the battery power which is the sum of the loads.
-    This includes a 2 Watt constant power usage that
+    This includes a 2-Watt constant power usage that
     accounts for the scientific instruments on the satellite
     and small actuator inputs in response to disturbance torques.
     '''
@@ -239,7 +239,7 @@ class Power_Total(Component):
                            iotype="out"))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
 

@@ -80,7 +80,7 @@ class BsplineParameters(Component):
                                 iotype='out'))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
 
@@ -93,7 +93,7 @@ class BsplineParameters(Component):
             self.Isetpt[k, :] = self.B.dot(self.CP_Isetpt[k, :])
 
     def apply_deriv(self, arg, result):
-        """ Matrix-vector product with the Jacobian. """
+        """ Matrix-vector product with the Jacobian """
 
         if 'CP_P_comm' in arg:
             result['P_comm'] += self.B.dot(arg['CP_P_comm'])
@@ -106,7 +106,7 @@ class BsplineParameters(Component):
                 result['Isetpt'][k, :] += self.B.dot(arg['CP_Isetpt'][k, :])
 
     def apply_derivT(self, arg, result):
-        """ Matrix-vector product with the transpose of the Jacobian. """
+        """ Matrix-vector product with the transpose of the Jacobian """
 
         if 'P_comm' in arg and 'CP_P_comm' in result:
             result['CP_P_comm'] += self.BT.dot(arg['P_comm'])

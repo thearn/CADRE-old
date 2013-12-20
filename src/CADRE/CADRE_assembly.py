@@ -242,9 +242,9 @@ class CADRE(Assembly):
         Collects the names of all input and output variables for all
         components within the assembly (drivers excluded).
         Then establishes connections between
-        any output variable and input variable that has the same name, so
+        any output variable and input variable that has the same name so
         long as the variable name does not exist as an output to more than
-        a single component (so excludes default outputs)
+        a single component (so excludes default outputs).
         """
  
         inputs, outputs = {}, {}

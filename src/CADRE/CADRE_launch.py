@@ -41,7 +41,7 @@ class Uniformity(Component):
 
 class GroundLOC(Component):
 
-    """ Gives the lat and lon location of the ground beneath a satellite
+    """ Gives the lat and lon location of the ground beneath a satellite.
     """
     Re = 6378.137
     r2d = 180 / np.pi

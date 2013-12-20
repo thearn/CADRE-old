@@ -80,7 +80,7 @@ class Comm_DataDownloaded(rk4.RK4):
 
 class Comm_AntRotation(Component):
 
-    ''' Fixed antenna angle to time history of the quaternion '''
+    ''' Fixed antenna angle to time history of the quaternion. '''
 
     # Inputs
     antAngle = Float(0., iotype="in", copy=None)
@@ -414,7 +414,7 @@ class Comm_BitRate(Component):
 
 class Comm_Distance(Component):
 
-    '''Calculates distance from ground station to satellitle'''
+    '''Calculates distance from ground station to satellitle.'''
 
     def __init__(self, n):
         super(Comm_Distance, self).__init__()
@@ -446,7 +446,7 @@ class Comm_Distance(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J = np.zeros((self.n, 3))
 
@@ -505,7 +505,7 @@ class Comm_EarthsSpin(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         ntime = self.n
         self.dq_dt = np.zeros((ntime, 4))
@@ -792,7 +792,7 @@ class Comm_GSposEarth(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dr_dlon = np.zeros(3)
         self.dr_dlat = np.zeros(3)
@@ -856,7 +856,7 @@ class Comm_GSposEarth(Component):
 class Comm_GSposECI(Component):
 
     ''' Convert time history of ground station position from earth frame
-    to inertial frame
+    to inertial frame.
     '''
 
     def __init__(self, n):
@@ -899,7 +899,7 @@ class Comm_GSposECI(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1 = np.zeros((self.n, 3, 3, 3))
 
@@ -995,7 +995,7 @@ class Comm_LOS(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dLOS_drb = np.zeros((self.n, 3))
         self.dLOS_dre = np.zeros((self.n, 3))
@@ -1101,7 +1101,7 @@ class Comm_VectorAnt(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1, self.J2 = computepositionrotdjacobian(self.n, self.r_b2g_B,
                                                        self.O_AB)
@@ -1144,7 +1144,7 @@ class Comm_VectorAnt(Component):
 
 class Comm_VectorBody(Component):
 
-    '''Transform from body to inertial frame'''
+    '''Transform from body to inertial frame.'''
 
     def __init__(self, n):
         super(Comm_VectorBody, self).__init__()
@@ -1186,7 +1186,7 @@ class Comm_VectorBody(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1 = np.zeros((self.n, 3, 3, 3))
 
@@ -1277,7 +1277,7 @@ class Comm_VectorECI(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
 
@@ -1348,7 +1348,7 @@ class Comm_VectorSpherical(Component):
         )
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.Ja1, self.Ji1, self.Jj1, self.Ja2, self.Ji2, self.Jj2 = \
             computepositionsphericaljacobian(self.n, 3 * self.n, self.r_b2g_A)

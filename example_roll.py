@@ -10,7 +10,7 @@ import numpy as np
 class NetGain(Component):
 
     """
-    Computes the sum of an inputted gain array
+    Computes the sum of an inputted gain array.
     """
     net = Float(iotype="out")
 
