@@ -23,7 +23,7 @@ C3 = -2.5*mu*J3*Re**3
 C4 = 1.875*mu*J4*Re**4
 
 class Orbit_Dynamics(rk4.RK4):
-    """Computes the Earth to body position vector in Earth-centered intertial frame"""
+    """Computes the Earth to body position vector in Earth-centered intertial frame."""
 
     def __init__(self, n_times):
         super(Orbit_Dynamics, self).__init__()
@@ -95,7 +95,7 @@ class Orbit_Dynamics(rk4.RK4):
         dT3_dx = 14*z**3/r**3*drdx
         dT3_dy = 14*z**3/r**3*drdy
         dT3_dz = 14*z**3/r**3*drdz - 21.*z**2/r**2 + 3
-
+ 
         dT4_dx = 28*z**2/r**3*drdx - 84.*z**4/r**5*drdx
         dT4_dy = 28*z**2/r**3*drdy - 84.*z**4/r**5*drdy
         dT4_dz = 28*z**2/r**3*drdz - 84.*z**4/r**5*drdz - 28*z/r**2 + 84*z**3/r**4
@@ -138,7 +138,7 @@ class Orbit_Dynamics(rk4.RK4):
 
 
 class Orbit_Initial(Component):
-    """Computes initial position and velocity vectors of earth to body position"""
+    """Computes initial position and velocity vectors of Earth to body position"""
 
     # Inputs
     altPerigee = Float(500., iotype="in", copy=None)
@@ -157,10 +157,10 @@ class Orbit_Initial(Component):
                                    dtype=np.float,
                                    iotype='out',
                                    units="unitless",
-                                   desc="Initial position and velocity vectors from earth to satellite in Earth-centered inertial frame"))
+                                   desc="Initial position and velocity vectors from Earth to satellite in Earth-centered inertial frame"))
 
     def compute(self, altPerigee, altApogee, RAAN, Inc, argPerigee, trueAnomaly):
-        ''' Compute position and velocity from orbital elements.'''
+        ''' Compute position and velocity from orbital elements '''
 
         Re = 6378.137
         mu = 398600.44
@@ -200,7 +200,7 @@ class Orbit_Initial(Component):
         return r0_ECI, v0_ECI
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives, (i.e., Jacobian) """
 
         h = 1e-16
         ih = complex(0, h)
@@ -226,7 +226,7 @@ class Orbit_Initial(Component):
         self.r_e2b_I0[3:] = v0_ECI.real
 
     def apply_deriv(self, arg, result):
-        """ Matrix-vector product with the Jacobian. """
+        """ Matrix-vector product with the Jacobian """
 
         J = self.J
 
@@ -252,7 +252,7 @@ class Orbit_Initial(Component):
 
 
     def apply_derivT(self, arg, result):
-        """ Matrix-vector product with the transpose of the Jacobian. """
+        """ Matrix-vector product with the transpose of the Jacobian """
 
         J = self.J
 

@@ -15,6 +15,7 @@ class RK4(Component):
     """Inherit from this component to use.
 
     State variable dimension: (num_states, num_time_points)
+    
     External input dimension: (input width, num_time_points)
     """
 
@@ -22,21 +23,21 @@ class RK4(Component):
               desc="Time step used for RK4 integration")
 
     state_var = Str("", iotype="in",
-                    desc="name of the variable to be used for time "
+                    desc="Name of the variable to be used for time "
                          "integration")
 
     init_state_var = Str("", iotype="in",
-                         desc="name of the variable to be used for initial "
+                         desc="Name of the variable to be used for initial "
                               "conditions")
 
     external_vars = Array([], iotype="in", dtype=str,
-                          desc="list of names of variables that are external "
-                               "to the system, but DO vary with time")
+                          desc="List of names of variables that are external "
+                               "to the system but DO vary with time.")
 
     fixed_external_vars = Array([], iotype="in", dtype=str,
-                                desc="list of names of variables that are "
-                                     "external to the system, but DO NOT "
-                                     "vary with time")
+                                desc="List of names of variables that are "
+                                     "external to the system but DO NOT "
+                                     "vary with time.")
 
     def initialize(self):
         """Set up dimensions and other data structures."""
@@ -92,17 +93,21 @@ class RK4(Component):
         # vars are the same length
 
     def f_dot(self, external, state):
-        """time rate of change of state variables
-            external: array or external variables for a single time step
-            state: array of state variables for a single time step.
+        """Time rate of change of state variables.
+            
+           external: array or external variables for a single time step
+            
+	    state: array of state variables for a single time step.
 
             This must be overridden in derived classes.
             """
         raise NotImplementedError
 
     def df_dy(self, external, state):
-        """derivatives of states with respect to states
+        """Derivatives of states with respect to states.
+	
             external: array or external variables for a single time step
+	    
             state: array of state variables for a single time step.
 
             This must be overridden in derived classes.
@@ -421,7 +426,7 @@ class RK4(Component):
 
     def _applyJextT(self, arg, required_results):
         """Apply derivatives with respect to inputs. Ignore all contributions
-        from past time points, and let them come in via previous states 
+        from past time points and let them come in via previous states 
         instead."""
         
         #Jx --> (n_times, n_external, n_states)

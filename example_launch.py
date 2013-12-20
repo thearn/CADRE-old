@@ -11,7 +11,7 @@ class Uniformity(Component):
 
     """
     Computes the maximum value minus the minimum
-    value of the sine of a 1D array of degree values
+    value of the sine of a 1D array of degree values.
     """
 
     def __init__(self, n):
@@ -21,7 +21,7 @@ class Uniformity(Component):
         self.add('k', Float(0., iotype='out'))
 
     def execute(self):
-        """Computes the sine and max - min of the input array"""
+        """Computes the sine and max - min of the input array."""
 
         s = np.sin(self.sample * np.pi / 180.)
         self.k = max(s) - min(s)
@@ -29,7 +29,7 @@ class Uniformity(Component):
 
 class GroundLOC(Component):
 
-    """ Gives the lat and lon location of the ground beneath a satellite
+    """ Gives the lat and lon location of the ground beneath a satellite.
     """
     Re = 6378.137
     r2d = 180 / np.pi

@@ -9,7 +9,7 @@ import rk4
 
 
 class ReactionWheel_Motor(Component):
-    '''Compute reaction wheel motor torque'''
+    '''Compute reaction wheel motor torque.'''
     
     def __init__(self, n):
         super(ReactionWheel_Motor, self).__init__()
@@ -100,7 +100,7 @@ class ReactionWheel_Motor(Component):
 
 
 class ReactionWheel_Power(Component):
-    '''Compute reaction wheel power'''
+    '''Compute reaction wheel power.'''
     
     #constants
     V = 4.0
@@ -160,7 +160,7 @@ class ReactionWheel_Power(Component):
 
 
 class ReactionWheel_Torque(Component):
-    '''Compute torque vector of reaction wheel'''
+    '''Compute torque vector of reaction wheel.'''
     
     def __init__(self, n):
         super(ReactionWheel_Torque, self).__init__()
@@ -177,7 +177,7 @@ class ReactionWheel_Torque(Component):
                                dtype=np.float, iotype='out'))
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
 
@@ -196,7 +196,7 @@ class ReactionWheel_Torque(Component):
 
 
 class ReactionWheel_Dynamics(rk4.RK4):
-    '''Compute the angular velocity vector of reaction wheel'''
+    '''Compute the angular velocity vector of reaction wheel.'''
 
     def __init__(self, n_times):
         super(ReactionWheel_Dynamics, self).__init__()
