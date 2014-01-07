@@ -15,3 +15,6 @@ plugin docs CADRE
 
 pyopt_driver with SNOPT support is needed to run some (but not all) of the
 example code.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/OpenMDAO-Plugins/cadre/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
