@@ -98,45 +98,6 @@ comm.py
    :show-inheritance:
 
         
-.. index:: power.py
-
-.. _CADRE.data.Power.power.py:
-
-power.py
---------
-
-.. automodule:: CADRE.data.Power.power
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
-.. index:: power0.py
-
-.. _CADRE.data.Power.power0.py:
-
-power0.py
----------
-
-.. automodule:: CADRE.data.Power.power0
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
-.. index:: power2.py
-
-.. _CADRE.data.Power.power2.py:
-
-power2.py
----------
-
-.. automodule:: CADRE.data.Power.power2
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
 .. index:: kinematics.py
 
 .. _CADRE.kinematics.py:

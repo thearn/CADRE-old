@@ -11,7 +11,21 @@ Contents:
    launch
    roll
    full
-   usage
    srcdocs
    pkgdocs
+
+==============================
+Glossary
+==============================
+
+.. toctree::
+   :maxdepth: 1
+
+   glossary
+
+==============================
+Index
+==============================
+
+* :ref:`genindex`
 

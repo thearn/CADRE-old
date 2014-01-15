@@ -13,5 +13,8 @@ To view the Sphinx documentation for this distribution, type:
 
 plugin docs CADRE
 
-pyopt_driver and the SNOPT optimizer are needed to run the full example, but several
-smaller examples are also included that don't depend on this.
+pyopt_driver with SNOPT support is needed to run some (but not all) of the
+example code.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/OpenMDAO-Plugins/cadre/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+

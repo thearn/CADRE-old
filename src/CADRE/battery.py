@@ -254,7 +254,7 @@ class BatteryConstraints(Component):
         self.ConS1 = self.KS_s1.compute(self.SOC - self.SOC1, self.rho)
 
     def linearize(self):
-        """ Calculate and save derivatives. (i.e., Jacobian) """
+        """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dCh_dg, self.dCh_drho = self.KS_ch.derivatives()
         self.dDs_dg, self.dDs_drho = self.KS_ds.derivatives()

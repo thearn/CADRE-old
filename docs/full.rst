@@ -1,16 +1,17 @@
 ==============================
-Running the full CADRE problem
+Running the Full CADRE Problem
 ==============================
 
 The previous tutorials provided short practical introductions to some of the
 OpenMDAO components which are used in the CADRE problem. To run the full
 CADRE problem:
+
     - Obtain a license and source code for `SNOPT <http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm>`_
     - Build and install `PyOpt <http://www.pyopt.org/>`_ with SNOPT support
     - Install `pyopt_driver <https://github.com/OpenMDAO-Plugins/pyopt_driver>`_ for OpenMDAO
 
-The CADRE optimization problem can then by run by importing and running the
-`CADRE_Optimization` assembly:
+The CADRE optimization problem can then be run by importing and running the
+``CADRE_Optimization`` assembly:
 
 .. code-block:: python
 
@@ -27,12 +28,12 @@ The CADRE optimization problem can then by run by importing and running the
     print "running"
     top.run()
 
-This is implemented in `example.py`, in the top-level directory of the CADRE
+This is implemented in ``example.py``, in the top-level directory of the CADRE
 plugin repository.
 The purpose of the CSV case recorder is to save the state of the optimization
 after each iteration of the assembly's driver. These iteration states will be
-saved as lines in the file `CADRE.csv`. You can read from this file and
-examine the performance of the optimization after the optimization has completed,
+saved as lines in the file ``CADRE.csv``. You can read from this file and
+examine the performance of the optimization after the optimization has completed
 or even while the optimization is still occurring.
 
 An example of how this file may be inspected:
@@ -101,26 +102,30 @@ An example of how this file may be inspected:
     pylab.legend(loc="best")
     pylab.show()
 
-This is implemented in `readcsv.py`, in the top-level directory of the CADRE
-plugin repository. When run, this will print the total data downloaded for each mdp at each iteration of
+This is implemented in ``readcsv.py``, in the top-level directory of the CADRE
+plugin repository. When run, this will print the total data downloaded for each :term:`MDP` at each iteration of
 the optimization. This code produces a figure like the following:
 
 .. image:: opt.png
     :width: 950 px
     :align: center
 
-This figure shows several values plotted over the course of the optimization iterations. For this run, the CADRE problem converged in about 150 iterations (6 hours or so of runtime on a Macbook Pro 2.3GHz i7).
-The top subplot shows the objective function value (total data downloaded), the middle subplot shows the maximum value of all constraints (values are all less than or equal to 0 for feasibility), and the bottom subplot shows
-the maximum constraint values (across the 6 design points), broken down according to the 5 constraint types.
+This figure shows several values plotted over the course of the optimization iterations. For this run, the CADRE problem
+converged in about 150 iterations (six hours or so of runtime on a Macbook Pro 2.3GHz i7). The top subplot shows the
+objective function value (total data downloaded); the middle subplot shows the maximum value of all constraints (values
+are all less than or equal to 0 for feasibility); and the bottom subplot shows the maximum constraint values (across the
+six design points), broken down according to the five constraint types.
 
 During the course of the optimization, the SNOPT optimizer will produce a
-basis file, `fort.10`. In the event of a premature termination of the optimization,
+basis file, ``fort.10``. In the event of a premature termination of the optimization,
 SNOPT will automatically try to restart from the state determined by this file
 the next time that the optimization is run in the same directory. If you would
-rather cold-start the problem, this file can simply be deleted prior to
+rather cold start the problem, this file can simply be deleted prior to
 initializing an optimization if it exists.
 
-We can easily rerun the problem with different configurations, such as a change in placement of the ground station, different lengths of time for the design points, etc. For example, if we wanted to re-optimize the entire problem but with McMurdo Station, Antarctica as the ground station, we could run:
+We can easily rerun the problem with different configurations, such as a change in placement of the ground station,
+different lengths of time for the design points, etc. For example, if we wanted to re-optimize the entire problem but with
+McMurdo Station, Antarctica, as the ground station, we could run:
 
 .. code-block:: python
 
@@ -145,34 +150,35 @@ We can easily rerun the problem with different configurations, such as a change 
     print "running"
     top.run()
 
-This will generate a CADRE.csv file, just as before.
+This will generate a ``CADRE.csv`` file, just as before.
 
 
-==============================
-Interactive visualization of results
-==============================
+============================================================
+Interactive Visualization of Results
+============================================================
 
-Once an optimization of CADRE has successfully completed, you can run `generate_maps.py` in the top-level directory of the CADRE
-plugin repository to generate some graphical summaries of the optimized design.
+Once an optimization of CADRE has successfully completed, you can run ``generate_maps.py`` in the top-level directory of
+the CADRE plugin repository to generate some graphical summaries of the optimized design.
 
-This will render a plot of several
-optimized parameters over time period covered by that design point: The data download rate,
-the power to the communications system, the roll angle, and the battery state-of-charge.
+This will render a plot of several optimized parameters over the time period covered by that design point: the data
+download rate, the power to the communications system, the roll angle, and the battery state-of-charge.
 
-This script will also generate a Google Maps document (html file) that has the trajectories
+This script will also generate a Google Maps document (HTML file) that has the trajectories
 of the CADRE satellite plotted for the selected design point. These trajectory lines
 are colored based on the data download rate of the satellite at that period of time.
 
-Note that the loading of the maps documents does require an Internet connection.
+Note that an Internet connection is required to load the maps.
 
-Examples of these plots and maps are shown interactively below. You can click on the radio buttons to select between two separate optimizations: one with Ann Arbor, MI as the ground station (default), or one with McMurdo Station as the ground station. You can also select to view data for each of the 6 CADRE design points individually.
+Examples of these plots and maps are shown interactively below. You can click on the radio buttons to select between
+two separate optimizations: one with Ann Arbor, Michigan, as the ground station (default) or one with McMurdo Station,
+Antarctica, as the ground station. You can also choose to view data for each of the six CADRE design points
+individually.
 
-Clicking the "Earth" button in the maps view will render the results using
+Clicking the `Earth` button in the maps view will render the results using
 Google Earth (which requires the Google Earth plugin for your browser).
 
 These two plots can be compared directly: peaks in the download rate indicated in
-the data figure should correspond to a pass of the satellite's orbit near to
-the selected ground station.
+the data figure should correspond to a pass of the satellite's orbit near the selected ground station.
 
 .. raw:: html
 

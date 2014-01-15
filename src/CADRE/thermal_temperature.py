@@ -36,7 +36,7 @@ class ThermalTemperature(RK4):
                              dtype=np.float,
                              units="degK",
                              iotype="in",
-                             desc="initial temperatures for the 4 fins and body")
+                             desc="Initial temperatures for the 4 fins and body")
                  )
 
         self.add("exposedArea", Array(np.zeros((7, 12, n_times)),
@@ -62,7 +62,7 @@ class ThermalTemperature(RK4):
                               dtype=np.float,
                               iotype="in",
                               units='unitless',
-                              desc="Satellite to sun line of sight over time",
+                              desc="Satellite to Sun line of sight over time",
                               low=0,
                               high=1)
                  )
@@ -81,7 +81,7 @@ class ThermalTemperature(RK4):
         self.add("temperature", Array(np.zeros((5, n_times)),
                                       shape=(5, n_times), dtype=np.float,
                                       units="degK",
-                                      iotype="out", desc="Temperature for the 4 fins and body over time",
+                                      iotype="out", desc="Temperature for the 4 fins and body over time.",
                                       low=50, high=400)
                  )
 

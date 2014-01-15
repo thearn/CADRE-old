@@ -45,6 +45,7 @@ class Attitude_Angular(Component):
         self.dw_dOdot = np.zeros((n, 3, 3, 3))
         self.dw_dO = np.zeros((n, 3, 3, 3))
 
+
     def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
@@ -369,6 +370,7 @@ class Attitude_Roll(Component):
 
         self.dO_dg = np.zeros((n, 3, 3))
 
+
     def list_deriv_vars(self):
         input_keys = ('Gamma',)
         output_keys = ('O_BR',)
@@ -521,6 +523,7 @@ class Attitude_RotationMtxRates(Component):
                                   units="unitless",
                                   desc="First derivative of O_BI over time"))
 
+
     def list_deriv_vars(self):
         input_keys = ('h', 'O_BI',)
         output_keys = ('Odot_BI',)
@@ -581,7 +584,7 @@ class Attitude_RotationMtxRates(Component):
 
 class Attitude_Sideslip(Component):
 
-    """ Determine velocity in the body frame"""
+    """ Determine velocity in the body frame."""
 
     def __init__(self, n=2):
         super(Attitude_Sideslip, self).__init__()
@@ -607,6 +610,7 @@ class Attitude_Sideslip(Component):
                                   shape=(3, n),
                                   units="m/s",
                                   desc="Velocity vector from earth to satellite in body-fixed frame over time"))
+
 
     def list_deriv_vars(self):
         input_keys = ('r_e2b_I', 'O_BI',)
@@ -763,5 +767,5 @@ class Attitude_Torque(Component):
                         result['w_B'][j, :] += self.dT_dw[:, k, j] * \
                             arg['T_tot'][k, :]
                     if 'wdot_B' in result:
-                        result['wdot_B'][j, :] += self.dT_dwdot[:, k, j] * \
-                            arg['T_tot'][k, :]
+                        result['wdot_B'][j,:] += self.dT_dwdot[:, k, j] * \
+                            arg['T_tot'][k,:]
