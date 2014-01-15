@@ -12,11 +12,11 @@ pcom = []
 for row in reader:
     data = [row["pt" + str(i) + ".Data[0][1499]"] for i in xrange(6)]
     sumdata = sum([float(i) for i in data if i])
-    c1 = [row["Constraint ( pt" + str(i) + ".ConCh<=0 )"] for i in xrange(6)]
-    c2 = [row["Constraint ( pt" + str(i) + ".ConDs<=0 )"] for i in xrange(6)]
-    c3 = [row["Constraint ( pt" + str(i) + ".ConS0<=0 )"] for i in xrange(6)]
-    c4 = [row["Constraint ( pt" + str(i) + ".ConS1<=0 )"] for i in xrange(6)]
-    c5 = [row["Constraint ( pt" + str(i) + ".SOC[0][0]=pt" + str(i) + ".SOC[0][-1] )"]
+    c1 = [row["Constraint ( pt" + str(i) + ".ConCh<=0 )[0]"] for i in xrange(6)]
+    c2 = [row["Constraint ( pt" + str(i) + ".ConDs<=0 )[0]"] for i in xrange(6)]
+    c3 = [row["Constraint ( pt" + str(i) + ".ConS0<=0 )[0]"] for i in xrange(6)]
+    c4 = [row["Constraint ( pt" + str(i) + ".ConS1<=0 )[0]"] for i in xrange(6)]
+    c5 = [row["Constraint ( pt" + str(i) + ".SOC[0][0]=pt" + str(i) + ".SOC[0][-1] )[0]"]
           for i in xrange(6)]
     # c1_f = np.all([float(i) < 0 for i in c1 if i])
     # c2_f = np.all([float(i) < 0 for i in c2 if i])
