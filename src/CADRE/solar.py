@@ -113,7 +113,7 @@ class Solar_ExposedArea(Component):
         self.Jel = None
 
     def list_deriv_vars(self):
-        input_keys = ('azimuth', 'elevation', )
+        input_keys = ('azimuth', 'elevation', 'finAngle',)
         output_keys = ('exposedArea',)
         return input_keys, output_keys
 

@@ -234,7 +234,7 @@ class Orbit_Initial(Component):
 
         return r0_ECI, v0_ECI
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives, (i.e., Jacobian) """
 
         h = 1e-16
