@@ -61,6 +61,10 @@ class BatterySOC(rk4.RK4):
         self.init_state_var = "iSOC"
         self.external_vars = ["P_bat", "temperature"]
 
+    def list_deriv_vars(self):
+        input_keys = ('iSOC', 'P_bat','temperature',)
+        output_keys = ('SOC',)
+        return input_keys, output_keys
 
     def f_dot(self, external, state):
         """Rate of change of SOC"""
@@ -153,7 +157,12 @@ class BatteryPower(Component):
         self.V = IR * self.voc * self.exponential
         self.I_bat = self.P_bat/self.V
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('SOC', 'temperature','P_bat',)
+        output_keys = ('I_bat',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         #dI_dP
@@ -245,6 +254,11 @@ class BatteryConstraints(Component):
         self.KS_s0 = KS.KSfunction()
         self.KS_s1 = KS.KSfunction()
 
+    def list_deriv_vars(self):
+        input_keys = ('I_bat', 'SOC',)
+        output_keys = ('ConCh','ConDs','ConS0','ConS1')
+        return input_keys, output_keys
+
     def execute(self):
         """ Calculate output. """
 
@@ -253,7 +267,7 @@ class BatteryConstraints(Component):
         self.ConS0 = self.KS_s0.compute(self.SOC0 - self.SOC, self.rho)
         self.ConS1 = self.KS_s1.compute(self.SOC - self.SOC1, self.rho)
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dCh_dg, self.dCh_drho = self.KS_ch.derivatives()
