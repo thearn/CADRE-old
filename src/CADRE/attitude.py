@@ -45,26 +45,31 @@ class Attitude_Angular(Component):
         self.dw_dOdot = np.zeros((n, 3, 3, 3))
         self.dw_dO = np.zeros((n, 3, 3, 3))
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         for i in range(0, self.n):
-            self.dw_dOdot[i, 0, 2,:] = self.O_BI[1,:, i]
-            self.dw_dO[i, 0, 1,:] = self.Odot_BI[2,:, i]
+            self.dw_dOdot[i, 0, 2, :] = self.O_BI[1,:, i]
+            self.dw_dO[i, 0, 1, :] = self.Odot_BI[2,:, i]
 
-            self.dw_dOdot[i, 1, 0,:] = self.O_BI[2,:, i]
-            self.dw_dO[i, 1, 2,:] = self.Odot_BI[0,:, i]
+            self.dw_dOdot[i, 1, 0, :] = self.O_BI[2,:, i]
+            self.dw_dO[i, 1, 2, :] = self.Odot_BI[0,:, i]
 
-            self.dw_dOdot[i, 2, 1,:] = self.O_BI[0,:, i]
-            self.dw_dO[i, 2, 0,:] = self.Odot_BI[1,:, i]
+            self.dw_dOdot[i, 2, 1, :] = self.O_BI[0,:, i]
+            self.dw_dO[i, 2, 0, :] = self.Odot_BI[1,:, i]
 
     def execute(self):
         """ Calculate output. """
 
         for i in range(0, self.n):
-            self.w_B[0, i] = np.dot(self.Odot_BI[2,:, i], self.O_BI[1,:, i])
-            self.w_B[1, i] = np.dot(self.Odot_BI[0,:, i], self.O_BI[2,:, i])
-            self.w_B[2, i] = np.dot(self.Odot_BI[1,:, i], self.O_BI[0,:, i])
+            self.w_B[0, i] = np.dot(self.Odot_BI[2, :, i], self.O_BI[1,:, i])
+            self.w_B[1, i] = np.dot(self.Odot_BI[0, :, i], self.O_BI[2,:, i])
+            self.w_B[2, i] = np.dot(self.Odot_BI[1, :, i], self.O_BI[0,:, i])
+
+    def list_deriv_vars(self):
+        input_keys = ('O_BI', 'Odot_BI',)
+        output_keys = ('w_B',)
+        return input_keys, output_keys
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -74,11 +79,11 @@ class Attitude_Angular(Component):
                 for i in xrange(3):
                     for j in xrange(3):
                         if 'O_BI' in arg:
-                            result['w_B'][k,:] += self.dw_dO[:, k, i, j] * \
-                                arg['O_BI'][i, j,:]
+                            result['w_B'][k, :] += self.dw_dO[:, k, i, j] * \
+                                arg['O_BI'][i, j, :]
                         if 'Odot_BI' in arg:
-                            result['w_B'][k,:] += self.dw_dOdot[:, k, i, j] * \
-                                arg['Odot_BI'][i, j,:]
+                            result['w_B'][k, :] += self.dw_dOdot[:, k, i, j] * \
+                                arg['Odot_BI'][i, j, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -88,11 +93,11 @@ class Attitude_Angular(Component):
                 for i in xrange(3):
                     for j in xrange(3):
                         if 'O_BI' in result:
-                            result['O_BI'][i, j,:] += self.dw_dO[:, k, i, j] * \
-                                arg['w_B'][k,:]
+                            result['O_BI'][i, j, :] += self.dw_dO[:, k, i, j] * \
+                                arg['w_B'][k, :]
                         if 'Odot_BI' in result:
-                            result['Odot_BI'][i, j,:] += self.dw_dOdot[:, k, i, j] * \
-                                arg['w_B'][k,:]
+                            result['Odot_BI'][i, j, :] += self.dw_dOdot[:, k, i, j] * \
+                                arg['w_B'][k, :]
 
 
 class Attitude_AngularRates(Component):
@@ -111,15 +116,15 @@ class Attitude_AngularRates(Component):
                               shape=(3, n),
                               units="1/s",
                               desc="Angular velocity vector in body-fixed frame over time"
-            )
-        )
+                              )
+                 )
 
         self.add('h', Float(28.8,
                             iotype='in',
                             units="s",
                             desc="Time step for RK4 integration"
-            )
-        )
+                            )
+                 )
 
         # Outputs
         self.add(
@@ -133,11 +138,16 @@ class Attitude_AngularRates(Component):
             )
         )
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         # Calculation is fairly simple, so not cached.
         return
+
+    def list_deriv_vars(self):
+        input_keys = ('w_B', 'h',)
+        output_keys = ('wdot_B',)
+        return input_keys, output_keys
 
     def execute(self):
         """ Calculate output. """
@@ -181,17 +191,17 @@ class Attitude_Attitude(Component):
     (forward facing) plane.
     """
     dvx_dv = np.zeros((3, 3, 3))
-    dvx_dv[0,:, 0] = (0., 0., 0.)
-    dvx_dv[1,:, 0] = (0., 0., -1.)
-    dvx_dv[2,:, 0] = (0., 1., 0.)
+    dvx_dv[0, :, 0] = (0., 0., 0.)
+    dvx_dv[1, :, 0] = (0., 0., -1.)
+    dvx_dv[2, :, 0] = (0., 1., 0.)
 
-    dvx_dv[0,:, 1] = (0., 0., 1.)
-    dvx_dv[1,:, 1] = (0., 0., 0.)
-    dvx_dv[2,:, 1] = (-1., 0., 0.)
+    dvx_dv[0, :, 1] = (0., 0., 1.)
+    dvx_dv[1, :, 1] = (0., 0., 0.)
+    dvx_dv[2, :, 1] = (-1., 0., 0.)
 
-    dvx_dv[0,:, 2] = (0., -1., 0.)
-    dvx_dv[1,:, 2] = (1., 0., 0.)
-    dvx_dv[2,:, 2] = (0., 0., 0.)
+    dvx_dv[0, :, 2] = (0., -1., 0.)
+    dvx_dv[1, :, 2] = (1., 0., 0.)
+    dvx_dv[2, :, 2] = (0., 0., 0.)
 
     def __init__(self, n=2):
         super(Attitude_Attitude, self).__init__()
@@ -214,7 +224,12 @@ class Attitude_Attitude(Component):
 
         self.dO_dr = np.zeros((n, 3, 3, 6))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_e2b_I',)
+        output_keys = ('O_RI',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         diB_dv = np.zeros((3, 3))
@@ -249,30 +264,30 @@ class Attitude_Attitude(Component):
                     3:, i] * self.r_e2b_I[3 + k, i] / normv ** 3
 
             vx = np.zeros((3, 3))
-            vx[0,:] = (0., -v[2], v[1])
-            vx[1,:] = (v[2], 0., -v[0])
-            vx[2,:] = (-v[1], v[0], 0.)
+            vx[0, :] = (0., -v[2], v[1])
+            vx[1, :] = (v[2], 0., -v[0])
+            vx[2, :] = (-v[1], v[0], 0.)
 
             iB = np.dot(vx, r)
 
             diB_dr = vx
-            diB_dv[:, 0] = np.dot(self.dvx_dv[:,:, 0], r)
-            diB_dv[:, 1] = np.dot(self.dvx_dv[:,:, 1], r)
-            diB_dv[:, 2] = np.dot(self.dvx_dv[:,:, 2], r)
+            diB_dv[:, 0] = np.dot(self.dvx_dv[:, :, 0], r)
+            diB_dv[:, 1] = np.dot(self.dvx_dv[:, :, 1], r)
+            diB_dv[:, 2] = np.dot(self.dvx_dv[:, :, 2], r)
 
             djB_diB = -vx
-            djB_dv[:, 0] = -np.dot(self.dvx_dv[:,:, 0], iB)
-            djB_dv[:, 1] = -np.dot(self.dvx_dv[:,:, 1], iB)
-            djB_dv[:, 2] = -np.dot(self.dvx_dv[:,:, 2], iB)
+            djB_dv[:, 0] = -np.dot(self.dvx_dv[:, :, 0], iB)
+            djB_dv[:, 1] = -np.dot(self.dvx_dv[:, :, 1], iB)
+            djB_dv[:, 2] = -np.dot(self.dvx_dv[:, :, 2], iB)
 
-            self.dO_dr[i, 0,:, 0:3] = np.dot(diB_dr, dr_dr)
-            self.dO_dr[i, 0,:, 3:] = np.dot(diB_dv, dv_dv)
+            self.dO_dr[i, 0, :, 0:3] = np.dot(diB_dr, dr_dr)
+            self.dO_dr[i, 0, :, 3:] = np.dot(diB_dv, dv_dv)
 
-            self.dO_dr[i, 1,:, 0:3] = np.dot(np.dot(djB_diB, diB_dr), dr_dr)
-            self.dO_dr[i, 1,:, 3:] = np.dot(np.dot(djB_diB, diB_dv) + djB_dv,
+            self.dO_dr[i, 1, :, 0:3] = np.dot(np.dot(djB_diB, diB_dr), dr_dr)
+            self.dO_dr[i, 1, :, 3:] = np.dot(np.dot(djB_diB, diB_dv) + djB_dv,
                                             dv_dv)
 
-            self.dO_dr[i, 2,:, 3:] = -dv_dv
+            self.dO_dr[i, 2, :, 3:] = -dv_dv
 
     def execute(self):
         """ Calculate output. """
@@ -296,16 +311,16 @@ class Attitude_Attitude(Component):
             v = v / normv
 
             vx = np.zeros((3, 3))
-            vx[0,:] = (0., -v[2], v[1])
-            vx[1,:] = (v[2], 0., -v[0])
-            vx[2,:] = (-v[1], v[0], 0.)
+            vx[0, :] = (0., -v[2], v[1])
+            vx[1, :] = (v[2], 0., -v[0])
+            vx[2, :] = (-v[1], v[0], 0.)
 
             iB = np.dot(vx, r)
             jB = -np.dot(vx, iB)
 
-            self.O_RI[0,:, i] = iB
-            self.O_RI[1,:, i] = jB
-            self.O_RI[2,:, i] = -v
+            self.O_RI[0, :, i] = iB
+            self.O_RI[1, :, i] = jB
+            self.O_RI[2, :, i] = -v
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -314,8 +329,8 @@ class Attitude_Attitude(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     for i in xrange(6):
-                        result['O_RI'][k, j,:] += self.dO_dr[:, k, j, i] * \
-                            arg['r_e2b_I'][i,:]
+                        result['O_RI'][k, j, :] += self.dO_dr[:, k, j, i] * \
+                            arg['r_e2b_I'][i, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -324,8 +339,8 @@ class Attitude_Attitude(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     for i in xrange(6):
-                        result['r_e2b_I'][i,:] += self.dO_dr[:, k, j, i] * \
-                            arg['O_RI'][k, j,:]
+                        result['r_e2b_I'][i, :] += self.dO_dr[:, k, j, i] * \
+                            arg['O_RI'][k, j, :]
 
 
 class Attitude_Roll(Component):
@@ -354,7 +369,12 @@ class Attitude_Roll(Component):
 
         self.dO_dg = np.zeros((n, 3, 3))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('Gamma',)
+        output_keys = ('O_BR',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         self.dO_dg = np.zeros((self.n, 3, 3))
@@ -367,11 +387,11 @@ class Attitude_Roll(Component):
         """ Calculate output. """
 
         self.O_BR = np.zeros((3, 3, self.n))
-        self.O_BR[0, 0,:] = np.cos(self.Gamma)
-        self.O_BR[0, 1,:] = np.sin(self.Gamma)
-        self.O_BR[1, 0,:] = -self.O_BR[0, 1,:]
-        self.O_BR[1, 1,:] = self.O_BR[0, 0,:]
-        self.O_BR[2, 2,:] = np.ones(self.n)
+        self.O_BR[0, 0, :] = np.cos(self.Gamma)
+        self.O_BR[0, 1, :] = np.sin(self.Gamma)
+        self.O_BR[1, 0, :] = -self.O_BR[0, 1,:]
+        self.O_BR[1, 1, :] = self.O_BR[0, 0,:]
+        self.O_BR[2, 2, :] = np.ones(self.n)
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -379,7 +399,7 @@ class Attitude_Roll(Component):
         if 'Gamma' in arg and 'O_BR' in result:
             for k in xrange(3):
                 for j in xrange(3):
-                    result['O_BR'][k, j,:] += self.dO_dg[:, k, j] * \
+                    result['O_BR'][k, j, :] += self.dO_dg[:, k, j] * \
                         arg['Gamma']
 
     def apply_derivT(self, arg, result):
@@ -389,7 +409,7 @@ class Attitude_Roll(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     result['Gamma'] += self.dO_dg[:, k, j] * \
-                        arg['O_BR'][k, j,:]
+                        arg['O_BR'][k, j, :]
 
 
 class Attitude_RotationMtx(Component):
@@ -426,7 +446,12 @@ class Attitude_RotationMtx(Component):
                                desc="Rotation matrix from body-fixed frame to Earth-centered inertial frame over time"
                                ))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('O_BR', 'O_RI',)
+        output_keys = ('O_BI',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         # Calculation is fairly simple, so not cached.
@@ -436,7 +461,7 @@ class Attitude_RotationMtx(Component):
         """ Calculate output. """
 
         for i in range(0, self.n):
-            self.O_BI[:,:, i] = np.dot(self.O_BR[:,:, i], self.O_RI[:,:, i])
+            self.O_BI[:, :, i] = np.dot(self.O_BR[:,:, i], self.O_RI[:,:, i])
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -446,11 +471,11 @@ class Attitude_RotationMtx(Component):
                 for v in xrange(3):
                     for k in xrange(3):
                         if 'O_RI' in arg:
-                            result['O_BI'][u, v,:] += self.O_BR[u, k,:] * \
-                                arg['O_RI'][k, v,:]
+                            result['O_BI'][u, v, :] += self.O_BR[u, k,:] * \
+                                arg['O_RI'][k, v, :]
                         if 'O_BR' in arg:
-                            result['O_BI'][u, v,:] += arg['O_BR'][u, k,:] * \
-                                self.O_RI[k, v,:]
+                            result['O_BI'][u, v, :] += arg['O_BR'][u, k,:] * \
+                                self.O_RI[k, v, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -460,11 +485,11 @@ class Attitude_RotationMtx(Component):
                 for v in xrange(3):
                     for k in xrange(3):
                         if 'O_RI' in result:
-                            result['O_RI'][k, v,:] += self.O_BR[u, k,:] * \
-                                arg['O_BI'][u, v,:]
+                            result['O_RI'][k, v, :] += self.O_BR[u, k,:] * \
+                                arg['O_BI'][u, v, :]
                         if 'O_BR' in result:
-                            result['O_BR'][u, k,:] += arg['O_BI'][u, v,:] * \
-                                self.O_RI[k, v,:]
+                            result['O_BR'][u, k, :] += arg['O_BI'][u, v,:] * \
+                                self.O_RI[k, v, :]
 
 
 class Attitude_RotationMtxRates(Component):
@@ -496,7 +521,12 @@ class Attitude_RotationMtxRates(Component):
                                   units="unitless",
                                   desc="First derivative of O_BI over time"))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('h', 'O_BI',)
+        output_keys = ('Odot_BI',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         # Calculation is fairly simple, so not cached.
@@ -578,17 +608,22 @@ class Attitude_Sideslip(Component):
                                   units="m/s",
                                   desc="Velocity vector from earth to satellite in body-fixed frame over time"))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_e2b_I', 'O_BI',)
+        output_keys = ('v_e2b_B',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         self.J1, self.J2 = computepositionrotdjacobian(self.n,
-                                                       self.r_e2b_I[3:,:],
+                                                       self.r_e2b_I[3:, :],
                                                        self.O_BI)
 
     def execute(self):
         """ Calculate output. """
 
-        self.v_e2b_B = computepositionrotd(self.n, self.r_e2b_I[3:,:],
+        self.v_e2b_B = computepositionrotd(self.n, self.r_e2b_I[3:, :],
                                            self.O_BI)
 
     def apply_deriv(self, arg, result):
@@ -599,12 +634,12 @@ class Attitude_Sideslip(Component):
                 if 'O_BI' in arg:
                     for u in xrange(3):
                         for v in xrange(3):
-                            result['v_e2b_B'][k,:] += self.J1[:, k, u, v] * \
-                                arg['O_BI'][u, v,:]
+                            result['v_e2b_B'][k, :] += self.J1[:, k, u, v] * \
+                                arg['O_BI'][u, v, :]
                 if 'r_e2b_I' in arg:
                     for j in xrange(3):
-                        result['v_e2b_B'][k,:] += self.J2[:, k, j] * \
-                            arg['r_e2b_I'][3+j,:]
+                        result['v_e2b_B'][k, :] += self.J2[:, k, j] * \
+                            arg['r_e2b_I'][3+j, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -614,12 +649,12 @@ class Attitude_Sideslip(Component):
                 if 'O_BI' in result:
                     for u in xrange(3):
                         for v in xrange(3):
-                            result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
-                                arg['v_e2b_B'][k,:]
+                            result['O_BI'][u, v, :] += self.J1[:, k, u, v] * \
+                                arg['v_e2b_B'][k, :]
                 if 'r_e2b_I' in result:
                     for j in xrange(3):
-                        result['r_e2b_I'][3+j,:] += self.J2[:, k, j] * \
-                            arg['v_e2b_B'][k,:]
+                        result['r_e2b_I'][3+j, :] += self.J2[:, k, j] * \
+                            arg['v_e2b_B'][k, :]
 
 
 class Attitude_Torque(Component):
@@ -627,9 +662,9 @@ class Attitude_Torque(Component):
     """ Compute the required reaction wheel tourque."""
 
     J = np.zeros((3, 3))
-    J[0,:] = (0.018, 0., 0.)
-    J[1,:] = (0., 0.018, 0.)
-    J[2,:] = (0., 0., 0.006)
+    J[0, :] = (0.018, 0., 0.)
+    J[1, :] = (0., 0.018, 0.)
+    J[2, :] = (0., 0., 0.006)
 
     def __init__(self, n=2):
         super(Attitude_Torque, self).__init__()
@@ -659,34 +694,39 @@ class Attitude_Torque(Component):
         self.dT_dwdot = np.zeros((n, 3, 3))
         self.dwx_dw = np.zeros((3, 3, 3))
 
-        self.dwx_dw[0,:, 0] = (0., 0., 0.)
-        self.dwx_dw[1,:, 0] = (0., 0., -1.)
-        self.dwx_dw[2,:, 0] = (0., 1., 0.)
+        self.dwx_dw[0, :, 0] = (0., 0., 0.)
+        self.dwx_dw[1, :, 0] = (0., 0., -1.)
+        self.dwx_dw[2, :, 0] = (0., 1., 0.)
 
-        self.dwx_dw[0,:, 1] = (0., 0., 1.)
-        self.dwx_dw[1,:, 1] = (0., 0., 0.)
-        self.dwx_dw[2,:, 1] = (-1., 0, 0.)
+        self.dwx_dw[0, :, 1] = (0., 0., 1.)
+        self.dwx_dw[1, :, 1] = (0., 0., 0.)
+        self.dwx_dw[2, :, 1] = (-1., 0, 0.)
 
-        self.dwx_dw[0,:, 2] = (0., -1., 0)
-        self.dwx_dw[1,:, 2] = (1., 0., 0.)
-        self.dwx_dw[2,:, 2] = (0., 0., 0.)
+        self.dwx_dw[0, :, 2] = (0., -1., 0)
+        self.dwx_dw[1, :, 2] = (1., 0., 0.)
+        self.dwx_dw[2, :, 2] = (0., 0., 0.)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('w_B', 'wdot_B',)
+        output_keys = ('T_tot',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         self.dT_dw = np.zeros((self.n, 3, 3))
         wx = np.zeros((3, 3))
 
         for i in range(0, self.n):
-            wx[0,:] = (0., -self.w_B[2, i], self.w_B[1, i])
-            wx[1,:] = (self.w_B[2, i], 0., -self.w_B[0, i])
-            wx[2,:] = (-self.w_B[1, i], self.w_B[0, i], 0.)
+            wx[0, :] = (0., -self.w_B[2, i], self.w_B[1, i])
+            wx[1, :] = (self.w_B[2, i], 0., -self.w_B[0, i])
+            wx[2, :] = (-self.w_B[1, i], self.w_B[0, i], 0.)
 
-            self.dT_dwdot[i,:,:] = self.J
-            self.dT_dw[i,:,:] = np.dot(wx, self.J)
+            self.dT_dwdot[i, :,:] = self.J
+            self.dT_dw[i, :,:] = np.dot(wx, self.J)
 
             for k in range(0, 3):
-                self.dT_dw[i,:, k] += np.dot(self.dwx_dw[:,:, k],
+                self.dT_dw[i, :, k] += np.dot(self.dwx_dw[:,:, k],
                                              np.dot(self.J, self.w_B[:, i]))
 
     def execute(self):
@@ -694,9 +734,9 @@ class Attitude_Torque(Component):
 
         wx = np.zeros((3, 3))
         for i in range(0, self.n):
-            wx[0,:] = (0., -self.w_B[2, i], self.w_B[1, i])
-            wx[1,:] = (self.w_B[2, i], 0., -self.w_B[0, i])
-            wx[2,:] = (-self.w_B[1, i], self.w_B[0, i], 0.)
+            wx[0, :] = (0., -self.w_B[2, i], self.w_B[1, i])
+            wx[1, :] = (self.w_B[2, i], 0., -self.w_B[0, i])
+            wx[2, :] = (-self.w_B[1, i], self.w_B[0, i], 0.)
             self.T_tot[:, i] = np.dot(self.J, self.wdot_B[:, i]) + \
                 np.dot(wx, np.dot(self.J, self.w_B[:, i]))
 
@@ -707,11 +747,11 @@ class Attitude_Torque(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     if 'w_B' in arg:
-                        result['T_tot'][k,:] += self.dT_dw[:, k, j] * \
-                            arg['w_B'][j,:]
+                        result['T_tot'][k, :] += self.dT_dw[:, k, j] * \
+                            arg['w_B'][j, :]
                     if 'wdot_B' in arg:
-                        result['T_tot'][k,:] += self.dT_dwdot[:, k, j] * \
-                            arg['wdot_B'][j,:]
+                        result['T_tot'][k, :] += self.dT_dwdot[:, k, j] * \
+                            arg['wdot_B'][j, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -720,8 +760,8 @@ class Attitude_Torque(Component):
             for k in xrange(3):
                 for j in xrange(3):
                     if 'w_B' in result:
-                        result['w_B'][j,:] += self.dT_dw[:, k, j] * \
-                            arg['T_tot'][k,:]
+                        result['w_B'][j, :] += self.dT_dw[:, k, j] * \
+                            arg['T_tot'][k, :]
                     if 'wdot_B' in result:
-                        result['wdot_B'][j,:] += self.dT_dwdot[:, k, j] * \
-                            arg['T_tot'][k,:]
+                        result['wdot_B'][j, :] += self.dT_dwdot[:, k, j] * \
+                            arg['T_tot'][k, :]
