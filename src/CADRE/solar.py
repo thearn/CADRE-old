@@ -15,17 +15,17 @@ import os
 class Solar_ExposedArea(Component):
 
     '''Exposed area calculation for a given solar cell
-       
+
        p: panel ID [0,11]
-       
+
        c: cell ID [0,6]
-       
+
        a: fin angle [0,90]
-       
+
        z: azimuth [0,360]
-       
+
        e: elevation [0,180]
-       
+
        LOS: line of sight with the sun [0,1]
     '''
 
@@ -112,6 +112,11 @@ class Solar_ExposedArea(Component):
         self.Jaz = None
         self.Jel = None
 
+    def list_deriv_vars(self):
+        input_keys = ('azimuth', 'elevation', )
+        output_keys = ('exposedArea',)
+        return input_keys, output_keys
+
     def setx(self):
         """ Sets our state array"""
 
@@ -120,7 +125,7 @@ class Solar_ExposedArea(Component):
         self.x[:, 1] = result[0]
         self.x[:, 2] = result[1]
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.Jfin = self.MBI.evaluate(self.x, 1).reshape(self.n, 7, 12,

@@ -79,7 +79,12 @@ class BsplineParameters(Component):
                                 desc="Currents of the solar panels over time",
                                 iotype='out'))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('CP_P_comm', 'CP_gamma', 'CP_Isetpt')
+        output_keys = ('P_comm', 'Gamma', 'Isetpt')
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
