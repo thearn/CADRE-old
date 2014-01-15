@@ -8,11 +8,11 @@ from openmdao.lib.datatypes.api import Float, Array
 from openmdao.main.api import Component
 
 from CADRE.kinematics import fixangles, computepositionspherical, \
-     computepositionsphericaljacobian, computepositionrotd,\
-     computepositionrotdjacobian
+    computepositionsphericaljacobian, computepositionrotd,\
+    computepositionrotdjacobian
 
 import rk4
-7
+
 # Allow non-standard variable names for scientific calc
 # pylint: disable-msg=C0103
 
@@ -27,7 +27,7 @@ class Comm_DataDownloaded(rk4.RK4):
 
         # Inputs
         self.add(
-            'Dr', 
+            'Dr',
             Array(
                 np.zeros(n_times),
                 iotype='in',
@@ -68,6 +68,11 @@ class Comm_DataDownloaded(rk4.RK4):
         self.dfdy = np.array([[0.]])
         self.dfdx = np.array([[1.]])
 
+    def list_deriv_vars(self):
+        input_keys = ('Data0', 'Dr',)
+        output_keys = ('Data',)
+        return input_keys, output_keys
+
     def f_dot(self, external, state):
         return external[0]
 
@@ -102,7 +107,12 @@ class Comm_AntRotation(Component):
 
         self.dq_dt = np.zeros(4)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('q_A',)
+        output_keys = ('antAngle',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         rt2 = np.sqrt(2)
@@ -115,24 +125,24 @@ class Comm_AntRotation(Component):
         """ Calculate output. """
 
         rt2 = np.sqrt(2)
-        self.q_A[0,:] = np.cos(self.antAngle/2.)
-        self.q_A[1,:] = np.sin(self.antAngle/2.) / rt2
-        self.q_A[2,:] = - np.sin(self.antAngle/2.) / rt2
-        self.q_A[3,:] = 0.0
+        self.q_A[0, :] = np.cos(self.antAngle/2.)
+        self.q_A[1, :] = np.sin(self.antAngle/2.) / rt2
+        self.q_A[2, :] = - np.sin(self.antAngle/2.) / rt2
+        self.q_A[3, :] = 0.0
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
         if 'antAngle' in arg and 'q_A' in result:
             for k in xrange(4):
-                result['q_A'][k,:] += self.dq_dt[k] * arg['antAngle']
+                result['q_A'][k, :] += self.dq_dt[k] * arg['antAngle']
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
         if 'q_A' in arg and 'antAngle' in result:
             for k in xrange(4):
-                result['antAngle'] += self.dq_dt[k] * np.sum(arg['q_A'][k,:])
+                result['antAngle'] += self.dq_dt[k] * np.sum(arg['q_A'][k, :])
 
 
 class Comm_AntRotationMtx(Component):
@@ -157,7 +167,7 @@ class Comm_AntRotationMtx(Component):
 
         # Outputs
         self.add(
-            'O_AB', 
+            'O_AB',
             Array(
                 np.zeros((3, 3, self.n)),
                 iotype='out',
@@ -169,7 +179,12 @@ class Comm_AntRotationMtx(Component):
 
         self.J = np.empty((self.n, 3, 3, 4))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('q_A',)
+        output_keys = ('O_AB',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         A = np.zeros((4, 3))
@@ -177,61 +192,61 @@ class Comm_AntRotationMtx(Component):
         dA_dq = np.zeros((4, 3, 4))
         dB_dq = np.zeros((4, 3, 4))
 
-        dA_dq[0,:, 0] = (1, 0, 0)
-        dA_dq[1,:, 0] = (0, 1, 0)
-        dA_dq[2,:, 0] = (0, 0, 1)
-        dA_dq[3,:, 0] = (0, 0, 0)
+        dA_dq[0, :, 0] = (1, 0, 0)
+        dA_dq[1, :, 0] = (0, 1, 0)
+        dA_dq[2, :, 0] = (0, 0, 1)
+        dA_dq[3, :, 0] = (0, 0, 0)
 
-        dA_dq[0,:, 1] = (0, 0, 0)
-        dA_dq[1,:, 1] = (0, 0, -1)
-        dA_dq[2,:, 1] = (0, 1, 0)
-        dA_dq[3,:, 1] = (1, 0, 0)
+        dA_dq[0, :, 1] = (0, 0, 0)
+        dA_dq[1, :, 1] = (0, 0, -1)
+        dA_dq[2, :, 1] = (0, 1, 0)
+        dA_dq[3, :, 1] = (1, 0, 0)
 
-        dA_dq[0,:, 2] = (0, 0, 1)
-        dA_dq[1,:, 2] = (0, 0, 0)
-        dA_dq[2,:, 2] = (-1, 0, 0)
-        dA_dq[3,:, 2] = (0, 1, 0)
+        dA_dq[0, :, 2] = (0, 0, 1)
+        dA_dq[1, :, 2] = (0, 0, 0)
+        dA_dq[2, :, 2] = (-1, 0, 0)
+        dA_dq[3, :, 2] = (0, 1, 0)
 
-        dA_dq[0,:, 3] = (0, -1, 0)
-        dA_dq[1,:, 3] = (1, 0, 0)
-        dA_dq[2,:, 3] = (0, 0, 0)
-        dA_dq[3,:, 3] = (0, 0, 1)
+        dA_dq[0, :, 3] = (0, -1, 0)
+        dA_dq[1, :, 3] = (1, 0, 0)
+        dA_dq[2, :, 3] = (0, 0, 0)
+        dA_dq[3, :, 3] = (0, 0, 1)
 
 
-        dB_dq[0,:, 0] = (1, 0, 0)
-        dB_dq[1,:, 0] = (0, 1, 0)
-        dB_dq[2,:, 0] = (0, 0, 1)
-        dB_dq[3,:, 0] = (0, 0, 0)
+        dB_dq[0, :, 0] = (1, 0, 0)
+        dB_dq[1, :, 0] = (0, 1, 0)
+        dB_dq[2, :, 0] = (0, 0, 1)
+        dB_dq[3, :, 0] = (0, 0, 0)
 
-        dB_dq[0,:, 1] = (0, 0, 0)
-        dB_dq[1,:, 1] = (0, 0, 1)
-        dB_dq[2,:, 1] = (0, -1, 0)
-        dB_dq[3,:, 1] = (1, 0, 0)
+        dB_dq[0, :, 1] = (0, 0, 0)
+        dB_dq[1, :, 1] = (0, 0, 1)
+        dB_dq[2, :, 1] = (0, -1, 0)
+        dB_dq[3, :, 1] = (1, 0, 0)
 
-        dB_dq[0,:, 2] = (0, 0, -1)
-        dB_dq[1,:, 2] = (0, 0, 0)
-        dB_dq[2,:, 2] = (1, 0, 0)
-        dB_dq[3,:, 2] = (0, 1, 0)
+        dB_dq[0, :, 2] = (0, 0, -1)
+        dB_dq[1, :, 2] = (0, 0, 0)
+        dB_dq[2, :, 2] = (1, 0, 0)
+        dB_dq[3, :, 2] = (0, 1, 0)
 
-        dB_dq[0,:, 3] = (0, 1, 0)
-        dB_dq[1,:, 3] = (-1, 0, 0)
-        dB_dq[2,:, 3] = (0, 0, 0)
-        dB_dq[3,:, 3] = (0, 0, 1)
+        dB_dq[0, :, 3] = (0, 1, 0)
+        dB_dq[1, :, 3] = (-1, 0, 0)
+        dB_dq[2, :, 3] = (0, 0, 0)
+        dB_dq[3, :, 3] = (0, 0, 1)
 
         for i in range(0, self.n):
-            A[0,:] = ( self.q_A[0, i], -self.q_A[3, i],  self.q_A[2, i])
-            A[1,:] = ( self.q_A[3, i],  self.q_A[0, i], -self.q_A[1, i])
-            A[2,:] = (-self.q_A[2, i],  self.q_A[1, i],  self.q_A[0, i])
-            A[3,:] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
+            A[0, :] = ( self.q_A[0, i], -self.q_A[3, i],  self.q_A[2, i])
+            A[1, :] = ( self.q_A[3, i],  self.q_A[0, i], -self.q_A[1, i])
+            A[2, :] = (-self.q_A[2, i],  self.q_A[1, i],  self.q_A[0, i])
+            A[3, :] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
 
-            B[0,:] = ( self.q_A[0, i],  self.q_A[3, i], -self.q_A[2, i])
-            B[1,:] = (-self.q_A[3, i],  self.q_A[0, i],  self.q_A[1, i])
-            B[2,:] = ( self.q_A[2, i], -self.q_A[1, i],  self.q_A[0, i])
-            B[3,:] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
+            B[0, :] = ( self.q_A[0, i],  self.q_A[3, i], -self.q_A[2, i])
+            B[1, :] = (-self.q_A[3, i],  self.q_A[0, i],  self.q_A[1, i])
+            B[2, :] = ( self.q_A[2, i], -self.q_A[1, i],  self.q_A[0, i])
+            B[3, :] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
 
             for k in range(0, 4):
-                self.J[i,:,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
-                    np.dot(A.T, dB_dq[:,:, k])
+                self.J[i, :,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
+                    np.dot(A.T, dB_dq[:, :, k])
 
     def execute(self):
         """ Calculate output. """
@@ -240,17 +255,17 @@ class Comm_AntRotationMtx(Component):
         B = np.zeros((4, 3))
 
         for i in range(0, self.n):
-            A[0,:] = ( self.q_A[0, i], -self.q_A[3, i],  self.q_A[2, i])
-            A[1,:] = ( self.q_A[3, i],  self.q_A[0, i], -self.q_A[1, i])
-            A[2,:] = (-self.q_A[2, i],  self.q_A[1, i],  self.q_A[0, i])
-            A[3,:] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
+            A[0, :] = ( self.q_A[0, i], -self.q_A[3, i],  self.q_A[2, i])
+            A[1, :] = ( self.q_A[3, i],  self.q_A[0, i], -self.q_A[1, i])
+            A[2, :] = (-self.q_A[2, i],  self.q_A[1, i],  self.q_A[0, i])
+            A[3, :] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
 
-            B[0,:] = ( self.q_A[0, i],  self.q_A[3, i], -self.q_A[2, i])
-            B[1,:] = (-self.q_A[3, i],  self.q_A[0, i],  self.q_A[1, i])
-            B[2,:] = ( self.q_A[2, i], -self.q_A[1, i],  self.q_A[0, i])
-            B[3,:] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
+            B[0, :] = ( self.q_A[0, i],  self.q_A[3, i], -self.q_A[2, i])
+            B[1, :] = (-self.q_A[3, i],  self.q_A[0, i],  self.q_A[1, i])
+            B[2, :] = ( self.q_A[2, i], -self.q_A[1, i],  self.q_A[0, i])
+            B[3, :] = ( self.q_A[1, i],  self.q_A[2, i],  self.q_A[3, i])
 
-            self.O_AB[:,:, i] = np.dot(A.T, B)
+            self.O_AB[:, :, i] = np.dot(A.T, B)
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -259,8 +274,8 @@ class Comm_AntRotationMtx(Component):
             for u in xrange(3):
                 for v in xrange(3):
                     for k in xrange(4):
-                        result['O_AB'][u, v,:] += \
-                            self.J[:, u, v, k] * arg['q_A'][k,:]
+                        result['O_AB'][u, v, :] += \
+                            self.J[:, u, v, k] * arg['q_A'][k, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -269,8 +284,8 @@ class Comm_AntRotationMtx(Component):
             for u in range(3):
                 for v in range(3):
                     for k in range(4):
-                        result['q_A'][k,:] += self.J[:, u, v, k] * \
-                            arg['O_AB'][u, v,:]
+                        result['q_A'][k, :] += self.J[:, u, v, k] * \
+                            arg['O_AB'][u, v, :]
 
 
 class Comm_BitRate(Component):
@@ -307,7 +322,7 @@ class Comm_BitRate(Component):
         self.add(
             'gain',
             Array(
-                np.zeros(self.n), 
+                np.zeros(self.n),
                 iotype='in',
                 shape=(self.n, ),
                 units="unitless",
@@ -349,7 +364,12 @@ class Comm_BitRate(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('P_comm', 'gain', 'GSdist', 'CommLOS',)
+        output_keys = ('Dr',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         S2 = 0.
@@ -423,7 +443,7 @@ class Comm_Distance(Component):
 
         # Inputs
         self.add(
-            'r_b2g_A', 
+            'r_b2g_A',
             Array(
                 np.zeros((3, self.n)),
                 iotype='in',
@@ -445,7 +465,13 @@ class Comm_Distance(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_b2g_A',)
+        output_keys = ('GSdist',)
+        return input_keys, output_keys
+
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J = np.zeros((self.n, 3))
@@ -453,9 +479,9 @@ class Comm_Distance(Component):
         for i in range(0, self.n):
             norm = np.dot(self.r_b2g_A[:, i], self.r_b2g_A[:, i]) ** 0.5
             if norm > 1e-10:
-                self.J[i,:] = self.r_b2g_A[:, i] / norm
+                self.J[i, :] = self.r_b2g_A[:, i] / norm
             else:
-                self.J[i,:] = 0.
+                self.J[i, :] = 0.
 
     def execute(self):
         """ Calculate output. """
@@ -469,14 +495,14 @@ class Comm_Distance(Component):
 
         if 'r_b2g_A' in arg and 'GSdist' in result:
             for k in xrange(3):
-                result['GSdist'] += self.J[:, k] * arg['r_b2g_A'][k,:]
+                result['GSdist'] += self.J[:, k] * arg['r_b2g_A'][k, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
         if 'GSdist' in arg and 'r_b2g_A' in result:
             for k in xrange(3):
-                result['r_b2g_A'][k,:] += self.J[:, k] * arg['GSdist']
+                result['r_b2g_A'][k, :] += self.J[:, k] * arg['GSdist']
 
 
 class Comm_EarthsSpin(Component):
@@ -496,15 +522,21 @@ class Comm_EarthsSpin(Component):
 
         # Outputs
         self.add('q_E', Array(
-                np.zeros((4, self.n)),
-                iotype='out',
-                shape=(4, self.n),
-                units="unitless",
-                desc="Quarternion matrix in Earth-fixed frame over time"
-            )
+            np.zeros((4, self.n)),
+            iotype='out',
+            shape=(4, self.n),
+            units="unitless",
+            desc="Quarternion matrix in Earth-fixed frame over time"
+        )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('t',)
+        output_keys = ('q_E',)
+        return input_keys, output_keys
+
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         ntime = self.n
@@ -522,22 +554,22 @@ class Comm_EarthsSpin(Component):
         fact = np.pi / 3600.0 / 24.0
         theta = fact * self.t
 
-        self.q_E[0,:] = np.cos(theta)
-        self.q_E[3,:] = -np.sin(theta)
+        self.q_E[0, :] = np.cos(theta)
+        self.q_E[3, :] = -np.sin(theta)
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
         if 't' in arg and 'q_E' in result:
             for k in range(4):
-                result['q_E'][k,:] += self.dq_dt[:, k] * arg['t']
+                result['q_E'][k, :] += self.dq_dt[:, k] * arg['t']
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
         if 'q_E' in arg and 't' in result:
             for k in range(4):
-                result['t'] += self.dq_dt[:, k] * arg['q_E'][k,:]
+                result['t'] += self.dq_dt[:, k] * arg['q_E'][k, :]
 
 
 class Comm_EarthsSpinMtx(Component):
@@ -557,7 +589,7 @@ class Comm_EarthsSpinMtx(Component):
                 iotype='in',
                 shape=(4, self.n),
                 units="unitless",
-                desc="Quarternion matrix in Earth-fixed frame over time" 
+                desc="Quarternion matrix in Earth-fixed frame over time"
             )
         )
 
@@ -573,7 +605,13 @@ class Comm_EarthsSpinMtx(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('q_E',)
+        output_keys = ('O_IE',)
+        return input_keys, output_keys
+
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         A = np.zeros((4, 3))
@@ -584,61 +622,61 @@ class Comm_EarthsSpinMtx(Component):
 
         self.J = np.zeros((self.n, 3, 3, 4))
 
-        dA_dq[0,:, 0] = (1, 0, 0)
-        dA_dq[1,:, 0] = (0, 1, 0)
-        dA_dq[2,:, 0] = (0, 0, 1)
-        dA_dq[3,:, 0] = (0, 0, 0)
+        dA_dq[0, :, 0] = (1, 0, 0)
+        dA_dq[1, :, 0] = (0, 1, 0)
+        dA_dq[2, :, 0] = (0, 0, 1)
+        dA_dq[3, :, 0] = (0, 0, 0)
 
-        dA_dq[0,:, 1] = (0, 0, 0)
-        dA_dq[1,:, 1] = (0, 0, -1)
-        dA_dq[2,:, 1] = (0, 1, 0)
-        dA_dq[3,:, 1] = (1, 0, 0)
+        dA_dq[0, :, 1] = (0, 0, 0)
+        dA_dq[1, :, 1] = (0, 0, -1)
+        dA_dq[2, :, 1] = (0, 1, 0)
+        dA_dq[3, :, 1] = (1, 0, 0)
 
-        dA_dq[0,:, 2] = (0, 0, 1)
-        dA_dq[1,:, 2] = (0, 0, 0)
-        dA_dq[2,:, 2] = (-1, 0, 0)
-        dA_dq[3,:, 2] = (0, 1, 0)
+        dA_dq[0, :, 2] = (0, 0, 1)
+        dA_dq[1, :, 2] = (0, 0, 0)
+        dA_dq[2, :, 2] = (-1, 0, 0)
+        dA_dq[3, :, 2] = (0, 1, 0)
 
-        dA_dq[0,:, 3] = (0, -1, 0)
-        dA_dq[1,:, 3] = (1, 0, 0)
-        dA_dq[2,:, 3] = (0, 0, 0)
-        dA_dq[3,:, 3] = (0, 0, 1)
+        dA_dq[0, :, 3] = (0, -1, 0)
+        dA_dq[1, :, 3] = (1, 0, 0)
+        dA_dq[2, :, 3] = (0, 0, 0)
+        dA_dq[3, :, 3] = (0, 0, 1)
 
 
-        dB_dq[0,:, 0] = (1, 0, 0)
-        dB_dq[1,:, 0] = (0, 1, 0)
-        dB_dq[2,:, 0] = (0, 0, 1)
-        dB_dq[3,:, 0] = (0, 0, 0)
+        dB_dq[0, :, 0] = (1, 0, 0)
+        dB_dq[1, :, 0] = (0, 1, 0)
+        dB_dq[2, :, 0] = (0, 0, 1)
+        dB_dq[3, :, 0] = (0, 0, 0)
 
-        dB_dq[0,:, 1] = (0, 0, 0)
-        dB_dq[1,:, 1] = (0, 0, 1)
-        dB_dq[2,:, 1] = (0, -1, 0)
-        dB_dq[3,:, 1] = (1, 0, 0)
+        dB_dq[0, :, 1] = (0, 0, 0)
+        dB_dq[1, :, 1] = (0, 0, 1)
+        dB_dq[2, :, 1] = (0, -1, 0)
+        dB_dq[3, :, 1] = (1, 0, 0)
 
-        dB_dq[0,:, 2] = (0, 0, -1)
-        dB_dq[1,:, 2] = (0, 0, 0)
-        dB_dq[2,:, 2] = (1, 0, 0)
-        dB_dq[3,:, 2] = (0, 1, 0)
+        dB_dq[0, :, 2] = (0, 0, -1)
+        dB_dq[1, :, 2] = (0, 0, 0)
+        dB_dq[2, :, 2] = (1, 0, 0)
+        dB_dq[3, :, 2] = (0, 1, 0)
 
-        dB_dq[0,:, 3] = (0, 1, 0)
-        dB_dq[1,:, 3] = (-1, 0, 0)
-        dB_dq[2,:, 3] = (0, 0, 0)
-        dB_dq[3,:, 3] = (0, 0, 1)
+        dB_dq[0, :, 3] = (0, 1, 0)
+        dB_dq[1, :, 3] = (-1, 0, 0)
+        dB_dq[2, :, 3] = (0, 0, 0)
+        dB_dq[3, :, 3] = (0, 0, 1)
 
         for i in range(0, self.n):
-            A[0,:] = ( self.q_E[0, i], -self.q_E[3, i],  self.q_E[2, i])
-            A[1,:] = ( self.q_E[3, i],  self.q_E[0, i], -self.q_E[1, i])
-            A[2,:] = (-self.q_E[2, i],  self.q_E[1, i],  self.q_E[0, i])
-            A[3,:] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
+            A[0, :] = ( self.q_E[0, i], -self.q_E[3, i],  self.q_E[2, i])
+            A[1, :] = ( self.q_E[3, i],  self.q_E[0, i], -self.q_E[1, i])
+            A[2, :] = (-self.q_E[2, i],  self.q_E[1, i],  self.q_E[0, i])
+            A[3, :] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
 
-            B[0,:] = ( self.q_E[0, i],  self.q_E[3, i], -self.q_E[2, i])
-            B[1,:] = (-self.q_E[3, i],  self.q_E[0, i],  self.q_E[1, i])
-            B[2,:] = ( self.q_E[2, i], -self.q_E[1, i],  self.q_E[0, i])
-            B[3,:] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
+            B[0, :] = ( self.q_E[0, i],  self.q_E[3, i], -self.q_E[2, i])
+            B[1, :] = (-self.q_E[3, i],  self.q_E[0, i],  self.q_E[1, i])
+            B[2, :] = ( self.q_E[2, i], -self.q_E[1, i],  self.q_E[0, i])
+            B[3, :] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
 
             for k in range(0, 4):
-                self.J[i,:,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
-                    np.dot(A.T, dB_dq[:,:, k])
+                self.J[i, :,:, k] = np.dot(dA_dq[:,:, k].T, B) + \
+                    np.dot(A.T, dB_dq[:, :, k])
 
     def execute(self):
         """ Calculate output. """
@@ -647,17 +685,17 @@ class Comm_EarthsSpinMtx(Component):
         B = np.zeros((4, 3))
 
         for i in range(0, self.n):
-            A[0,:] = ( self.q_E[0, i], -self.q_E[3, i],  self.q_E[2, i])
-            A[1,:] = ( self.q_E[3, i],  self.q_E[0, i], -self.q_E[1, i])
-            A[2,:] = (-self.q_E[2, i],  self.q_E[1, i],  self.q_E[0, i])
-            A[3,:] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
+            A[0, :] = ( self.q_E[0, i], -self.q_E[3, i],  self.q_E[2, i])
+            A[1, :] = ( self.q_E[3, i],  self.q_E[0, i], -self.q_E[1, i])
+            A[2, :] = (-self.q_E[2, i],  self.q_E[1, i],  self.q_E[0, i])
+            A[3, :] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
 
-            B[0,:] = ( self.q_E[0, i],  self.q_E[3, i], -self.q_E[2, i])
-            B[1,:] = (-self.q_E[3, i],  self.q_E[0, i],  self.q_E[1, i])
-            B[2,:] = ( self.q_E[2, i], -self.q_E[1, i],  self.q_E[0, i])
-            B[3,:] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
+            B[0, :] = ( self.q_E[0, i],  self.q_E[3, i], -self.q_E[2, i])
+            B[1, :] = (-self.q_E[3, i],  self.q_E[0, i],  self.q_E[1, i])
+            B[2, :] = ( self.q_E[2, i], -self.q_E[1, i],  self.q_E[0, i])
+            B[3, :] = ( self.q_E[1, i],  self.q_E[2, i],  self.q_E[3, i])
 
-            self.O_IE[:,:, i] = np.dot(A.T, B)
+            self.O_IE[:, :, i] = np.dot(A.T, B)
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -666,8 +704,8 @@ class Comm_EarthsSpinMtx(Component):
             for u in range(3):
                 for v in range(3):
                     for k in range(4):
-                        result['O_IE'][u, v,:] += self.J[:, u, v, k] * \
-                            arg['q_E'][k,:]
+                        result['O_IE'][u, v, :] += self.J[:, u, v, k] * \
+                            arg['q_E'][k, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -676,8 +714,8 @@ class Comm_EarthsSpinMtx(Component):
             for u in range(3):
                 for v in range(3):
                     for k in range(4):
-                        result['q_E'][k,:] += self.J[:, u, v, k] * \
-                            arg['O_IE'][u, v,:]
+                        result['q_E'][k, :] += self.J[:, u, v, k] * \
+                            arg['O_IE'][u, v, :]
 
 
 class Comm_GainPattern(Component):
@@ -730,7 +768,13 @@ class Comm_GainPattern(Component):
         self.MBI = MBI.MBI(rawG, [az, el], [15, 15], [4, 4])
         self.x = np.zeros((self.n, 2), order='F')
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('azimuthGS', 'elevationGS',)
+        output_keys = ('gain',)
+        return input_keys, output_keys
+
+
+    def provideJ(self):
         """ Calculate and save derivatives. (i.e., Jacobian) """
 
         self.dg_daz = self.MBI.evaluate(self.x, 1)[:, 0]
@@ -770,9 +814,12 @@ class Comm_GSposEarth(Component):
     d2r = np.pi / 180.
 
     # Inputs
-    lon = Float(0.0, iotype="in", units="rad", desc="Longitude of ground station in Earth-fixed frame")
-    lat = Float(0.0, iotype="in", units="rad", desc="Latitude of ground station in Earth-fixed frame")
-    alt = Float(0.0, iotype="in", units="rad", desc="Altitude of ground station in Earth-fixed frame")
+    lon = Float(0.0, iotype="in", units="rad",
+                desc="Longitude of ground station in Earth-fixed frame")
+    lat = Float(0.0, iotype="in", units="rad",
+                desc="Latitude of ground station in Earth-fixed frame")
+    alt = Float(0.0, iotype="in", units="rad",
+                desc="Altitude of ground station in Earth-fixed frame")
 
     def __init__(self, n):
         super(Comm_GSposEarth, self).__init__()
@@ -791,7 +838,13 @@ class Comm_GSposEarth(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('lon', 'lat','alt',)
+        output_keys = ('r_e2g_E',)
+        return input_keys, output_keys
+
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dr_dlon = np.zeros(3)
@@ -823,22 +876,22 @@ class Comm_GSposEarth(Component):
         cos_lat = np.cos(self.d2r * self.lat)
         r_GS = (self.Re + self.alt)
 
-        self.r_e2g_E[0,:] = r_GS * cos_lat * np.cos(self.d2r*self.lon)
-        self.r_e2g_E[1,:] = r_GS * cos_lat * np.sin(self.d2r*self.lon)
-        self.r_e2g_E[2,:] = r_GS * np.sin(self.d2r*self.lat)
+        self.r_e2g_E[0, :] = r_GS * cos_lat * np.cos(self.d2r*self.lon)
+        self.r_e2g_E[1, :] = r_GS * cos_lat * np.sin(self.d2r*self.lon)
+        self.r_e2g_E[2, :] = r_GS * np.sin(self.d2r*self.lat)
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
 
         if 'lon' in arg:
             for k in xrange(3):
-                result['r_e2g_E'][k,:] += self.dr_dlon[k] * arg['lon']
+                result['r_e2g_E'][k, :] += self.dr_dlon[k] * arg['lon']
         if 'lat' in arg:
             for k in xrange(3):
-                result['r_e2g_E'][k,:] += self.dr_dlat[k] * arg['lat']
+                result['r_e2g_E'][k, :] += self.dr_dlat[k] * arg['lat']
         if 'alt' in arg:
             for k in xrange(3):
-                result['r_e2g_E'][k,:] += self.dr_dalt[k] * arg['alt']
+                result['r_e2g_E'][k, :] += self.dr_dalt[k] * arg['alt']
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -846,11 +899,11 @@ class Comm_GSposEarth(Component):
         if 'r_e2g_E' in arg:
             for k in xrange(3):
                 if 'lon' in result:
-                    result['lon'] += self.dr_dlon[k] * np.sum(arg['r_e2g_E'][k,:])
+                    result['lon'] += self.dr_dlon[k] * np.sum(arg['r_e2g_E'][k, :])
                 if 'lat' in result:
-                    result['lat'] += self.dr_dlat[k] * np.sum(arg['r_e2g_E'][k,:])
+                    result['lat'] += self.dr_dlat[k] * np.sum(arg['r_e2g_E'][k, :])
                 if 'alt' in result:
-                    result['alt'] += self.dr_dalt[k] * np.sum(arg['r_e2g_E'][k,:])
+                    result['alt'] += self.dr_dalt[k] * np.sum(arg['r_e2g_E'][k, :])
 
 
 class Comm_GSposECI(Component):
@@ -865,7 +918,7 @@ class Comm_GSposECI(Component):
 
         # Inputs
         self.add(
-            'O_IE', 
+            'O_IE',
             Array(
                 np.zeros((3, 3, self.n)),
                 iotype='in',
@@ -898,14 +951,19 @@ class Comm_GSposECI(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('O_IE', 'r_e2g_E',)
+        output_keys = ('r_e2g_I',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1 = np.zeros((self.n, 3, 3, 3))
 
         for k in range(0, 3):
             for v in range(0, 3):
-                self.J1[:, k, k, v] = self.r_e2g_E[v,:]
+                self.J1[:, k, k, v] = self.r_e2g_E[v, :]
 
         self.J2 = np.transpose(self.O_IE, (2, 0, 1))
 
@@ -913,7 +971,7 @@ class Comm_GSposECI(Component):
         """ Calculate output. """
 
         for i in range(0, self.n):
-            self.r_e2g_I[:, i] = np.dot(self.O_IE[:,:, i],
+            self.r_e2g_I[:, i] = np.dot(self.O_IE[:, :, i],
                                         self.r_e2g_E[:, i])
 
     def apply_deriv(self, arg, result):
@@ -924,12 +982,12 @@ class Comm_GSposECI(Component):
                 for u in xrange(3):
                     if 'O_IE' in arg:
                         for v in xrange(3):
-                            result['r_e2g_I'][k,:] += self.J1[:, k, u, v] * \
-                                arg['O_IE'][u, v,:]
+                            result['r_e2g_I'][k, :] += self.J1[:, k, u, v] * \
+                                arg['O_IE'][u, v, :]
 
                     if 'r_e2g_E' in arg:
-                        result['r_e2g_I'][k,:] += self.J2[:, k, u] * \
-                            arg['r_e2g_E'][u,:]
+                        result['r_e2g_I'][k, :] += self.J2[:, k, u] * \
+                            arg['r_e2g_E'][u, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -939,12 +997,12 @@ class Comm_GSposECI(Component):
                 if 'O_IE' in result:
                     for u in xrange(3):
                         for v in xrange(3):
-                            result['O_IE'][u, v,:] += self.J1[:, k, u, v] * \
-                                arg['r_e2g_I'][k,:]
+                            result['O_IE'][u, v, :] += self.J1[:, k, u, v] * \
+                                arg['r_e2g_I'][k, :]
                 if 'r_e2g_E' in result:
                     for j in xrange(3):
-                        result['r_e2g_E'][j,:] += self.J2[:, k, j] * \
-                            arg['r_e2g_I'][k,:]
+                        result['r_e2g_E'][j, :] += self.J2[:, k, j] * \
+                            arg['r_e2g_I'][k, :]
 
 
 class Comm_LOS(Component):
@@ -961,7 +1019,7 @@ class Comm_LOS(Component):
 
         # Inputs
         self.add(
-            'r_b2g_I', 
+            'r_b2g_I',
             Array(
                 np.zeros((3, n)),
                 iotype='in',
@@ -994,7 +1052,12 @@ class Comm_LOS(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_b2g_I', 'r_e2g_I',)
+        output_keys = ('CommLOS',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.dLOS_drb = np.zeros((self.n, 3))
@@ -1006,11 +1069,11 @@ class Comm_LOS(Component):
             proj = np.dot(self.r_b2g_I[:, i], self.r_e2g_I[:, i]) / self.Re
 
             if proj > 0:
-                self.dLOS_drb[i,:] = 0.
-                self.dLOS_dre[i,:] = 0.
+                self.dLOS_drb[i, :] = 0.
+                self.dLOS_dre[i, :] = 0.
             elif proj < -Rb:
-                self.dLOS_drb[i,:] = 0.
-                self.dLOS_dre[i,:] = 0.
+                self.dLOS_drb[i, :] = 0.
+                self.dLOS_dre[i, :] = 0.
             else:
                 x = (proj - 0) / (-Rb - 0)
                 dx_dproj = -1. / Rb
@@ -1018,8 +1081,8 @@ class Comm_LOS(Component):
                 dproj_drb = self.r_e2g_I[:, i]
                 dproj_dre = self.r_b2g_I[:, i]
 
-                self.dLOS_drb[i,:] = dLOS_dx * dx_dproj * dproj_drb
-                self.dLOS_dre[i,:] = dLOS_dx * dx_dproj * dproj_dre
+                self.dLOS_drb[i, :] = dLOS_dx * dx_dproj * dproj_drb
+                self.dLOS_dre[i, :] = dLOS_dx * dx_dproj * dproj_dre
 
     def execute(self):
         """ Calculate output. """
@@ -1042,9 +1105,9 @@ class Comm_LOS(Component):
         if 'CommLOS' in result:
             for k in xrange(3):
                 if 'r_b2g_I' in arg:
-                    result['CommLOS'] += self.dLOS_drb[:, k] * arg['r_b2g_I'][k,:]
+                    result['CommLOS'] += self.dLOS_drb[:, k] * arg['r_b2g_I'][k, :]
                 if 'r_e2g_I' in arg:
-                    result['CommLOS'] += self.dLOS_dre[:, k] * arg['r_e2g_I'][k,:]
+                    result['CommLOS'] += self.dLOS_dre[:, k] * arg['r_e2g_I'][k, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1052,9 +1115,9 @@ class Comm_LOS(Component):
         if 'CommLOS' in arg:
             for k in xrange(3):
                 if 'r_b2g_I' in result:
-                    result['r_b2g_I'][k,:] += self.dLOS_drb[:, k] * arg['CommLOS']
+                    result['r_b2g_I'][k, :] += self.dLOS_drb[:, k] * arg['CommLOS']
                 if 'r_e2g_I' in result:
-                    result['r_e2g_I'][k,:] += self.dLOS_dre[:, k] * arg['CommLOS']
+                    result['r_e2g_I'][k, :] += self.dLOS_dre[:, k] * arg['CommLOS']
 
 
 class Comm_VectorAnt(Component):
@@ -1067,7 +1130,7 @@ class Comm_VectorAnt(Component):
 
         # Inputs
         self.add(
-            'r_b2g_B', 
+            'r_b2g_B',
             Array(
                 np.zeros((3, n)),
                 iotype='in',
@@ -1100,7 +1163,12 @@ class Comm_VectorAnt(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_b2g_B', 'O_AB',)
+        output_keys = ('r_b2g_A',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1, self.J2 = computepositionrotdjacobian(self.n, self.r_b2g_B,
@@ -1119,12 +1187,12 @@ class Comm_VectorAnt(Component):
                 if 'O_AB' in arg:
                     for u in xrange(3):
                         for v in xrange(3):
-                            result['r_b2g_A'][k,:] += self.J1[:, k, u, v] * \
-                                arg['O_AB'][u, v,:]
+                            result['r_b2g_A'][k, :] += self.J1[:, k, u, v] * \
+                                arg['O_AB'][u, v, :]
                 if 'r_b2g_B' in arg:
                     for j in xrange(3):
-                        result['r_b2g_A'][k,:] += self.J2[:, k, j] * \
-                            arg['r_b2g_B'][j,:]
+                        result['r_b2g_A'][k, :] += self.J2[:, k, j] * \
+                            arg['r_b2g_B'][j, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1134,12 +1202,12 @@ class Comm_VectorAnt(Component):
                 if 'O_AB' in result:
                     for u in xrange(3):
                         for v in xrange(3):
-                            result['O_AB'][u, v,:] += self.J1[:, k, u, v] * \
-                                arg['r_b2g_A'][k,:]
+                            result['O_AB'][u, v, :] += self.J1[:, k, u, v] * \
+                                arg['r_b2g_A'][k, :]
                 if 'r_b2g_B' in result:
                     for j in xrange(3):
-                        result['r_b2g_B'][j,:] += self.J2[:, k, j] * \
-                            arg['r_b2g_A'][k,:]
+                        result['r_b2g_B'][j, :] += self.J2[:, k, j] * \
+                            arg['r_b2g_A'][k, :]
 
 
 class Comm_VectorBody(Component):
@@ -1185,14 +1253,19 @@ class Comm_VectorBody(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_b2g_I', 'O_BI',)
+        output_keys = ('r_b2g_B',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.J1 = np.zeros((self.n, 3, 3, 3))
 
         for k in range(0, 3):
             for v in range(0, 3):
-                self.J1[:, k, k, v] = self.r_b2g_I[v,:]
+                self.J1[:, k, k, v] = self.r_b2g_I[v, :]
 
         self.J2 = np.transpose(self.O_BI, (2, 0, 1))
 
@@ -1200,7 +1273,7 @@ class Comm_VectorBody(Component):
         """ Calculate output. """
 
         for i in range(0, self.n):
-            self.r_b2g_B[:, i] = np.dot(self.O_BI[:,:, i], self.r_b2g_I[:, i])
+            self.r_b2g_B[:, i] = np.dot(self.O_BI[:, :, i], self.r_b2g_I[:, i])
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -1210,12 +1283,12 @@ class Comm_VectorBody(Component):
                 if 'O_BI' in arg:
                     for u in range(3):
                         for v in range(3):
-                            result['r_b2g_B'][k,:] += self.J1[:, k, u, v] * \
-                                arg['O_BI'][u, v,:]
+                            result['r_b2g_B'][k, :] += self.J1[:, k, u, v] * \
+                                arg['O_BI'][u, v, :]
                 if 'r_b2g_I' in arg:
                     for j in range(3):
-                        result['r_b2g_B'][k,:] += self.J2[:, k, j] * \
-                            arg['r_b2g_I'][j,:]
+                        result['r_b2g_B'][k, :] += self.J2[:, k, j] * \
+                            arg['r_b2g_I'][j, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1225,12 +1298,12 @@ class Comm_VectorBody(Component):
                 if 'O_BI' in result:
                     for u in range(3):
                         for v in range(3):
-                            result['O_BI'][u, v,:] += self.J1[:, k, u, v] * \
-                                arg['r_b2g_B'][k,:]
+                            result['O_BI'][u, v, :] += self.J1[:, k, u, v] * \
+                                arg['r_b2g_B'][k, :]
                 if 'r_b2g_I' in result:
                     for j in range(3):
-                        result['r_b2g_I'][j,:] += self.J2[:, k, j] * \
-                            arg['r_b2g_B'][k,:]
+                        result['r_b2g_I'][j, :] += self.J2[:, k, j] * \
+                            arg['r_b2g_B'][k, :]
 
 
 class Comm_VectorECI(Component):
@@ -1276,7 +1349,12 @@ class Comm_VectorECI(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_e2g_I', 'r_e2b_I',)
+        output_keys = ('r_b2g_I',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
@@ -1284,7 +1362,7 @@ class Comm_VectorECI(Component):
     def execute(self):
         """ Calculate output. """
 
-        self.r_b2g_I = self.r_e2g_I - self.r_e2b_I[:3,:]
+        self.r_b2g_I = self.r_e2g_I - self.r_e2b_I[:3, :]
 
     def apply_deriv(self, arg, result):
         """ Matrix-vector product with the Jacobian. """
@@ -1292,7 +1370,7 @@ class Comm_VectorECI(Component):
         if 'r_e2g_I' in arg:
             result['r_b2g_I'] += arg['r_e2g_I']
         if 'r_e2b_I' in arg:
-            result['r_b2g_I'] += -arg['r_e2b_I'][:3,:]
+            result['r_b2g_I'] += -arg['r_e2b_I'][:3, :]
 
     def apply_derivT(self, arg, result):
         """ Matrix-vector product with the transpose of the Jacobian. """
@@ -1301,7 +1379,7 @@ class Comm_VectorECI(Component):
             if 'r_e2g_I' in result:
                 result['r_e2g_I'] += arg['r_b2g_I']
             if 'r_e2b_I' in result:
-                result['r_e2b_I'][:3,:] += -arg['r_b2g_I']
+                result['r_e2b_I'][:3, :] += -arg['r_b2g_I']
 
 
 class Comm_VectorSpherical(Component):
@@ -1328,7 +1406,7 @@ class Comm_VectorSpherical(Component):
         self.add(
             'azimuthGS',
             Array(
-                np.zeros(n), 
+                np.zeros(n),
                 iotype='out',
                 shape=(n,),
                 units="rad",
@@ -1347,7 +1425,12 @@ class Comm_VectorSpherical(Component):
             )
         )
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('r_b2g_A',)
+        output_keys = ('azimuthGS','elevationGS',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
 
         self.Ja1, self.Ji1, self.Jj1, self.Ja2, self.Ji2, self.Jj2 = \
