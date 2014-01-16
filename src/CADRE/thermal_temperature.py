@@ -97,6 +97,11 @@ class ThermalTemperature(RK4):
                 if self.temperature[k, i] < 0:
                     self.temperature[k, i] = 0.
 
+    def list_deriv_vars(self):
+        input_keys = ('T0', 'exposedArea', 'LOS', 'P_comm','cellInstd', )
+        output_keys = ('temperature', )
+        return input_keys, output_keys
+
     def f_dot(self, external, state):
 
         # revised implementation from ThermalTemperature.f90

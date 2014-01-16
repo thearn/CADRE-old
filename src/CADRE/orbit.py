@@ -51,6 +51,11 @@ class Orbit_Dynamics(rk4.RK4):
 
         self.dfdx = np.zeros((6, 1))
 
+    def list_deriv_vars(self):
+        input_keys = ('r_e2b_I0',)
+        output_keys = ('r_e2b_I',)
+        return input_keys, output_keys
+
     def f_dot(self, external, state):
 
         x = state[0]
@@ -119,7 +124,7 @@ class Orbit_Dynamics(rk4.RK4):
         dT3_dx = 14*z3/r3*drdx
         dT3_dy = 14*z3/r3*drdy
         dT3_dz = 14*z3/r3*drdz - 21.*z2/r2 + 3
- 
+
         dT4_dx = 28*z2/r3*drdx - 84.*z4/r5*drdx
         dT4_dy = 28*z2/r3*drdy - 84.*z4/r5*drdy
         dT4_dz = 28*z2/r3*drdz - 84.*z4/r5*drdz - 28*z/r2 + 84*z3/r4
@@ -152,7 +157,7 @@ class Orbit_Dynamics(rk4.RK4):
         dfdy[5, 2] = dfdy[5, 2] + z*(C3/r7*dT3z_dz + C4/r7*dT4z_dz)
         dfdy[5, 2] = dfdy[5, 2] + (C2/r5*2 + C3/r7*T3z + C4/r7*T4z)
         #dfdy[5, 2] = dfdy[5, 2] + (2.0*C2 + (C3*T3z + C4*T4z)/r2)/r5
-        
+
         #print dfdy
         return dfdy
 
@@ -182,6 +187,12 @@ class Orbit_Initial(Component):
                                    iotype='out',
                                    units="unitless",
                                    desc="Initial position and velocity vectors from Earth to satellite in Earth-centered inertial frame"))
+
+    def list_deriv_vars(self):
+        input_keys = ('altPerigee','altApogee','RAAN','Inc','argPerigee',
+                      'trueAnomaly')
+        output_keys = ('r_e2b_I0',)
+        return input_keys, output_keys
 
     def compute(self, altPerigee, altApogee, RAAN, Inc, argPerigee, trueAnomaly):
         ''' Compute position and velocity from orbital elements '''
@@ -223,7 +234,7 @@ class Orbit_Initial(Component):
 
         return r0_ECI, v0_ECI
 
-    def linearize(self):
+    def provideJ(self):
         """ Calculate and save derivatives, (i.e., Jacobian) """
 
         h = 1e-16

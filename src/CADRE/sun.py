@@ -12,7 +12,7 @@ from kinematics import computepositionspherical, computepositionsphericaljacobia
 class Sun_LOS( Component ):
 
     '''Compute the Satellite to sun line of sight.'''
-    
+
     def __init__(self, n=2):
         super(Sun_LOS, self).__init__()
 
@@ -28,7 +28,7 @@ class Sun_LOS( Component ):
                                   "Earth to satellite in Earth-centered " +
                                   "inertial frame over time.",
                                   iotype="in"))
-        
+
         self.add('r_e2s_I', Array(np.zeros((3, n), order='F'), size=(3,n, ),
                                   dtype=np.float,
                                   units="km", desc="Position vector from " +
@@ -43,6 +43,11 @@ class Sun_LOS( Component ):
                               "line of sight over time",
                               iotype="out"
                               ))
+
+    def list_deriv_vars(self):
+        input_keys = ('r_e2b_I', 'r_e2s_I',)
+        output_keys = ('LOS',)
+        return input_keys, output_keys
 
     def execute(self):
 
@@ -63,7 +68,7 @@ class Sun_LOS( Component ):
                 x = ( dist - self.r1 ) / ( self.r2 - self.r1 )
                 self.LOS[i] = 3 *x ** 2 - 2 * x**3
 
-    def linearize(self):
+    def provideJ(self):
 
         nj = 3*self.n
 
@@ -162,7 +167,7 @@ def crossMatrix(v):
 class Sun_PositionBody( Component ):
 
     '''Position vector from earth to sun in body-fixed frame'''
-    
+
     def __init__(self, n=2):
         super(Sun_PositionBody, self).__init__()
 
@@ -190,10 +195,15 @@ class Sun_PositionBody( Component ):
                                   "from Earth to Sun in body-fixed " +
                                   "frame over time." ))
 
+    def list_deriv_vars(self):
+        input_keys = ('O_BI', 'r_e2s_I',)
+        output_keys = ('r_e2s_B',)
+        return input_keys, output_keys
+
     def execute(self):
         self.r_e2s_B = computepositionrotd(self.n, self.r_e2s_I, self.O_BI)
 
-    def linearize(self):
+    def provideJ(self):
         self.J1, self.J2 = computepositionrotdjacobian(self.n, self.r_e2s_I, self.O_BI )
 
     def apply_deriv(self, arg, result):
@@ -213,7 +223,7 @@ class Sun_PositionBody( Component ):
 
         if 'r_e2s_B' in arg:
             for k in range(3):
-                
+
                 if 'O_BI' in result:
                     for u in range(3):
                         for v in range(3):
@@ -242,7 +252,7 @@ class Sun_PositionECI( Component ):
         #self.add('LD', Array(np.zeros((1,), order='F'), size=(1,), dtype=np.float, iotype="in"))
 
         self.add(
-		    't', 
+		    't',
 		    Array(
 		        np.zeros((n,), order='F'),
 			size=(n,),
@@ -266,6 +276,11 @@ class Sun_PositionECI( Component ):
         self.Ji = np.zeros(3*self.n)
         self.Jj = np.zeros(3*self.n)
 
+    def list_deriv_vars(self):
+        input_keys = ('LD', 't',)
+        output_keys = ('r_e2s_I',)
+        return input_keys, output_keys
+
     def execute(self):
         T = self.LD + self.t[:]/3600./24.
         for i in range(0,self.n):
@@ -277,7 +292,7 @@ class Sun_PositionECI( Component ):
             self.r_e2s_I[1,i] = np.sin(Lambda)*np.cos(eps)
             self.r_e2s_I[2,i] = np.sin(Lambda)*np.sin(eps)
 
-    def linearize(self):
+    def provideJ(self):
         T = self.LD + self.t[:]/3600./24.
         dr_dt = np.empty(3)
         for i in range(0,self.n):
@@ -351,13 +366,18 @@ class Sun_PositionSpherical(Component):
                                         "over time.",
                                     iotype="out"))
 
+    def list_deriv_vars(self):
+        input_keys = ('r_e2s_B',)
+        output_keys = ('azimuth', 'elevation',)
+        return input_keys, output_keys
+
     def execute(self):
         azimuth, elevation = computepositionspherical(self.n, self.r_e2s_B)
 
         self.azimuth = azimuth
         self.elevation = elevation
 
-    def linearize(self):
+    def provideJ(self):
         self.Ja1, self.Ji1, self.Jj1, self.Ja2, self.Ji2, self.Jj2 = \
                   computepositionsphericaljacobian(self.n, 3*self.n, self.r_e2s_B)
         self.J1 = scipy.sparse.csc_matrix((self.Ja1, (self.Ji1, self.Jj1)),

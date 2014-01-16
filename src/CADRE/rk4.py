@@ -15,7 +15,7 @@ class RK4(Component):
     """Inherit from this component to use.
 
     State variable dimension: (num_states, num_time_points)
-    
+
     External input dimension: (input width, num_time_points)
     """
 
@@ -94,9 +94,9 @@ class RK4(Component):
 
     def f_dot(self, external, state):
         """Time rate of change of state variables.
-            
+
            external: array or external variables for a single time step
-            
+
 	    state: array of state variables for a single time step.
 
             This must be overridden in derived classes.
@@ -105,9 +105,9 @@ class RK4(Component):
 
     def df_dy(self, external, state):
         """Derivatives of states with respect to states.
-	
+
             external: array or external variables for a single time step
-	    
+
             state: array of state variables for a single time step.
 
             This must be overridden in derived classes.
@@ -169,7 +169,7 @@ class RK4(Component):
 
         #print "executed", self.name
 
-    def linearize(self):
+    def provideJ(self):
         """Linearize about current point."""
 
         n_state = self.n_states
@@ -184,7 +184,7 @@ class RK4(Component):
 
         # Full Jacobian with respect to states
         self.Jy = np.zeros((self.n, self.n_states, self.n_states))
-        
+
         # Full Jacobian with respect to inputs
         self.Jx = np.zeros((self.n, self.n_external, self.n_states))
 
@@ -218,7 +218,7 @@ class RK4(Component):
 
             dR_dy = -I - self.h/6.*(da_dy + 2*(db_dy + dc_dy) + dd_dy)
             self.Jy[k, :, :] = dR_dy
-            
+
             #for i in xrange(n_state):
                 #for j in xrange(n_state):
                     #iJ = self.ny + i + n_state*(j + k1)
@@ -227,7 +227,7 @@ class RK4(Component):
                     ##self.Jj[iJ] = k1 + j
                     #self.Ji[iJ] = i*n_time + k + 1
                     #self.Jj[iJ] = j*n_time + k
-                    
+
                     ##print self.Ji[iJ], self.Jj[iJ], self.Ja[iJ]
 
             # External vars (Inputs)
@@ -264,11 +264,11 @@ class RK4(Component):
             result[svar] = result_ext
 
     # TODO - Uncommment this when it is supported in OpenMDAO.
-    #def applyMinv(self, arg, result): 
+    #def applyMinv(self, arg, result):
         #"""Apply derivatives with respect to state variables."""
 
         #state = self.state_var
-        
+
         #if self.state_var in arg:
             #flat_y = arg[state].flatten()
             #result[state] = self.Minv(flat_y).reshape((self.n_states, self.n))
@@ -276,7 +276,7 @@ class RK4(Component):
         #return result
 
 
-    #def _applyMinvT(self, arg, result): 
+    #def _applyMinvT(self, arg, result):
         #"""Apply derivatives with respect to state variables."""
 
         #state = self.state_var
@@ -319,7 +319,7 @@ class RK4(Component):
             # take advantage of fact that arg is often pretty sparse
             if len(np.nonzero(arg[name])[0]) == 0:
                 continue
-            
+
             # Collapse incoming a*b*...*c*n down to (ab...c)*n
             var = self.get(name)
             shape = var.shape
@@ -342,7 +342,7 @@ class RK4(Component):
             # take advantage of fact that arg is often pretty sparse
             if len(np.nonzero(arg[name])[0]) == 0:
                 continue
-            
+
             ext_var = getattr(self, name)
             if len(ext_var) > 1:
                 arg[name] = arg[name].flatten()
@@ -371,11 +371,11 @@ class RK4(Component):
         """ Matrix-vector product with the transpose of the Jacobian. """
 
         mode = 'Ken'
-        
+
         if mode == 'Ken':
-            
+
             r2 = self._applyJextT_limited(arg, result)
-        
+
             for k, v in r2.iteritems():
                 if k in result and result[k] is not None:
                     result[k] += v
@@ -383,25 +383,25 @@ class RK4(Component):
                     result[k] = v
 
         elif mode == 'John':
-            
+
             r2 = self._applyJextT(arg, result)
             r1 = self.applyJintT(arg, result)
-    
+
             for k, v in r2.iteritems():
                 if k in result and result[k] is not None:
                     result[k] += v
                 else:
                     result[k] = v
-    
+
             if self.state_var in r1:
                 result[self.state_var] = r1[self.state_var]
-                
+
             if self.init_state_var in r1:
                 result[self.init_state_var] = r1[self.init_state_var]
-                
+
         else:
             raise RuntimeError('Pick Ken or John')
-        
+
 
     def applyJintT(self, arg, required_results):
         """Apply derivatives with respect to state variables."""
@@ -409,26 +409,26 @@ class RK4(Component):
         result = {}
         state = self.state_var
         init_state = self.init_state_var
-        
+
         if state in arg:
             if state in required_results:
                 flat_y = arg[state].flatten()
                 result[state] = -self.JT.dot(flat_y).reshape((self.n_states, self.n))
-            
+
                 if init_state in required_results:
                     result[init_state] = -result[state][:, 0]
                     for j in xrange(1, self.n):
                         result[init_state] -= result[state][:, j]
-            
+
         #print self.J
         #print 'arg', arg, 'result', result
         return result
 
     def _applyJextT(self, arg, required_results):
         """Apply derivatives with respect to inputs. Ignore all contributions
-        from past time points and let them come in via previous states 
+        from past time points and let them come in via previous states
         instead."""
-        
+
         #Jx --> (n_times, n_external, n_states)
         n_time = self.n
         result = {}
@@ -436,7 +436,7 @@ class RK4(Component):
         if self.state_var in arg:
 
             argsv = arg[self.state_var].T
-            
+
             # Use this when we incorporate state deriv
             # Time-varying inputs
             for name in self.external_vars:
@@ -449,13 +449,13 @@ class RK4(Component):
                 ext_length = np.prod(ext_var.shape)/n_time
                 result[name] = np.zeros((ext_length, n_time))
                 for k in xrange(n_time-1):
-                    
+
                     # argsum is often sparse, so check it first
                     if len(np.nonzero(argsv[k+1, :])[0]) > 0:
                         Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
                         result[name][:, k] += Jsub.dot(argsv[k+1, :])
-            
-            # Use this when we incorporate state deriv          
+
+            # Use this when we incorporate state deriv
             # Time-invariant inputs
             for name in self.fixed_external_vars:
 
@@ -467,16 +467,16 @@ class RK4(Component):
                 ext_length = np.prod(ext_var.shape)
                 result[name] = np.zeros((ext_length))
                 for k in xrange(n_time-1):
-                    
+
                     # argsum is often sparse, so check it first
                     if len(np.nonzero(argsv[k+1, :])[0]) > 0:
                         Jsub = self.Jx[k+1, i_ext:i_ext+ext_length, :]
                         result[name] += Jsub.dot(argsv[k+1, :])
-            
+
         for k, v in result.iteritems():
             ext_var = getattr(self, k)
             result[k] = v.reshape(ext_var.shape)
-        
+
         return result
 
     def _applyJextT_limited(self, arg, required_results):
@@ -544,7 +544,7 @@ class RK4(Component):
             result[k] = v.reshape(ext_var.shape)
 
         return result
-    
+
     def _applyJextT_limited_old(self, arg, required_results):
         """Apply derivatives with respect to inputs"""
 
@@ -606,4 +606,4 @@ class RK4(Component):
             result[k] = v.reshape(ext_var.shape)
 
         return result
-    
+

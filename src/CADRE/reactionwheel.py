@@ -10,7 +10,7 @@ import rk4
 
 class ReactionWheel_Motor(Component):
     '''Compute reaction wheel motor torque.'''
-    
+
     def __init__(self, n):
         super(ReactionWheel_Motor, self).__init__()
         self.n = n
@@ -35,7 +35,12 @@ class ReactionWheel_Motor(Component):
                               desc="Torque vector of motor over time",
                               dtype=np.float, iotype='out'))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('T_RW', 'w_B', 'w_RW',)
+        output_keys = ('T_m',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         w_Bx = np.zeros((3,3))
         self.dT_dTm = np.zeros((self.n,3,3))
         self.dT_dwb = np.zeros((self.n,3,3))
@@ -101,7 +106,7 @@ class ReactionWheel_Motor(Component):
 
 class ReactionWheel_Power(Component):
     '''Compute reaction wheel power.'''
-    
+
     #constants
     V = 4.0
     a = 4.9e-4
@@ -126,7 +131,12 @@ class ReactionWheel_Power(Component):
                                desc='Reaction wheel power over time',
                                dtype=np.float, iotype='out'))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('w_RW', 'T_RW',)
+        output_keys = ('P_RW',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         self.dP_dw = np.zeros((self.n,3))
         self.dP_dT = np.zeros((self.n,3))
         for i in range(self.n):
@@ -141,7 +151,7 @@ class ReactionWheel_Power(Component):
                 self.P_RW[k,i] = self.V * (self.a * self.w_RW[k,i] + self.b * self.T_RW[k,i])**2 + self.V * self.I0
 
     def apply_deriv(self, arg, result):
-        
+
         if 'P_RW' in result:
             for k in range(3):
                 if 'w_RW' in arg:
@@ -161,7 +171,7 @@ class ReactionWheel_Power(Component):
 
 class ReactionWheel_Torque(Component):
     '''Compute torque vector of reaction wheel.'''
-    
+
     def __init__(self, n):
         super(ReactionWheel_Torque, self).__init__()
         self.n = n
@@ -176,7 +186,12 @@ class ReactionWheel_Torque(Component):
                                desc="Torque vector of reaction wheel over time",
                                dtype=np.float, iotype='out'))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('T_tot',)
+        output_keys = ('T_RW',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
@@ -232,6 +247,11 @@ class ReactionWheel_Dynamics(rk4.RK4):
         self.djy_dx[:,:,2] = [[0,-1,0],[1,0,0],[0,0,0]]
 
         self.J_RW = 2.8e-5 #unit conversion of some kind
+
+    def list_deriv_vars(self):
+        input_keys = ('w_B', 'T_RW', 'w_RW0',)
+        output_keys = ('w_RW',)
+        return input_keys, output_keys
 
     def f_dot(self, external, state):
 

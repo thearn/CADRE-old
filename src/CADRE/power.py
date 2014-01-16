@@ -65,6 +65,11 @@ class Power_CellVoltage(Component):
         self.dV_dA = np.zeros((self.n, 7, 12), order='F')
         self.dV_dI = np.zeros((self.n, 12), order='F')
 
+    def list_deriv_vars(self):
+        input_keys = ('LOS', 'temperature', 'exposedArea', 'Isetpt',)
+        output_keys = ('V_sol',)
+        return input_keys, output_keys
+
     def setx(self):
         for p in range(12):
             i = 4 if p < 4 else (p % 4)
@@ -82,7 +87,7 @@ class Power_CellVoltage(Component):
         for c in range(7):
             self.V_sol += self.raw[:, c,:].T
 
-    def linearize(self):
+    def provideJ(self):
 
         self.raw1 = self.MBI.evaluate(self.x, 1)[:, 0].reshape((self.n, 7,
                                                                 12), order='F')
@@ -170,7 +175,12 @@ class Power_SolarPower(Component):
                                 iotype="out", units="W",
                                 desc="Solar panels power over time"))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('Isetpt', 'V_sol',)
+        output_keys = ('P_sol',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return
@@ -238,7 +248,12 @@ class Power_Total(Component):
                            desc='Battery power over time',
                            iotype="out"))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('P_sol', 'P_comm', 'P_RW',)
+        output_keys = ('P_bat',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         """ Calculate and save derivatives (i.e., Jacobian). """
         # Derivatives are simple
         return

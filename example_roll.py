@@ -22,6 +22,11 @@ class NetGain(Component):
     def execute(self):
         self.net = sum(self.gain)
 
+    def list_deriv_vars(self):
+        input_keys = ('gain', )
+        output_keys = ('net', )
+        return input_keys, output_keys
+
     def apply_derivT(self, arg, result):
         if 'gain' in result and 'net' in arg:
             result['gain'] += arg['net'] * np.ones(self.n)

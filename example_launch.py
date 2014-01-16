@@ -44,7 +44,12 @@ class GroundLOC(Component):
         self.add('lats', Array(np.zeros(self.n), iotype='out'))
         self.add('lons', Array(np.zeros(self.n), iotype='out'))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+        input_keys = ('O_IE', 'r_e2b_I')
+        output_keys = ('lats', 'lons',)
+        return input_keys, output_keys
+
+    def provideJ(self):
         self.J = np.zeros((self.n, 2, 3))
         self.J_O_IE = np.zeros((self.n, 2, 3, 3))
 
