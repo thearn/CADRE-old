@@ -131,7 +131,7 @@ kwargs = {'author': 'Tristan A. Hearn',
  'package_dir': {'': 'src'},
  'packages': ['CADRE', 'CADRE.data', 'CADRE.test'],
  'url': 'https://github.com/OpenMDAO-Plugins/CADRE',
- 'version': '0.4',
+ 'version': '0.5',
  'zip_safe': False}
 
 
