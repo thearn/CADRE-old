@@ -9,12 +9,17 @@ then type plugin install --github CADRE
 
 
 ### Docs
-To view the Sphinx documentation for this distribution, type:
+You can read the [docs here](http://openmdao-plugins.github.io/CADRE/) online.  
+If you want to get right to the cool stuff, check out the [interactive data visualization](http://openmdao-plugins.github.io/CADRE/full.html#interactive-visualization-of-results). 
 
-plugin docs CADRE
 
-pyopt_driver with SNOPT support is needed to run some (but not all) of the
-example code.
+If you've downloaded the plugin and want to view the docs locally, then the following into a command line in your activated environment:
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/OpenMDAO-Plugins/cadre/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+::  
+
+    plugin docs CADRE
+
+    pyopt_driver with SNOPT support is needed to run some (but not all) of the
+    example code.
+
 
