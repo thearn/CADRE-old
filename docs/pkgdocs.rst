@@ -137,5 +137,5 @@ Package Metadata
 
 - **summary:** OpenMDAO implementation of the CADRE CubeSat design problem
 
-- **version:** 0.4
+- **version:** 0.5
 
