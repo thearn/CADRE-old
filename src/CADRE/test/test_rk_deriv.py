@@ -28,6 +28,11 @@ class RKTest(RK4):
         self.external_vars = ["yv"]
         self.fixed_external_vars = ["yi", ]
 
+    def list_deriv_vars(self):
+        input_keys = ('yi', 'yv','x0',)
+        output_keys = ('x',)
+        return input_keys, output_keys
+
     def f_dot(self, external, state):
 
         df = np.zeros((2))
