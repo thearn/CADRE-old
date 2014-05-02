@@ -24,7 +24,8 @@ class CADRE_Optimization(Assembly):
         self.driver.optimizer = "SNOPT"
         self.driver.options = {'Major optimality tolerance': 1e-6,
                                'Iterations limit': 500000000,
-                               "New basis file": 10}
+                               "New basis file": 10, 
+                               'Verify leve': -1}
         if os.path.exists("fort.10"):
             self.driver.options["Old basis file"] = 10
 

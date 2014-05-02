@@ -18,6 +18,7 @@ pcom = []
 
 start_time = None
 case_count = 0
+avg_seconds_per_case = []
 seconds_per_case = []
 
 
@@ -27,9 +28,13 @@ for case in dataIter:
         
         if start_time is None: 
             start_time = case.timestamp
+            last_time = case.timestamp
+
+
 
         case_count+=1
-        seconds_per_case.append((case.timestamp-start_time)/case_count)
+        avg_seconds_per_case.append((case.timestamp-start_time)/case_count)
+        seconds_per_case.append(case.timestamp-last_time)
 
         #pprint.pprint(case.keys())
         data = [case["pt" + str(i) + ".Data"][0][1499] for i in xrange(6)]
@@ -62,6 +67,9 @@ for case in dataIter:
         # print sumdata, sum(feasible), max(feasible) #,[ '%.1f' % i for i in
         # feasible]
         #print sumdata
+        last_time = case.timestamp
+
+
 
 end_time = case.timestamp
 
@@ -73,7 +81,12 @@ print "total time: %f hours (%f sec)"%(tot_time/3600., tot_time)
 
 
 pylab.figure()
-pylab.plot(seconds_per_case)
+pylab.plot(seconds_per_case, label="individual")
+pylab.plot(avg_seconds_per_case, label="average")
+pylab.legend(loc="best")
+pylab.title('Case Computational Cost')
+pylab.xlabel('Iteration #')
+pylab.ylabel('Time (sec)')
 
 Z = np.array(Z)
 if not len(Z):
