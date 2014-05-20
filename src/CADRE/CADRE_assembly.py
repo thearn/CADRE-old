@@ -73,6 +73,8 @@ class CADRE(Assembly):
         # B-spline Parameters
         self.add("BsplineParameters", BsplineParameters(n, m))
         self.driver.workflow.add("BsplineParameters")
+        self.create_passthrough('BsplineParameters.Gamma')
+        self.create_passthrough('BsplineParameters.P_comm')
 
         # Attitude components
         self.add("Attitude_Angular", Attitude_Angular(n))
@@ -123,6 +125,7 @@ class CADRE(Assembly):
  
         self.add("Comm_BitRate", Comm_BitRate(n))
         self.driver.workflow.add("Comm_BitRate")
+        #self.create_passthrough("Comm_BitRate.gain")
  
         self.add("Comm_DataDownloaded", Comm_DataDownloaded(n))
         self.driver.workflow.add("Comm_DataDownloaded")
@@ -149,6 +152,7 @@ class CADRE(Assembly):
  
         self.add("Comm_LOS", Comm_LOS(n))
         self.driver.workflow.add("Comm_LOS")
+        self.create_passthrough('Comm_LOS.CommLOS')
  
         self.add("Comm_VectorAnt", Comm_VectorAnt(n))
         self.driver.workflow.add("Comm_VectorAnt")
@@ -200,6 +204,7 @@ class CADRE(Assembly):
         # Sun components
         self.add("Sun_LOS", Sun_LOS(n))
         self.driver.workflow.add("Sun_LOS")
+        self.create_passthrough('Sun_LOS.LOS')
  
         self.add("Sun_PositionBody", Sun_PositionBody(n))
         self.driver.workflow.add("Sun_PositionBody")
