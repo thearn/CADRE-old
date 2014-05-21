@@ -19,7 +19,11 @@ If you've downloaded the plugin and want to view the docs locally, then the foll
 
     plugin docs CADRE
 
-    pyopt_driver with SNOPT support is needed to run some (but not all) of the
-    example code.
+
+We should note that to run the full CADRE optimization you'll 
+pyopt_driver with SNOPT support. But was have some smaller examples 
+that you can run with the standard OpenMDAO optimizers. 
+
+
 
 
